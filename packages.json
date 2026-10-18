@@ -1,0 +1,14 @@
+{
+  "name": "nova-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NOVA — Single-User, Offline-First Personal Agentic AI Operating Layer",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test:backend": "pytest services/backend/../../tests/unit",
+    "lint:backend": "ruff check services/backend/src tests"
+  }
+}

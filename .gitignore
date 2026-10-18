@@ -1,45 +1,54 @@
-# Environment
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Testing & static analysis caches
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / Frontend / Electron
+node_modules/
+apps/web-ui/dist/
+apps/desktop/dist/
+apps/desktop/out/
+
+# Local NOVA runtime data, models, databases & secrets (ADR-001 / Phase 15)
 .env
 .env.*
 !.env.example
-
-# Python
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.venv/
-venv/
-
-# Node
-node_modules/
-dist/
-build/
-.vite/
-
-# NOVA local data
-data/
+*.gguf
+*.onnx
 *.db
 *.sqlite
 *.sqlite3
-
-# Logs
-*.log
+.nova/
+data/
 logs/
-
-# Local model files
-models/
-*.gguf
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Secrets
-*.pem
-*.key
