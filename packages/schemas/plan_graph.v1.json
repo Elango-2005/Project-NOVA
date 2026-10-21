@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nova.local/schemas/plan_graph.v1.json",
+  "title": "ExecutionPlanGraph",
+  "description": "Versioned directed execution graph contract for NOVA's Orchestrator (ADR-003 / Phase 6).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "plan_id",
+    "task_id",
+    "goal_summary",
+    "nodes",
+    "edges",
+    "max_graph_steps"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "plan_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "goal_summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "max_graph_steps": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/PlanNode"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PlanEdge"
+      }
+    }
+  },
+  "$defs": {
+    "PlanNode": {
+      "type": "object",
+      "required": [
+        "node_id",
+        "target_agent",
+        "objective",
+        "depends_on",
+        "estimated_sensitivity",
+        "requires_reflection",
+        "requires_human_approval",
+        "max_react_iterations",
+        "max_retries"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_agent": {
+          "type": "string",
+          "enum": [
+            "planner",
+            "research",
+            "browser",
+            "desktop",
+            "coding",
+            "comms",
+            "voice"
+          ]
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimated_sensitivity": {
+          "type": "string",
+          "enum": [
+            "read_only",
+            "read_only_networked",
+            "reversible_write",
+            "reversible_write_networked",
+            "irreversible_write"
+          ]
+        },
+        "requires_reflection": {
+          "type": "boolean"
+        },
+        "requires_human_approval": {
+          "type": "boolean"
+        },
+        "max_react_iterations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 15
+        },
+        "max_retries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        }
+      }
+    },
+    "PlanEdge": {
+      "type": "object",
+      "required": [
+        "source_node_id",
+        "target_node_id",
+        "condition"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source_node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "condition": {
+          "type": "string",
+          "enum": [
+            "always",
+            "on_success",
+            "on_failure",
+            "on_revise",
+            "on_approval"
+          ]
+        }
+      }
+    }
+  }
+}

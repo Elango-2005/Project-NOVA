@@ -1,0 +1,362 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nova.local/schemas/agent_proposal.v1.json",
+  "title": "AgentProposal",
+  "description": "Versioned discriminated union schema for structured NOVA agent proposals (ADR-004).",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/ToolCallProposal"
+    },
+    {
+      "$ref": "#/$defs/FinalAnswerProposal"
+    },
+    {
+      "$ref": "#/$defs/PlanProposal"
+    },
+    {
+      "$ref": "#/$defs/CritiqueProposal"
+    },
+    {
+      "$ref": "#/$defs/ClarificationProposal"
+    }
+  ],
+  "$defs": {
+    "AgentRole": {
+      "type": "string",
+      "enum": [
+        "planner",
+        "research",
+        "browser",
+        "desktop",
+        "coding",
+        "comms",
+        "voice"
+      ]
+    },
+    "SensitivityTier": {
+      "type": "string",
+      "enum": [
+        "read_only",
+        "read_only_networked",
+        "reversible_write",
+        "reversible_write_networked",
+        "irreversible_write"
+      ]
+    },
+    "ToolCallProposal": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "proposal_id",
+        "kind",
+        "agent_role",
+        "node_id",
+        "thought",
+        "tool_name",
+        "arguments",
+        "declared_sensitivity",
+        "rationale"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        },
+        "proposal_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "tool_call"
+        },
+        "agent_role": {
+          "$ref": "#/$defs/AgentRole"
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "thought": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tool_name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+        },
+        "arguments": {
+          "type": "object"
+        },
+        "declared_sensitivity": {
+          "$ref": "#/$defs/SensitivityTier"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "FinalAnswerProposal": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "proposal_id",
+        "kind",
+        "agent_role",
+        "node_id",
+        "thought",
+        "content",
+        "cited_source_ids",
+        "confidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        },
+        "proposal_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "final_answer"
+        },
+        "agent_role": {
+          "$ref": "#/$defs/AgentRole"
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "thought": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cited_source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      }
+    },
+    "SubtaskPlanStep": {
+      "type": "object",
+      "required": [
+        "step_id",
+        "target_agent",
+        "objective",
+        "depends_on",
+        "estimated_sensitivity"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "step_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_agent": {
+          "$ref": "#/$defs/AgentRole"
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimated_sensitivity": {
+          "$ref": "#/$defs/SensitivityTier"
+        }
+      }
+    },
+    "PlanProposal": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "proposal_id",
+        "kind",
+        "agent_role",
+        "node_id",
+        "thought",
+        "goal_summary",
+        "steps"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        },
+        "proposal_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "plan"
+        },
+        "agent_role": {
+          "$ref": "#/$defs/AgentRole"
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "thought": {
+          "type": "string",
+          "minLength": 1
+        },
+        "goal_summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/SubtaskPlanStep"
+          }
+        }
+      }
+    },
+    "CritiqueProposal": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "proposal_id",
+        "kind",
+        "agent_role",
+        "node_id",
+        "thought",
+        "target_proposal_id",
+        "verdict",
+        "issues_found",
+        "verification_questions_checked"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        },
+        "proposal_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "critique"
+        },
+        "agent_role": {
+          "$ref": "#/$defs/AgentRole"
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "thought": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_proposal_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "revise",
+            "abort"
+          ]
+        },
+        "issues_found": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verification_questions_checked": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "revision_instructions": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ClarificationProposal": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "proposal_id",
+        "kind",
+        "agent_role",
+        "node_id",
+        "thought",
+        "question",
+        "missing_fields",
+        "options"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+        },
+        "proposal_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "const": "ask_user"
+        },
+        "agent_role": {
+          "$ref": "#/$defs/AgentRole"
+        },
+        "node_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "thought": {
+          "type": "string",
+          "minLength": 1
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "missing_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

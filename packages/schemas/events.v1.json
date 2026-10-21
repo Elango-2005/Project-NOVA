@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nova.local/schemas/events.v1.json",
+  "title": "NovaEvent",
+  "description": "Versioned structured event contract for NOVA's internal event bus (ADR-002 / NFR-08).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "event_id",
+    "event_type",
+    "timestamp_utc",
+    "task_id",
+    "session_id",
+    "payload"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "task.started",
+        "task.planning",
+        "task.completed",
+        "task.failed",
+        "agent.started",
+        "agent.completed",
+        "agent.reflection_triggered",
+        "model.generation.started",
+        "model.token.streamed",
+        "model.generation.completed",
+        "tool.proposed",
+        "permission.requested",
+        "permission.approved",
+        "permission.denied",
+        "tool.started",
+        "tool.completed",
+        "tool.failed",
+        "memory.read",
+        "memory.write",
+        "memory.promoted",
+        "security.violation"
+      ]
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "node_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "agent_role": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "planner",
+        "research",
+        "browser",
+        "desktop",
+        "coding",
+        "comms",
+        "voice",
+        null
+      ]
+    },
+    "correlation_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    }
+  }
+}
