@@ -1,22 +1,21 @@
-"""NOVA Phase 9: Interactive Mission-Control Web UI & Telemetry Dashboard (`services/backend/src/nova/api/dashboard.py`).
+"""NOVA Phase 9 & Phase 15: Interactive Mission-Control v2 Web UI, Live Brain Switcher & SHA-256 Audit Telemetry (`services/backend/src/nova/api/dashboard.py`).
 
-Plain-English Purpose (The Jarvis Cockpit / Dashboard Screen):
-In Phases 1–8, we built the complete NOVA brain, safety cages, memory, and FastAPI server.
-Now, `dashboard.py` gives NOVA a **visual cockpit** that runs right inside your browser at
-`http://127.0.0.1:8000/` with zero external npm/Node build step required:
+Plain-English Purpose (The Upgraded Jarvis Cockpit with Brain Gear-Shift & Blockchain Seal):
+This module serves NOVA's dark-mode web dashboard at `http://127.0.0.1:8765/` and integrates
+everything built across Phases 1–14:
 
-1. **Command Center (Goal Launcher & Plan Graph Visualizer)**:
-   - Type any goal (or click a 1-click preset like *"Write kickoff notes"* or *"Read invoice & email Sam"*),
-     launch the task, and watch the Plan DAG nodes (`step_research_info`, `step_send_email`) update live.
-2. **Human-in-the-Loop Approval Card (`AWAITING_APPROVAL`)**:
-   - When an agent proposes an `irreversible_write` tool like `gmail.send_email`, an amber security
-     card appears showing the exact arguments (`to`, `subject`, `body`) with **Approve & Resume** and
-     **Deny & Abort** buttons.
-3. **Local Hybrid RAG Knowledge Ingestor**:
-   - Index local markdown/text notes directly into `nova_rag.db` (`POST /rag/ingest`).
-4. **Live Black-Box Audit Trail & Tool Permission Inspector**:
-   - Inspect every tool call decision (`auto_approved`, `user_approved`, `denied`) recorded in SQLite
-     and view all 42 registered MCP tool contracts across 20 MCP servers.
+1. **Agentic Command Center (`POST /tasks` & `POST /tasks/{id}/approve`)**:
+   - Launch multi-agent goals and approve/deny paused `irreversible_write` actions (`gmail.send_email`).
+2. **30-Day SQLite Black-Box Audit Trail + SHA-256 Tamper Seal**:
+   - Displays every tool execution from `nova_audit.db` alongside Phase 13's cryptographic
+     `TamperEvidentAuditChain` status (`Audit Chain: VERIFIED` + head SHA-256 seal hash).
+3. **Local Hybrid RAG Knowledge Ingest (`POST /rag/ingest`)**:
+   - Index local markdown/text documents directly into `nova_rag.db`.
+4. **MCP Tool Catalog & Permission Tiers**:
+   - Inspect all 42 registered MCP tools across 20 MCP servers.
+5. **NEW in Phase 15 — Live Brain Switcher & 6GB VRAM GPU Split Panel (`/brain/status` & `/brain/switch`)**:
+   - Switch NOVA's active brain with one click between `bootstrap`, `ollama_live`, and `gguf_qwen35`
+     (`qwen3.5-9b-Q4_K_M.gguf`), and inspect the live `30/36` GPU layer offload plan!
 """
 
 from __future__ import annotations
@@ -24,15 +23,32 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from nova.core.model_serving.brain_switcher import (
+    BrainEngineMode,
+    BrainSwitchRequest,
+    NovaBrainAndSecurityController,
+    register_brain_and_security_routes,
+)
+
 if TYPE_CHECKING:
     from nova.main import NovaRuntimeContainer
 
 
-def get_dashboard_overview_snapshot(container: "NovaRuntimeContainer") -> Dict[str, Any]:
-    """Return a single JSON snapshot combining health, MCP tools, and recent audit logs for the UI."""
+def get_dashboard_overview_snapshot(
+    container: "NovaRuntimeContainer",
+    brain_controller: Optional[NovaBrainAndSecurityController] = None,
+) -> Dict[str, Any]:
+    """Return a single JSON snapshot combining health, MCP tools, audit logs, brain mode, and SHA-256 seal."""
     health = container.api_service.get_health()
     policies = container.api_service.inspect_permission_policies()
     revoked_tools = set(policies.get("revoked_global_tools", []))
+
+    controller = brain_controller or getattr(container, "brain_controller", None)
+    if controller is None:
+        controller = NovaBrainAndSecurityController(container, gpu_vram_gb=6.0)
+        setattr(container, "brain_controller", controller)
+
+    brain_and_sec = controller.get_security_and_brain_status()
 
     tool_rows: List[Dict[str, Any]] = []
     for name in container.tool_registry.registered_tool_names:
@@ -62,6 +78,7 @@ def get_dashboard_overview_snapshot(container: "NovaRuntimeContainer") -> Dict[s
         "registered_tools_count": health.registered_tools,
         "workspace_dir": str(container.workspace_dir),
         "data_dir": str(container.data_dir),
+        "brain_and_security": brain_and_sec,
         "tools": tool_rows,
         "recent_audit_logs": [
             {
@@ -79,7 +96,7 @@ def get_dashboard_overview_snapshot(container: "NovaRuntimeContainer") -> Dict[s
 
 
 def render_mission_control_html(api_base_url: str = "") -> str:
-    """Return the self-contained HTML5/CSS/JS NOVA Mission Control Web UI."""
+    """Return the self-contained HTML5/CSS/JS NOVA Mission Control v2 Web UI."""
     base = api_base_url.rstrip("/")
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -117,6 +134,8 @@ def render_mission_control_html(api_base_url: str = "") -> str:
       border: 1px solid var(--border-subtle);
       border-radius: 12px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
     }}
     .brand {{
       display: flex;
@@ -141,6 +160,7 @@ def render_mission_control_html(api_base_url: str = "") -> str:
       color: var(--text-muted);
     }}
     .pill.ok {{ color: var(--accent-emerald); border-color: rgba(16, 185, 129, 0.4); }}
+    .pill.cyan {{ color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.4); }}
     .grid {{
       display: grid;
       grid-template-columns: 1.35fr 1fr;
@@ -232,6 +252,9 @@ def render_mission_control_html(api_base_url: str = "") -> str:
     </div>
     <div class="status-pills">
       <span id="pill-offline" class="pill ok">Offline-by-Default: TRUE</span>
+      <span id="pill-brain" class="pill cyan">Brain: BOOTSTRAP</span>
+      <span id="pill-gpu" class="pill">GPU Split: 30/36 Layers</span>
+      <span id="pill-seal" class="pill ok">Audit Chain: SHA-256 VERIFIED</span>
       <span id="pill-servers" class="pill">MCP Servers: --</span>
       <span id="pill-tools" class="pill">MCP Tools: --</span>
     </div>
@@ -280,6 +303,20 @@ def render_mission_control_html(api_base_url: str = "") -> str:
     </div>
 
     <div>
+      <!-- 5. Live Brain Switcher & 6GB VRAM GPU Split -->
+      <section class="panel" id="brain-switcher-panel">
+        <h2>
+          <span>5. Live Brain Switcher &amp; 6GB VRAM GPU Offload</span>
+          <span id="active-brain-badge" class="badge badge-completed">BOOTSTRAP</span>
+        </h2>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="switchBrain('gguf_qwen35')">Use Qwen 3.5 9B GGUF (30/36 GPU Split)</button>
+          <button class="btn-secondary" onclick="switchBrain('ollama_live')">Use Live Ollama</button>
+          <button class="btn-secondary" onclick="switchBrain('bootstrap')">Use Fast Bootstrap</button>
+        </div>
+        <pre id="brain-status-output">Loading GPU layer split &amp; SHA-256 audit chain status...</pre>
+      </section>
+
       <!-- 3. Hybrid RAG Local Document Ingest -->
       <section class="panel" id="rag-ingest-panel">
         <h2><span>3. Local Hybrid RAG Knowledge Ingest</span></h2>
@@ -321,6 +358,16 @@ def render_mission_control_html(api_base_url: str = "") -> str:
       document.getElementById('goal-input').value = text;
     }}
 
+    async function switchBrain(mode) {{
+      const res = await fetch(API_BASE + '/brain/switch', {{
+        method: 'POST',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ mode: mode, ollama_model: 'qwen3.5-9b', gpu_vram_gb: 6.0 }})
+      }});
+      await res.json();
+      refreshDashboard();
+    }}
+
     async function refreshDashboard() {{
       try {{
         const res = await fetch(API_BASE + '/ui/overview');
@@ -328,6 +375,18 @@ def render_mission_control_html(api_base_url: str = "") -> str:
         document.getElementById('pill-offline').textContent = 'Offline-by-Default: ' + (data.offline_by_default ? 'TRUE' : 'FALSE');
         document.getElementById('pill-servers').textContent = 'MCP Servers: ' + data.registered_mcp_servers;
         document.getElementById('pill-tools').textContent = 'MCP Tools: ' + data.registered_tools_count;
+
+        if (data.brain_and_security) {{
+          const bs = data.brain_and_security;
+          const modeUpper = bs.active_brain_mode.toUpperCase();
+          document.getElementById('pill-brain').textContent = 'Brain: ' + modeUpper;
+          document.getElementById('active-brain-badge').textContent = modeUpper;
+          const plan = bs.gpu_offload_plan;
+          document.getElementById('pill-gpu').textContent = `GPU Split: ${{plan.recommended_gpu_layers}}/${{plan.total_layers}} Layers (${{plan.gpu_vram_gb}}GB)`;
+          const sec = bs.security_telemetry;
+          document.getElementById('pill-seal').textContent = 'Audit Seal: ' + (sec.audit_chain_valid ? 'VERIFIED (' + sec.head_seal_hash.slice(0, 8) + '...)' : 'TAMPERED!');
+          document.getElementById('brain-status-output').textContent = JSON.stringify(bs, null, 2);
+        }}
 
         const auditBody = document.getElementById('audit-table-body');
         if (data.recent_audit_logs && data.recent_audit_logs.length > 0) {{
@@ -448,7 +507,14 @@ def register_mission_control_routes(
     fastapi_app: Any,
     container: "NovaRuntimeContainer",
 ) -> None:
-    """Attach `GET /` (Mission Control HTML UI) and `GET /ui/overview` (JSON telemetry) to FastAPI."""
+    """Attach `GET /`, `GET /ui/overview`, `GET /brain/status`, and `POST /brain/switch` to FastAPI."""
+    controller = getattr(container, "brain_controller", None)
+    if controller is None:
+        controller = NovaBrainAndSecurityController(container, gpu_vram_gb=6.0)
+        setattr(container, "brain_controller", controller)
+
+    register_brain_and_security_routes(fastapi_app, controller)
+
     try:
         from fastapi.responses import HTMLResponse
     except ImportError:  # pragma: no cover
@@ -461,7 +527,7 @@ def register_mission_control_routes(
 
     @fastapi_app.get("/ui/overview")
     def get_ui_overview() -> Dict[str, Any]:
-        return get_dashboard_overview_snapshot(container)
+        return get_dashboard_overview_snapshot(container, brain_controller=controller)
 
 
 def build_mission_control_app(
@@ -469,7 +535,7 @@ def build_mission_control_app(
     data_dir: Optional[Path] = None,
     workspace_dir: Optional[Path] = None,
 ) -> Any:
-    """Build the full NOVA FastAPI app with the live Mission Control Web UI mounted at `/`."""
+    """Build the full NOVA FastAPI app with the live Mission Control v2 Web UI mounted at `/`."""
     from nova.main import build_nova_app
 
     fastapi_app = build_nova_app(data_dir=data_dir, workspace_dir=workspace_dir)
@@ -485,6 +551,8 @@ except Exception:  # pragma: no cover
 
 
 __all__ = [
+    "BrainEngineMode",
+    "BrainSwitchRequest",
     "app",
     "build_mission_control_app",
     "get_dashboard_overview_snapshot",
