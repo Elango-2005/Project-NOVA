@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nova-personal-ai"
+version = "0.1.0"
+description = "NOVA: Single-User, Local-First, Offline-Capable Personal AI Operating Layer"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "NOVA Systems Engineering" }
+]
+dependencies = [
+  "pydantic>=1.10.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+server = [
+  "fastapi>=0.100.0",
+  "uvicorn>=0.23.0",
+]
+dev = [
+  "pytest>=7.4.0",
+  "httpx>=0.24.0",
+]
+
+[project.scripts]
+nova = "nova.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["services/backend/src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["services/backend/src"]
+testpaths = ["tests"]
+addopts = "-v"
