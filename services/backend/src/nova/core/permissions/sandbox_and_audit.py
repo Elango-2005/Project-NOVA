@@ -31,6 +31,8 @@ import re
 import shlex
 import sqlite3
 import uuid
+import threading
+from functools import wraps
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Sequence, Tuple
@@ -57,12 +59,15 @@ from nova.core.domain.primitives import (
 from nova.core.domain.proposals import ToolCallProposal
 from nova.core.orchestration.ports import (
     PermissionCheckResult,
+    ToolActionContext,
+    UnapprovedToolExecutionError,
     ToolExecutionResult,
     verify_approval_stamp,
 )
 from nova.core.platform.event_bus import EventPublisherPort
 from nova.core.tools.registry import (
     ToolContract,
+    ToolSchemaValidationError,
     ToolRegistry,
     build_default_tool_registry,
 )
@@ -238,6 +243,53 @@ class CommandSandbox:
         return tokens, verified_cwd
 
 
+def _locked_policy(method):
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        with self._lock:
+            if self._db_path is None:
+                return method(self, *args, **kwargs)
+            conn = sqlite3.connect(self._db_path)
+            try:
+                with conn:
+                    conn.execute("BEGIN IMMEDIATE")
+                    self._load(conn)
+                    result = method(self, *args, **kwargs)
+                    conn.execute("INSERT OR REPLACE INTO permission_policy VALUES (1, ?)",
+                                 (json.dumps(self._snapshot()),))
+                return result
+            finally:
+                conn.close()
+    return call
+
+
+def _current_policy(method):
+    @wraps(method)
+    def call(self, *args, **kwargs):
+        with self._lock:
+            if self._db_path is not None:
+                conn = sqlite3.connect(self._db_path)
+                try:
+                    self._load(conn)
+                finally:
+                    conn.close()
+            return method(self, *args, **kwargs)
+    return call
+
+
+def _audit_authorization_rejection(method):
+    @wraps(method)
+    def call(self, proposal, *args, **kwargs):
+        try:
+            return method(self, proposal, *args, **kwargs)
+        except (UnapprovedToolExecutionError, ValueError, TypeError) as exc:
+            gate = getattr(self, "_permission_gate", None) or self
+            gate.record_rejected_attempt(proposal if isinstance(proposal, ToolCallProposal) else kwargs.get("proposal"),
+                                         kwargs.get("context"), exc)
+            raise
+    return call
+
+
 class UserPermissionPolicyStore:
     """User-inspectable and revocable permission policy store (FR-15 / ADR-010 / Section 14).
 
@@ -248,12 +300,44 @@ class UserPermissionPolicyStore:
     - Exporting a full snapshot of active overrides for the UI Settings panel (`inspect_policies`).
     """
 
-    def __init__(self, registry: Optional[ToolRegistry] = None) -> None:
+    def __init__(self, registry: Optional[ToolRegistry] = None, *, db_path: Optional[Path] = None) -> None:
+        self._lock = threading.RLock()
         self._registry = registry or build_default_tool_registry()
         self._tightened_tiers: Dict[str, SensitivityTier] = {}
         self._revoked_global_tools: set[str] = set()
         self._revoked_agent_tools: Dict[AgentRole, set[str]] = {}
+        self._db_path = db_path
+        if db_path is not None:
+            conn = sqlite3.connect(db_path)
+            try:
+                with conn:
+                    conn.execute("CREATE TABLE IF NOT EXISTS permission_policy (id INTEGER PRIMARY KEY, snapshot TEXT NOT NULL)")
+                    row = conn.execute("SELECT snapshot FROM permission_policy WHERE id=1").fetchone()
+                if row:
+                    snapshot = json.loads(row[0])
+                    self._tightened_tiers = {k: SensitivityTier(v) for k, v in snapshot["tightened_tiers"].items()}
+                    self._revoked_global_tools = set(snapshot["revoked_global_tools"])
+                    self._revoked_agent_tools = {AgentRole(k): set(v) for k, v in snapshot["revoked_agent_tools"].items()}
+            finally:
+                conn.close()
 
+
+    def _load(self, conn: sqlite3.Connection) -> None:
+        row = conn.execute("SELECT snapshot FROM permission_policy WHERE id=1").fetchone()
+        snapshot = json.loads(row[0]) if row else {
+            "tightened_tiers": {}, "revoked_global_tools": [], "revoked_agent_tools": {}}
+        self._tightened_tiers = {k: SensitivityTier(v) for k, v in snapshot["tightened_tiers"].items()}
+        self._revoked_global_tools = set(snapshot["revoked_global_tools"])
+        self._revoked_agent_tools = {AgentRole(k): set(v) for k, v in snapshot["revoked_agent_tools"].items()}
+
+    def transactional_snapshot(self, conn: sqlite3.Connection) -> UserPermissionPolicyStore:
+        if self._db_path is None:
+            return self
+        snapshot = UserPermissionPolicyStore(self._registry)
+        snapshot._load(conn)
+        return snapshot
+
+    @_locked_policy
     def tighten_tool_sensitivity(
         self,
         tool_name: str,
@@ -271,6 +355,7 @@ class UserPermissionPolicyStore:
         self._tightened_tiers[tool_name] = new_tier
         return new_tier
 
+    @_locked_policy
     def revoke_tool(
         self,
         tool_name: str,
@@ -284,6 +369,7 @@ class UserPermissionPolicyStore:
         else:
             self._revoked_agent_tools.setdefault(agent_role, set()).add(tool_name)
 
+    @_locked_policy
     def restore_tool(
         self,
         tool_name: str,
@@ -296,11 +382,13 @@ class UserPermissionPolicyStore:
         elif agent_role in self._revoked_agent_tools:
             self._revoked_agent_tools[agent_role].discard(tool_name)
 
+    @_current_policy
     def is_tool_revoked(self, tool_name: str, agent_role: AgentRole) -> bool:
         if tool_name in self._revoked_global_tools:
             return True
         return tool_name in self._revoked_agent_tools.get(agent_role, set())
 
+    @_current_policy
     def get_effective_sensitivity(
         self,
         tool_name: str,
@@ -317,7 +405,11 @@ class UserPermissionPolicyStore:
         candidates = (baseline, user_tier, declared_sensitivity)
         return max(candidates, key=lambda t: _SENSITIVITY_SEVERITY_RANK[t])
 
+    @_current_policy
     def inspect_policies(self) -> Dict[str, Any]:
+        return self._snapshot()
+
+    def _snapshot(self) -> Dict[str, Any]:
         """Return a human-inspectable snapshot of all user permission overrides (FR-15)."""
         return {
             "tightened_tiers": {k: v.value for k, v in sorted(self._tightened_tiers.items())},
@@ -548,6 +640,9 @@ class SqliteToolAuditLog:
             return int(cursor.rowcount or 0)
 
 
+from nova.core.permissions.authorization import AuthorizationLedger, action_digest
+
+
 class CatalogBackedPermissionGate:
     """Production Layer 3 Permission Gate uniting `ToolRegistry`, `UserPermissionPolicyStore`, and `SqliteToolAuditLog`."""
 
@@ -560,6 +655,9 @@ class CatalogBackedPermissionGate:
         auto_approve_reversible_local_writes: bool = False,
         default_task_id: str = "task_default",
         default_session_id: str = "sess_default",
+        authorization_db_path: str = ":memory:",
+        approval_ttl_seconds: int = 300,
+        require_runtime_context: bool = False,
     ) -> None:
         self._registry = registry
         self._policy_store = policy_store
@@ -568,21 +666,93 @@ class CatalogBackedPermissionGate:
         self._auto_approve_local_writes = auto_approve_reversible_local_writes
         self._default_task_id = default_task_id
         self._default_session_id = default_session_id
-        self._user_decisions: Dict[str, Tuple[bool, str]] = {}
+        self.ledger = AuthorizationLedger(authorization_db_path, ttl=approval_ttl_seconds)
+        self.require_runtime_context = require_runtime_context
 
-    def record_user_decision(
-        self,
-        proposal_id: str,
-        approved: bool,
-        reason: str = "User interactive decision",
-    ) -> None:
-        self._user_decisions[proposal_id] = (approved, reason)
+    def _context(self, proposal: ToolCallProposal, context: Optional[ToolActionContext]) -> ToolActionContext:
+        if context is None:
+            if self.require_runtime_context:
+                raise UnapprovedToolExecutionError("Trusted runtime context is required.")
+            context = ToolActionContext(task_id=self._default_task_id,
+                session_id=self._default_session_id, node_id=proposal.node_id,
+                agent_role=proposal.agent_role)
+        return context
 
-    def evaluate_tool_proposal(
+    def record_user_decision(self, proposal_id: str, approved: bool, reason: str = "User interactive decision",
+                             *, proposal: Optional[ToolCallProposal] = None,
+                             context: Optional[ToolActionContext] = None) -> None:
+        try:
+            return self._record_user_decision(proposal_id, approved, reason, proposal=proposal, context=context)
+        except (UnapprovedToolExecutionError, ValueError, TypeError) as exc:
+            self.record_rejected_attempt(proposal, context, exc, submitted={"proposal_id": proposal_id})
+            raise
+
+    def _record_user_decision(self, proposal_id: str, approved: bool, reason: str = "User interactive decision",
+                             *, proposal: Optional[ToolCallProposal] = None,
+                             context: Optional[ToolActionContext] = None) -> None:
+        if proposal is None or proposal.proposal_id != proposal_id:
+            raise UnapprovedToolExecutionError("Exact pending proposal required for approval.")
+        context = self._context(proposal, context)
+        self.ledger.decide(proposal, context, approved, reason)
+
+    @_audit_authorization_rejection
+    def evaluate_tool_proposal(self, proposal: ToolCallProposal, *,
+                               context: Optional[ToolActionContext] = None) -> PermissionCheckResult:
+        context = self._context(proposal, context)
+        action_digest(proposal, context)  # Reject a model-supplied identity before policy/audit.
+        with self._policy_store._lock:
+            policy = self._evaluate_policy(proposal)
+            if not policy.is_denied:
+                try:
+                    self._registry.validate_tool_call(proposal.tool_name, proposal.arguments)
+                except (ValueError, TypeError, ToolSchemaValidationError) as exc:
+                    policy = PermissionCheckResult(
+                        proposal_id=proposal.proposal_id, tool_name=proposal.tool_name,
+                        agent_role=context.agent_role, effective_sensitivity=policy.effective_sensitivity,
+                        decision=PermissionDecisionKind.DENIED_BY_POLICY,
+                        requires_interactive_prompt=False, reason=f"Invalid tool arguments: {exc}")
+            result = self.ledger.issue(proposal, context, policy)
+            self._log_gate_decision(proposal, result)
+            return result
+
+    @_audit_authorization_rejection
+    def claim_authorization(self, proposal: ToolCallProposal, stamp: PermissionCheckResult, *,
+                            context: Optional[ToolActionContext] = None) -> None:
+        context = self._context(proposal, context)
+        def check_current(conn: sqlite3.Connection) -> None:
+            policy = self._policy_store.transactional_snapshot(conn)
+            current = self._evaluate_policy(proposal, policy_store=policy)
+            if current.is_denied or current.effective_sensitivity != stamp.effective_sensitivity:
+                raise UnapprovedToolExecutionError("Policy changed or permission revoked before execution.")
+        with self._policy_store._lock:
+            self.ledger.claim(proposal, stamp, context, policy_check=check_current)
+
+    def record_rejected_attempt(self, proposal: Optional[ToolCallProposal], context: Optional[ToolActionContext],
+                                error: Exception, *, submitted: Optional[Mapping[str, Any]] = None) -> None:
+        if getattr(error, "_nova_rejection_audited", False):
+            return
+        claims = dict(submitted or {})
+        if proposal is not None:
+            claims.update(proposal_id=proposal.proposal_id, tool_name=proposal.tool_name,
+                          agent_role=proposal.agent_role.value, node_id=proposal.node_id)
+        # Stable classifications from internal errors; the exception text is never persisted.
+        message = str(error).lower()
+        reason = next((code for word, code in (
+            ("expired", "expired"), ("revoked", "revoked"), ("replay", "replay"),
+            ("claimed", "replay"), ("mismatch", "identity_or_arguments_mismatch"),
+            ("identity", "identity_or_arguments_mismatch"), ("modified", "identity_or_arguments_mismatch"),
+            ("forged", "forged_or_stale"), ("not 'awaiting_approval'", "replay_or_not_pending"),
+            ("not awaiting", "replay_or_not_pending")) if word in message), "authorization_rejected")
+        self.ledger.record_rejection(context, claims, reason)
+        error._nova_rejection_audited = True
+
+    def _evaluate_policy(
         self,
         proposal: ToolCallProposal,
+        *, policy_store: Optional[UserPermissionPolicyStore] = None,
     ) -> PermissionCheckResult:
         """Evaluate `proposal` against ADR-008 badge scope, FR-15 user policy, and Section 14 tiers."""
+        policy_store = policy_store or self._policy_store
         spec = get_agent_spec(proposal.agent_role)
 
         # 1. Check ADR-008 specialized agent scope
@@ -598,7 +768,6 @@ class CatalogBackedPermissionGate:
                 requires_interactive_prompt=False,
                 reason=str(exc),
             )
-            self._log_gate_decision(proposal, res)
             return res
 
         # 2. Check if tool is registered in ToolRegistry (fail-closed if unknown)
@@ -614,16 +783,15 @@ class CatalogBackedPermissionGate:
                 requires_interactive_prompt=False,
                 reason=f"Unregistered tool denied fail-closed: {exc}",
             )
-            self._log_gate_decision(proposal, res)
             return res
 
-        effective_tier = self._policy_store.get_effective_sensitivity(
+        effective_tier = policy_store.get_effective_sensitivity(
             proposal.tool_name,
             proposal.declared_sensitivity,
         )
 
         # 3. Check if the user revoked this tool globally or for this agent (FR-15)
-        if self._policy_store.is_tool_revoked(proposal.tool_name, proposal.agent_role):
+        if policy_store.is_tool_revoked(proposal.tool_name, proposal.agent_role):
             res = PermissionCheckResult(
                 proposal_id=proposal.proposal_id,
                 tool_name=proposal.tool_name,
@@ -633,26 +801,6 @@ class CatalogBackedPermissionGate:
                 requires_interactive_prompt=False,
                 reason=f"FR-15 policy: Tool {proposal.tool_name!r} has been revoked by the user.",
             )
-            self._log_gate_decision(proposal, res)
-            return res
-
-        # 4. Check if the user already clicked Approve or Deny for this proposal_id
-        if proposal.proposal_id in self._user_decisions:
-            approved, user_reason = self._user_decisions[proposal.proposal_id]
-            res = PermissionCheckResult(
-                proposal_id=proposal.proposal_id,
-                tool_name=proposal.tool_name,
-                agent_role=proposal.agent_role,
-                effective_sensitivity=effective_tier,
-                decision=(
-                    PermissionDecisionKind.USER_APPROVED
-                    if approved
-                    else PermissionDecisionKind.DENIED_BY_USER
-                ),
-                requires_interactive_prompt=False,
-                reason=user_reason,
-            )
-            self._log_gate_decision(proposal, res)
             return res
 
         # 5. Auto-approve safe read_only tools (unless tightened by the user to a higher tier!)
@@ -694,7 +842,6 @@ class CatalogBackedPermissionGate:
                 requires_interactive_prompt=False,
                 reason=f"Denied by policy ('deny') for sensitivity tier {effective_tier.value!r}.",
             )
-            self._log_gate_decision(proposal, res)
             return res
 
         return PermissionCheckResult(
@@ -720,8 +867,8 @@ class CatalogBackedPermissionGate:
         if result.is_denied:
             self._audit_log.record_entry(
                 ToolAuditEntry(
-                    task_id=self._default_task_id,
-                    session_id=self._default_session_id,
+                    task_id=result.context.task_id if result.context else self._default_task_id,
+                    session_id=result.context.session_id if result.context else self._default_session_id,
                     node_id=proposal.node_id,
                     proposal_id=proposal.proposal_id,
                     agent_role=proposal.agent_role,
@@ -760,7 +907,9 @@ class SandboxedMcpToolExecutor:
         tool_handlers: Optional[Mapping[str, StructuredToolHandlerFn]] = None,
         default_task_id: str = "task_default",
         default_session_id: str = "sess_default",
+        permission_gate: Optional[CatalogBackedPermissionGate] = None,
     ) -> None:
+        self._permission_gate = permission_gate
         self._registry = registry
         self._fs_sandbox = filesystem_sandbox
         self._cmd_sandbox = command_sandbox or CommandSandbox(filesystem_sandbox)
@@ -778,10 +927,13 @@ class SandboxedMcpToolExecutor:
     ) -> None:
         self._handlers[tool_name] = handler
 
+    @_audit_authorization_rejection
     def execute_approved_tool(
         self,
         proposal: ToolCallProposal,
         permission_stamp: PermissionCheckResult,
+        *, context: Optional[ToolActionContext] = None,
+        on_started: Optional[Callable[[], None]] = None,
     ) -> ToolExecutionResult:
         """Verify approval stamp, validate schema, enforce sandbox, run tool, and log audit entry."""
         # 1. Non-bypassable approval stamp check (ADR-010)
@@ -846,7 +998,20 @@ class SandboxedMcpToolExecutor:
                 sanitized_output=err_msg,
             )
 
-        raw_result = handler(sanitized_args)
+        if self._permission_gate is None:
+            raise UnapprovedToolExecutionError("Executor requires its issuing permission gate.")
+        self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
+        if on_started is not None:
+            on_started()
+        try:
+            raw_result = handler(sanitized_args)
+        except Exception as exc:
+            summary = f"Tool failed; side effects may be partial: {type(exc).__name__}: {exc}"
+            self._record_audit_and_violation(proposal=proposal, stamp=permission_stamp,
+                execution_status="error", summary=summary, is_security_violation=False)
+            self._permission_gate.ledger.finish(proposal.proposal_id, "error")
+            return ToolExecutionResult(proposal_id=proposal.proposal_id,
+                tool_name=proposal.tool_name, status="error", sanitized_output=summary)
         try:
             contract.validate_output(raw_result)
         except Exception as exc:
@@ -865,8 +1030,8 @@ class SandboxedMcpToolExecutor:
         if self._audit_log is not None:
             self._audit_log.record_entry(
                 ToolAuditEntry(
-                    task_id=self._default_task_id,
-                    session_id=self._default_session_id,
+                    task_id=permission_stamp.context.task_id if permission_stamp.context else self._default_task_id,
+                    session_id=permission_stamp.context.session_id if permission_stamp.context else self._default_session_id,
                     node_id=proposal.node_id,
                     proposal_id=proposal.proposal_id,
                     agent_role=proposal.agent_role,
@@ -880,6 +1045,7 @@ class SandboxedMcpToolExecutor:
                 )
             )
 
+        self._permission_gate.ledger.finish(proposal.proposal_id, "success")
         return ToolExecutionResult(
             proposal_id=proposal.proposal_id,
             tool_name=proposal.tool_name,
@@ -899,8 +1065,8 @@ class SandboxedMcpToolExecutor:
         if self._audit_log is not None and stamp.decision is not None:
             self._audit_log.record_entry(
                 ToolAuditEntry(
-                    task_id=self._default_task_id,
-                    session_id=self._default_session_id,
+                    task_id=stamp.context.task_id if stamp.context else self._default_task_id,
+                    session_id=stamp.context.session_id if stamp.context else self._default_session_id,
                     node_id=proposal.node_id,
                     proposal_id=proposal.proposal_id,
                     agent_role=proposal.agent_role,
@@ -917,8 +1083,8 @@ class SandboxedMcpToolExecutor:
             self._event_bus.publish(
                 NovaEvent(
                     event_type=EventType.SECURITY_VIOLATION,
-                    task_id=self._default_task_id,
-                    session_id=self._default_session_id,
+                    task_id=stamp.context.task_id if stamp.context else self._default_task_id,
+                    session_id=stamp.context.session_id if stamp.context else self._default_session_id,
                     node_id=proposal.node_id,
                     agent_role=proposal.agent_role,
                     correlation_id=proposal.proposal_id,

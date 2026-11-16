@@ -1,0 +1,63 @@
+[
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "output": "C:\\NOVA\\docs\\nova-c01-final-bp2aigtu\\command-0.txt"
+  },
+  {
+    "command": [
+      "git",
+      "branch",
+      "--show-current"
+    ],
+    "exit_code": 0,
+    "output": "C:\\NOVA\\docs\\nova-c01-final-bp2aigtu\\command-1.txt"
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--short"
+    ],
+    "exit_code": 0,
+    "output": "C:\\NOVA\\docs\\nova-c01-final-bp2aigtu\\command-2.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp",
+      "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-final-bp2aigtu\\pytest"
+    ],
+    "exit_code": 0,
+    "output": "C:\\NOVA\\docs\\nova-c01-final-bp2aigtu\\command-3.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c01_live_api.py"
+    ],
+    "exit_code": 0,
+    "output": "C:\\NOVA\\docs\\nova-c01-final-bp2aigtu\\command-4.txt"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "output": "C:\\NOVA\\docs\\nova-c01-final-bp2aigtu\\command-5.txt"
+  }
+]

@@ -1,0 +1,212 @@
+[
+  {
+    "case": "crash_owned",
+    "status": 200,
+    "workspace": {
+      "assistant_name": "NOVA Personal Assistant",
+      "privacy_mode": "100% Offline & Private on Your Laptop",
+      "active_brain_mode": "bootstrap",
+      "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+      "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+      "security_log_verified": true,
+      "messages": [
+        {
+          "message_id": "msg_75733bba95",
+          "role": "assistant",
+          "text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "highlights": [
+            "Task: task_assistant_480ff9ce2d68475eaaae844955454435"
+          ],
+          "pending_approval": {
+            "task_id": "task_assistant_480ff9ce2d68475eaaae844955454435",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_238d631c3bec46a3bdcbf9306df361f6",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "V03 synthetic body",
+              "title": "V03 synthetic"
+            },
+            "expires_at": 1794849433.5992534,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "V03 synthetic body"
+          },
+          "timestamp_utc": "2026-11-16T17:12:13.606527+00:00"
+        }
+      ],
+      "calendar_events": [],
+      "notes": [],
+      "system_summary": {
+        "disk_free_gb": 149.16,
+        "workspace_files_count": 0,
+        "notes_count": 0,
+        "upcoming_events_count": 0
+      },
+      "recent_activity": []
+    },
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\docs\\V03-20261116-224029\\fresh_challenge.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-v03-crash_owned-ht161ni1",
+          "12785",
+          "normal"
+        ],
+        "pid": 16748,
+        "exit_code": 1
+      }
+    ]
+  },
+  {
+    "case": "crash_claim",
+    "status": 200,
+    "workspace": {
+      "assistant_name": "NOVA Personal Assistant",
+      "privacy_mode": "100% Offline & Private on Your Laptop",
+      "active_brain_mode": "bootstrap",
+      "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+      "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+      "security_log_verified": true,
+      "messages": [
+        {
+          "message_id": "msg_e750d13512",
+          "role": "assistant",
+          "text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "highlights": [
+            "Task: task_assistant_9a9ee0e19f7c4c86aa361530826990a0"
+          ],
+          "pending_approval": {
+            "task_id": "task_assistant_9a9ee0e19f7c4c86aa361530826990a0",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_6fe5edabdc0b449ab0370c2d13060009",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "V03 synthetic body",
+              "title": "V03 synthetic"
+            },
+            "expires_at": 1794849436.5485137,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "V03 synthetic body"
+          },
+          "timestamp_utc": "2026-11-16T17:12:16.555633+00:00"
+        }
+      ],
+      "calendar_events": [],
+      "notes": [],
+      "system_summary": {
+        "disk_free_gb": 149.16,
+        "workspace_files_count": 0,
+        "notes_count": 0,
+        "upcoming_events_count": 0
+      },
+      "recent_activity": [
+        {
+          "what_happened": "notes.create_note started; completion unconfirmed",
+          "permission_note": "Authorization claimed; do not automatically retry",
+          "status": "Uncertain"
+        }
+      ]
+    },
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\docs\\V03-20261116-224029\\fresh_challenge.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-v03-crash_claim-7qo9bxmp",
+          "12792",
+          "normal"
+        ],
+        "pid": 3632,
+        "exit_code": 1
+      }
+    ]
+  },
+  {
+    "case": "post_write_permission_exception",
+    "status": 200,
+    "workspace": {
+      "assistant_name": "NOVA Personal Assistant",
+      "privacy_mode": "100% Offline & Private on Your Laptop",
+      "active_brain_mode": "bootstrap",
+      "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+      "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+      "security_log_verified": true,
+      "messages": [
+        {
+          "message_id": "msg_150b674019",
+          "role": "assistant",
+          "text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "highlights": [
+            "Task: task_assistant_a139c4f13edb4e71a67671ca7de00dd8"
+          ],
+          "pending_approval": {
+            "task_id": "task_assistant_a139c4f13edb4e71a67671ca7de00dd8",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_ed115f2d31cb4d5fbc0a89c7c40f223f",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "V03 synthetic body",
+              "title": "V03 synthetic"
+            },
+            "expires_at": 1794849439.5401258,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "V03 synthetic body"
+          },
+          "timestamp_utc": "2026-11-16T17:12:19.549051+00:00"
+        }
+      ],
+      "calendar_events": [],
+      "notes": [
+        {
+          "note_id": "note_v03_synthetic",
+          "title": "V03 synthetic",
+          "preview": "# V03 synthetic\n\nV03 synthetic body"
+        }
+      ],
+      "system_summary": {
+        "disk_free_gb": 149.16,
+        "workspace_files_count": 1,
+        "notes_count": 1,
+        "upcoming_events_count": 0
+      },
+      "recent_activity": [
+        {
+          "what_happened": "Saved a personal note",
+          "permission_note": "Approved by you",
+          "status": "Success"
+        }
+      ]
+    },
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\docs\\V03-20261116-224029\\fresh_challenge.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-v03-post_write_permission_exception-j3zf3237",
+          "12798",
+          "normal"
+        ],
+        "pid": 32440,
+        "exit_code": 1
+      }
+    ]
+  }
+]

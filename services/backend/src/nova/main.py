@@ -82,6 +82,7 @@ from nova.core.permissions.sandbox_and_audit import (
     UserPermissionPolicyStore,
 )
 from nova.core.platform.event_bus import InMemoryEventBus
+from nova.core.tools.personal_assistant_tools import build_personal_assistant_tool_handlers
 from nova.core.tools.registry import ToolRegistry, build_default_tool_registry
 
 _EMAIL_REGEX = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
@@ -404,7 +405,7 @@ class NovaRuntimeContainer:
 
         # Layer 3: MCP Tool Registry, Permission Policy Store, Sandbox & Audit Log
         self.tool_registry: ToolRegistry = build_default_tool_registry()
-        self.policy_store = UserPermissionPolicyStore(registry=self.tool_registry)
+        self.policy_store = UserPermissionPolicyStore(registry=self.tool_registry, db_path=self.data_dir / "nova_audit.db")
         self.audit_log = SqliteToolAuditLog(
             self.data_dir / "nova_audit.db",
             retention_days=self.settings.audit_log_retention_days,
@@ -417,14 +418,21 @@ class NovaRuntimeContainer:
             policy_store=self.policy_store,
             audit_log=self.audit_log,
             auto_approve_reversible_local_writes=auto_approve_reversible_local_writes,
+            sensitive_action_policy=self.settings.default_sensitive_action_policy,
+            authorization_db_path=str(self.data_dir / "nova_audit.db"),
+            approval_ttl_seconds=self.settings.approval_ttl_seconds,
+            require_runtime_context=True,
         )
+        assistant_handlers, self.calendar_store, self.notes_manager, self.metrics_provider = build_personal_assistant_tool_handlers(
+            data_dir=self.data_dir, workspace_dir=self.workspace_dir, rag_engine=self.rag_engine)
         self.tool_executor = SandboxedMcpToolExecutor(
             registry=self.tool_registry,
             filesystem_sandbox=self.filesystem_sandbox,
             command_sandbox=self.command_sandbox,
             audit_log=self.audit_log,
             event_bus=self.event_bus,
-            tool_handlers=build_live_tool_handlers(self.workspace_dir, self.rag_engine),
+            tool_handlers={**build_live_tool_handlers(self.workspace_dir, self.rag_engine), **assistant_handlers},
+            permission_gate=self.permission_gate,
         )
 
         # Layer 2: Model Serving Router with Rule-Guided Bootstrap Adapter
@@ -464,6 +472,7 @@ class NovaRuntimeContainer:
             policy_store=self.policy_store,
             audit_log=self.audit_log,
             settings=self.settings,
+            authorization_ledger=self.permission_gate.ledger,
         )
 
     def ingest_rag_document(self, request: RagIngestRequest) -> Dict[str, Any]:
@@ -485,9 +494,11 @@ def build_nova_app(
     *,
     data_dir: Optional[Path] = None,
     workspace_dir: Optional[Path] = None,
+    auto_approve_reversible_local_writes: bool = True,
 ) -> Any:
     """Create the production FastAPI ASGI app with CORS and `/rag/ingest` wired to `NovaRuntimeContainer`."""
-    container = NovaRuntimeContainer(data_dir=data_dir, workspace_dir=workspace_dir)
+    container = NovaRuntimeContainer(data_dir=data_dir, workspace_dir=workspace_dir,
+        auto_approve_reversible_local_writes=auto_approve_reversible_local_writes)
     fastapi_app = create_nova_fastapi_app(container.api_service)
 
     if CORS_AVAILABLE and CORSMiddleware is not None:
@@ -513,11 +524,19 @@ def build_nova_app(
     return fastapi_app
 
 
-# Default ASGI application instance for `uvicorn nova.main:app --reload`
-try:
-    app = build_nova_app()
-except Exception:  # pragma: no cover
-    app = None
+# Defer default storage initialization until the ASGI server starts handling lifespan.
+class DeferredAsgiApp:
+    def __init__(self, factory):
+        self.factory = factory
+        self.application = None
+
+    async def __call__(self, scope, receive, send):
+        if self.application is None:
+            self.application = self.factory()
+        await self.application(scope, receive, send)
+
+
+app = DeferredAsgiApp(build_nova_app)
 
 
 __all__ = [

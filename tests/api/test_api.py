@@ -70,6 +70,7 @@ class TestNovaLocalApiServiceAndSse:
             default_session_id="sess_api_01",
         )
         executor = SandboxedMcpToolExecutor(
+                permission_gate=gate,
             registry=registry,
             filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
             audit_log=audit_log,

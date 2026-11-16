@@ -46,6 +46,23 @@ if TYPE_CHECKING:
     from nova.core.permissions.sandbox_and_audit import StructuredToolHandlerFn
 
 
+def validate_assistant_arguments(tool_name: str, args: Dict[str, Any]) -> None:
+    required = ("title", "body") if tool_name == "notes.create_note" else ("title", "start_iso", "end_iso")
+    for name in required:
+        if not isinstance(args.get(name), str) or not args[name].strip():
+            raise ValueError(f"{name} must be a non-empty string.")
+    if tool_name == "calendar.create_event":
+        try:
+            start = datetime.fromisoformat(args["start_iso"])
+            end = datetime.fromisoformat(args["end_iso"])
+            if start.tzinfo is not None or end.tzinfo is not None:
+                raise ValueError("Use local timestamps without an offset for this local calendar.")
+            if end <= start:
+                raise ValueError("Calendar end must be after start.")
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid calendar time range: {exc}") from exc
+
+
 class CalendarEventRecord(BaseModel):
     """Single calendar event stored in `nova_calendar.db`."""
 
@@ -103,6 +120,9 @@ class LocalCalendarStore:
         description: str = "",
     ) -> Tuple[CalendarEventRecord, List[CalendarEventRecord]]:
         """Insert a calendar event and return `(created_event, conflicting_events)`."""
+        validate_assistant_arguments("calendar.create_event", {"title": title, "start_iso": start_iso, "end_iso": end_iso})
+        start_iso = datetime.fromisoformat(start_iso).isoformat()
+        end_iso = datetime.fromisoformat(end_iso).isoformat()
         if end_iso <= start_iso:
             raise ValueError(
                 f"Calendar event end_iso ({end_iso!r}) must be after start_iso ({start_iso!r})."
@@ -203,17 +223,23 @@ class LocalNotesManager:
         workspace_dir: Path,
         rag_engine: Optional["HybridRetrievalEngine"] = None,
     ) -> None:
-        self.notes_dir = (Path(workspace_dir) / "notes").resolve()
+        self.workspace_dir = Path(workspace_dir).resolve()
+        self.notes_dir = (self.workspace_dir / "notes").resolve()
+        self.notes_dir.relative_to(self.workspace_dir)
         self.notes_dir.mkdir(parents=True, exist_ok=True)
         self.rag_engine = rag_engine
 
     def create_note(self, *, title: str, body: str) -> Dict[str, Any]:
         """Write a Markdown note to disk and automatically index it into Hybrid RAG."""
+        validate_assistant_arguments("notes.create_note", {"title": title, "body": body})
         slug = _slugify_title(title)
         note_id = f"note_{slug}"
         note_path = self.notes_dir / f"{slug}.md"
         markdown_text = f"# {title.strip()}\n\n{body.strip()}\n"
-        note_path.write_text(markdown_text, encoding="utf-8")
+        # Recheck confinement and use exclusive creation: never overwrite an existing note/symlink.
+        note_path.resolve().relative_to(self.workspace_dir)
+        with note_path.open("x", encoding="utf-8") as handle:
+            handle.write(markdown_text)
 
         chunks_indexed = 0
         if self.rag_engine is not None:
@@ -324,7 +350,7 @@ def build_personal_assistant_tool_handlers(
             title=str(args["title"]),
             body=str(args["body"]),
         )
-        return {"note_id": res["note_id"], "chunks_indexed": res["chunks_indexed"]}
+        return res
 
     def _system_get_metrics(_args: Dict[str, Any]) -> Mapping[str, Any]:
         return metrics_provider.get_metrics()

@@ -83,6 +83,7 @@ class TestPhase4McpSecurityDefenseInDepthIntegration:
             )
 
             executor = SandboxedMcpToolExecutor(
+                permission_gate=gate,
                 registry=registry,
                 filesystem_sandbox=fs_sandbox,
                 command_sandbox=cmd_sandbox,
@@ -243,6 +244,7 @@ class TestPhase4McpSecurityDefenseInDepthIntegration:
                 default_session_id="sess_p4_inject",
             )
             executor = SandboxedMcpToolExecutor(
+                permission_gate=gate,
                 registry=registry,
                 filesystem_sandbox=fs_sandbox,
                 audit_log=audit_log,
@@ -313,13 +315,11 @@ class TestPhase4McpSecurityDefenseInDepthIntegration:
             )
 
             # Layer 4 Sandbox blocks the path traversal with SandboxViolationError before the tool handler runs!
-            with pytest.raises(SandboxViolationError, match="escapes permitted roots"):
-                orchestrator.start_task(
-                    task_id="task_p4_inject",
-                    session_id="sess_p4_inject",
-                    user_goal="Summarize the webpage.",
-                    untrusted_data=(malicious_webpage,),
-                )
+            failed = orchestrator.start_task(
+                task_id="task_p4_inject", session_id="sess_p4_inject",
+                user_goal="Summarize the webpage.", untrusted_data=(malicious_webpage,))
+            assert failed.status == TaskStatus.FAILED
+            assert "escapes permitted roots" in failed.failure_reason
 
             assert len(executor.executed_proposals) == 0
 
@@ -352,6 +352,7 @@ class TestPhase4McpSecurityDefenseInDepthIntegration:
                 default_session_id="sess_p4_revoke",
             )
             executor = SandboxedMcpToolExecutor(
+                permission_gate=gate,
                 registry=registry,
                 filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
                 audit_log=audit_log,

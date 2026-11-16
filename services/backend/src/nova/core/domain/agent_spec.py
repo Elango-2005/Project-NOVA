@@ -236,6 +236,7 @@ CODING_AGENT_SPEC = AgentSpecification(
         "interact with version control and CI."
     ),
     allowed_tools=(
+        "notes.create_note",  # Narrow local note creation; no additional path access.
         "filesystem.read_file",
         "filesystem.write_file",
         "filesystem.list_directory",

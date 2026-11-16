@@ -1,0 +1,49 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.0, pytest-8.4.2, pluggy-1.7.0
+rootdir: C:\NOVA
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, hypothesis-6.168.5, asyncio-0.26.0
+asyncio: mode=strict, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 167 items
+
+tests\agents\test_browser_and_desktop.py ....                            [  2%]
+tests\agents\test_phase6_browser_desktop_integration.py ..               [  3%]
+tests\api\test_api.py ....                                               [  5%]
+tests\api\test_assistant_ui.py ...                                       [  7%]
+tests\api\test_cli_and_doctor.py ...                                     [  9%]
+tests\api\test_main_runtime.py ..                                        [ 10%]
+tests\api\test_phase15_mission_control_v2.py ...                         [ 12%]
+tests\api\test_ui_dashboard.py ...                                       [ 14%]
+tests\e2e\test_nova_full_system_e2e.py ..                                [ 15%]
+tests\evaluation\test_phase1_reasoning_harness.py ...                    [ 17%]
+tests\memory\test_conversation_session.py ....                           [ 19%]
+tests\memory\test_memory.py ....                                         [ 22%]
+tests\memory\test_phase3_memory_rag_integration.py ..                    [ 23%]
+tests\memory\test_retrieval.py ....                                      [ 25%]
+tests\model_serving\test_brain_switcher.py ....                          [ 28%]
+tests\model_serving\test_gguf_live.py ..                                 [ 29%]
+tests\model_serving\test_multimodal.py ...                               [ 31%]
+tests\model_serving\test_ollama_live.py ....                             [ 33%]
+tests\model_serving\test_phase5_model_serving_integration.py ..          [ 34%]
+tests\model_serving\test_router.py ....                                  [ 37%]
+tests\orchestration\test_engine.py ...                                   [ 38%]
+tests\orchestration\test_phase2_crash_recovery.py ...                    [ 40%]
+tests\orchestration\test_ports.py .....                                  [ 43%]
+tests\orchestration\test_state_and_checkpoint.py ......                  [ 47%]
+tests\permissions_security\test_c01_corrections.py ................      [ 56%]
+tests\permissions_security\test_phase4_mcp_security_integration.py ...   [ 58%]
+tests\permissions_security\test_r01_authorization.py ...............     [ 67%]
+tests\permissions_security\test_sandbox_and_audit.py ....                [ 70%]
+tests\permissions_security\test_security_hardening.py ....               [ 72%]
+tests\tools_mcp\test_personal_assistant_tools.py ....                    [ 74%]
+tests\tools_mcp\test_registry.py ....                                    [ 77%]
+tests\unit\agents\test_base_agent_and_react.py .....                     [ 80%]
+tests\unit\cognition\test_plan_and_reflection.py ......                  [ 83%]
+tests\unit\config\test_settings.py ..........                            [ 89%]
+tests\unit\domain\test_primitives_events_context.py ........             [ 94%]
+tests\unit\domain\test_proposals_and_agent_spec.py .........             [100%]
+
+============================ 167 passed in 11.58s =============================
+
+STDERR

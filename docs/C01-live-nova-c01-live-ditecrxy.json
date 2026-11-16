@@ -1,0 +1,4717 @@
+{
+  "data_root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy",
+  "transport": "real HTTP to loopback Uvicorn child process",
+  "checks": [
+    {
+      "name": "F01 denied activity is truthful and produces no file",
+      "passed": true,
+      "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9"
+    },
+    {
+      "name": "APPROVE writes exact structured note",
+      "passed": true,
+      "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+      "file_text": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>\n"
+    },
+    {
+      "name": "F02 ordered correlated completion events without replay duplicates",
+      "passed": true,
+      "events": [
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+          "event_id": "evt_93c255fc206640e3a85d1ddb8e585083",
+          "event_type": "permission.requested",
+          "node_id": "assistant_action",
+          "payload": {
+            "arguments": {
+              "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+              "title": "Exact - title"
+            },
+            "effective_sensitivity": "reversible_write",
+            "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+            "rationale": "Execute the exact note/calendar action requested by the user.",
+            "tool_name": "notes.create_note"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+          "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+        },
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+          "event_id": "evt_35f883d74f4443c49e841713279f05a4",
+          "event_type": "permission.approved",
+          "node_id": "assistant_action",
+          "payload": {
+            "decision": "user_approved",
+            "reason": "User decision from Personal Assistant Chat",
+            "tool_name": "notes.create_note"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+          "timestamp_utc": "2026-11-15T16:16:04.973064+00:00"
+        },
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+          "event_id": "evt_350b3832bed14883a2bdcd4ec62439d9",
+          "event_type": "tool.started",
+          "node_id": "assistant_action",
+          "payload": {
+            "tool_name": "notes.create_note"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+          "timestamp_utc": "2026-11-15T16:16:04.973064+00:00"
+        },
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+          "event_id": "evt_a92664c07bff4f7dbc6c20ff8e1f98e2",
+          "event_type": "tool.completed",
+          "node_id": "assistant_action",
+          "payload": {
+            "status": "success",
+            "tool_name": "notes.create_note"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+          "timestamp_utc": "2026-11-15T16:16:04.998930+00:00"
+        },
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+          "event_id": "evt_fa9aedee0ee148ebbcdd1f77f2f32fa7",
+          "event_type": "task.completed",
+          "node_id": "assistant_action",
+          "payload": {
+            "completed_nodes": [
+              "assistant_action"
+            ]
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+          "timestamp_utc": "2026-11-15T16:16:05.011135+00:00"
+        }
+      ]
+    },
+    {
+      "name": "F01 F02 actual duplicate note failure is truthful and emits failure events",
+      "passed": true,
+      "events": [
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_be26869bae204c31beec5455552a9f5e",
+          "event_id": "evt_aedac1267136465babca90631794d4ae",
+          "event_type": "permission.requested",
+          "node_id": "assistant_action",
+          "payload": {
+            "arguments": {
+              "body": "Must not overwrite",
+              "title": "Exact - title"
+            },
+            "effective_sensitivity": "reversible_write",
+            "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+            "rationale": "Execute the exact note/calendar action requested by the user.",
+            "tool_name": "notes.create_note"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+          "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+        },
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_be26869bae204c31beec5455552a9f5e",
+          "event_id": "evt_05b07292ae2c41658ffea1fb527dfa7f",
+          "event_type": "permission.approved",
+          "node_id": "assistant_action",
+          "payload": {
+            "decision": "user_approved",
+            "reason": "User decision from Personal Assistant Chat",
+            "tool_name": "notes.create_note"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+          "timestamp_utc": "2026-11-15T16:16:05.116736+00:00"
+        },
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_be26869bae204c31beec5455552a9f5e",
+          "event_id": "evt_19aae7fecff649cc8342a3a3037e4785",
+          "event_type": "tool.started",
+          "node_id": "assistant_action",
+          "payload": {
+            "tool_name": "notes.create_note"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+          "timestamp_utc": "2026-11-15T16:16:05.116736+00:00"
+        },
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_be26869bae204c31beec5455552a9f5e",
+          "event_id": "evt_56c6153a9a4447c3bdcb70046997d4ec",
+          "event_type": "tool.failed",
+          "node_id": "assistant_action",
+          "payload": {
+            "status": "error",
+            "tool_name": "notes.create_note"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+          "timestamp_utc": "2026-11-15T16:16:05.135769+00:00"
+        },
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_be26869bae204c31beec5455552a9f5e",
+          "event_id": "evt_f4bf5c7b169d49a38c0556f595e97457",
+          "event_type": "task.failed",
+          "node_id": "assistant_action",
+          "payload": {
+            "reason": "Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+          "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+        }
+      ]
+    },
+    {
+      "name": "Concurrent HTTP approvals allow one calendar write",
+      "passed": true,
+      "statuses": [
+        200,
+        409,
+        409,
+        409,
+        409,
+        409
+      ],
+      "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_012903005dbf4bf6889beefada3a633e"
+    },
+    {
+      "name": "F03 runtime B committed revoke blocks runtime A pending approval",
+      "passed": true,
+      "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803"
+    },
+    {
+      "name": "Process restart preserves data, revocation and replay rejection",
+      "passed": true
+    },
+    {
+      "name": "F03 claim committed first may finish after runtime B revokes",
+      "passed": true,
+      "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_0726f83cef474801936aeb7375207759"
+    },
+    {
+      "name": "F04 rejected requests auditable; unresolved claim visibly uncertain",
+      "passed": true,
+      "attempts": [
+        {
+          "attempt_id": "9fcd5e3dde264a1cb16a0a860f2d576f",
+          "timestamp": 1794759364.9752357,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+            "tool_name": "notes.create_note"
+          }
+        },
+        {
+          "attempt_id": "1fcc2d00384647a889e54db87b1da397",
+          "timestamp": 1794759365.046453,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca"
+          }
+        },
+        {
+          "attempt_id": "5ba08d7e12924154ac046f1b9839e5d6",
+          "timestamp": 1794759365.1177368,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+            "tool_name": "notes.create_note"
+          }
+        },
+        {
+          "attempt_id": "e63603a9c7fb42efb0c5c99ed43c2cac",
+          "timestamp": 1794759365.2395785,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "9cd06e5327034d70b50b7f42e48c227d",
+          "timestamp": 1794759365.2451737,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "0482e77ac98140e3aafe4eba68f64f19",
+          "timestamp": 1794759365.248172,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "ce95aeaf3dfa48889c565b625439f2e7",
+          "timestamp": 1794759365.2577198,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "f47de8dc873f4619a2faaf836e19d49f",
+          "timestamp": 1794759365.2871606,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "e0163787cf0042a9a83ed72aff5331e1",
+          "timestamp": 1794759365.2921846,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event"
+          }
+        },
+        {
+          "attempt_id": "1d82cd97db654692a9f3bce025ee739b",
+          "timestamp": 1794759368.1245272,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca"
+          }
+        },
+        {
+          "attempt_id": "3a649e9ef9e24dc59f754533a9bbd2e4",
+          "timestamp": 1794759369.294434,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+            "tool_name": "notes.create_note"
+          }
+        },
+        {
+          "attempt_id": "d0a61a0d94d348e6bd19bcf4bb2a99f7",
+          "timestamp": 1794759371.5417051,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+            "tool_name": "notes.create_note"
+          }
+        },
+        {
+          "attempt_id": "88380ebbb8dc4aaaa72e75d115a49374",
+          "timestamp": 1794759372.6455815,
+          "outcome": "rejected",
+          "reason_code": "replay",
+          "trusted_context": {
+            "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "node_id": "assistant_action"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Injected crash after claim rejects replay after restart",
+      "passed": true,
+      "exit_code": 73,
+      "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c"
+    },
+    {
+      "name": "Direct SQLite inspection confirms writes, claim state and audit identities",
+      "passed": true,
+      "events": [
+        [
+          "Study",
+          "2026-11-17T10:00:00",
+          "2026-11-17T11:00:00"
+        ]
+      ],
+      "authorizations": [
+        [
+          "prop_3622146bdde54317bc50cec1cd54dab9",
+          "denied"
+        ],
+        [
+          "prop_b01e3f04df5448d3988d5111c018dbca",
+          "success"
+        ],
+        [
+          "prop_be26869bae204c31beec5455552a9f5e",
+          "error"
+        ],
+        [
+          "prop_012903005dbf4bf6889beefada3a633e",
+          "success"
+        ],
+        [
+          "prop_40629f97c66a4c768ade78aaacf63803",
+          "denied"
+        ],
+        [
+          "prop_a7b9df4e38ca4c1fafbfed73353a7d06",
+          "denied"
+        ],
+        [
+          "prop_0726f83cef474801936aeb7375207759",
+          "success"
+        ],
+        [
+          "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+          "claimed"
+        ]
+      ],
+      "audits": [
+        [
+          "task_assistant_ff981650c707487aaf6ed258ed469b31",
+          "sess_personal_chat",
+          "coding",
+          "notes.create_note",
+          "denied_by_user",
+          "not_executed"
+        ],
+        [
+          "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+          "sess_personal_chat",
+          "coding",
+          "notes.create_note",
+          "user_approved",
+          "success"
+        ],
+        [
+          "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+          "sess_personal_chat",
+          "coding",
+          "notes.create_note",
+          "user_approved",
+          "error"
+        ],
+        [
+          "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+          "sess_personal_chat",
+          "comms",
+          "calendar.create_event",
+          "user_approved",
+          "success"
+        ],
+        [
+          "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+          "sess_personal_chat",
+          "comms",
+          "calendar.create_event",
+          "denied_by_policy",
+          "not_executed"
+        ],
+        [
+          "task_assistant_be7d02a54942409c90e4716f9ea67291",
+          "sess_personal_chat",
+          "comms",
+          "calendar.create_event",
+          "denied_by_policy",
+          "not_executed"
+        ],
+        [
+          "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+          "sess_personal_chat",
+          "coding",
+          "notes.create_note",
+          "user_approved",
+          "success"
+        ]
+      ]
+    }
+  ],
+  "processes": [
+    {
+      "pid": 15356,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy",
+        "--port",
+        "38550"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy\\server-0.log"
+    },
+    {
+      "pid": 32404,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy",
+        "--port",
+        "38577"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy\\second-server.log"
+    },
+    {
+      "pid": 13748,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy",
+        "--port",
+        "38550"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy\\server-2.log"
+    },
+    {
+      "pid": 16696,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy",
+        "--port",
+        "38550",
+        "--pause"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy\\server-3.log"
+    },
+    {
+      "pid": 21900,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy",
+        "--port",
+        "38550"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy\\server-4.log"
+    },
+    {
+      "pid": 28368,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy",
+        "--port",
+        "38550",
+        "--crash"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy\\server-5.log"
+    },
+    {
+      "pid": 27984,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy",
+        "--port",
+        "38550"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ditecrxy\\server-6.log"
+    }
+  ],
+  "http": [
+    {
+      "port": 38550,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [],
+        "calendar_events": [],
+        "notes": [],
+        "system_summary": {
+          "disk_free_gb": 137.66,
+          "workspace_files_count": 0,
+          "notes_count": 0,
+          "upcoming_events_count": 0
+        },
+        "recent_activity": []
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/quick-note",
+      "request": {
+        "title": "Denied note",
+        "body": "Must not exist"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+          "tool_name": "notes.create_note",
+          "agent_role": "coding",
+          "arguments": {
+            "body": "Must not exist",
+            "title": "Denied note"
+          },
+          "expires_at": 1794759664.8466308,
+          "summary_label": "notes.create_note",
+          "recipient": "",
+          "subject": "",
+          "body": "Must not exist"
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+        "approved": false
+      },
+      "status": 200,
+      "response": {
+        "reply": {
+          "message_id": "msg_be7ee0a52b",
+          "role": "assistant",
+          "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+          "action_category": "action_failed",
+          "highlights": [
+            "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+          ]
+        },
+        "workspace": {
+          "assistant_name": "NOVA Personal Assistant",
+          "privacy_mode": "100% Offline & Private on Your Laptop",
+          "active_brain_mode": "bootstrap",
+          "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+          "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+          "security_log_verified": true,
+          "messages": [
+            {
+              "message_id": "msg_a3aa198e89",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not exist",
+                  "title": "Denied note"
+                },
+                "expires_at": 1794759664.8466308,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not exist"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+            },
+            {
+              "message_id": "msg_be7ee0a52b",
+              "role": "assistant",
+              "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+            }
+          ],
+          "calendar_events": [],
+          "notes": [],
+          "system_summary": {
+            "disk_free_gb": 137.66,
+            "workspace_files_count": 0,
+            "notes_count": 0,
+            "upcoming_events_count": 0
+          },
+          "recent_activity": [
+            {
+              "what_happened": "Note creation denied; not executed",
+              "permission_note": "Denied by you",
+              "status": "not_executed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/quick-note",
+      "request": {
+        "title": "Exact - title",
+        "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+          "tool_name": "notes.create_note",
+          "agent_role": "coding",
+          "arguments": {
+            "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+            "title": "Exact - title"
+          },
+          "expires_at": 1794759664.9428418,
+          "summary_label": "notes.create_note",
+          "recipient": "",
+          "subject": "",
+          "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+        "approved": true
+      },
+      "status": 200,
+      "response": {
+        "reply": {
+          "message_id": "msg_895e177f19",
+          "role": "assistant",
+          "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+          "action_category": "note_saved",
+          "highlights": [
+            "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "Status: Completed"
+          ]
+        },
+        "workspace": {
+          "assistant_name": "NOVA Personal Assistant",
+          "privacy_mode": "100% Offline & Private on Your Laptop",
+          "active_brain_mode": "bootstrap",
+          "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+          "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+          "security_log_verified": true,
+          "messages": [
+            {
+              "message_id": "msg_a3aa198e89",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not exist",
+                  "title": "Denied note"
+                },
+                "expires_at": 1794759664.8466308,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not exist"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+            },
+            {
+              "message_id": "msg_be7ee0a52b",
+              "role": "assistant",
+              "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+            },
+            {
+              "message_id": "msg_01c5f601aa",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759664.9428418,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+            },
+            {
+              "message_id": "msg_895e177f19",
+              "role": "assistant",
+              "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+              "action_category": "note_saved",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+            }
+          ],
+          "calendar_events": [],
+          "notes": [
+            {
+              "note_id": "note_exact_title",
+              "title": "Exact - title",
+              "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            }
+          ],
+          "system_summary": {
+            "disk_free_gb": 137.66,
+            "workspace_files_count": 1,
+            "notes_count": 1,
+            "upcoming_events_count": 0
+          },
+          "recent_activity": [
+            {
+              "what_happened": "Saved a personal note",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Note creation denied; not executed",
+              "permission_note": "Denied by you",
+              "status": "not_executed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+        "approved": true
+      },
+      "status": 409,
+      "response": {
+        "detail": "Task 'task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac' is in status 'completed', not 'awaiting_approval'."
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/tasks/task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac/events/sse",
+      "request": null,
+      "status": 200,
+      "response": "id: evt_93c255fc206640e3a85d1ddb8e585083\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_b01e3f04df5448d3988d5111c018dbca\",\"event_id\":\"evt_93c255fc206640e3a85d1ddb8e585083\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"Body with \\u2014 delimiter\\nSecond line <script>untrusted</script>\",\"title\":\"Exact - title\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_b01e3f04df5448d3988d5111c018dbca\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac\",\"timestamp_utc\":\"2026-11-15T16:16:04.949346+00:00\"}\n\nid: evt_35f883d74f4443c49e841713279f05a4\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_b01e3f04df5448d3988d5111c018dbca\",\"event_id\":\"evt_35f883d74f4443c49e841713279f05a4\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac\",\"timestamp_utc\":\"2026-11-15T16:16:04.973064+00:00\"}\n\nid: evt_350b3832bed14883a2bdcd4ec62439d9\nevent: tool.started\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_b01e3f04df5448d3988d5111c018dbca\",\"event_id\":\"evt_350b3832bed14883a2bdcd4ec62439d9\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac\",\"timestamp_utc\":\"2026-11-15T16:16:04.973064+00:00\"}\n\nid: evt_a92664c07bff4f7dbc6c20ff8e1f98e2\nevent: tool.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_b01e3f04df5448d3988d5111c018dbca\",\"event_id\":\"evt_a92664c07bff4f7dbc6c20ff8e1f98e2\",\"event_type\":\"tool.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"status\":\"success\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac\",\"timestamp_utc\":\"2026-11-15T16:16:04.998930+00:00\"}\n\nid: evt_fa9aedee0ee148ebbcdd1f77f2f32fa7\nevent: task.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_b01e3f04df5448d3988d5111c018dbca\",\"event_id\":\"evt_fa9aedee0ee148ebbcdd1f77f2f32fa7\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac\",\"timestamp_utc\":\"2026-11-15T16:16:05.011135+00:00\"}\n\n"
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/quick-note",
+      "request": {
+        "title": "Exact - title",
+        "body": "Must not overwrite"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+          "tool_name": "notes.create_note",
+          "agent_role": "coding",
+          "arguments": {
+            "body": "Must not overwrite",
+            "title": "Exact - title"
+          },
+          "expires_at": 1794759665.0871603,
+          "summary_label": "notes.create_note",
+          "recipient": "",
+          "subject": "",
+          "body": "Must not overwrite"
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+        "approved": true
+      },
+      "status": 200,
+      "response": {
+        "reply": {
+          "message_id": "msg_9ded7aefbb",
+          "role": "assistant",
+          "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+          "action_category": "action_failed",
+          "highlights": [
+            "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+          ]
+        },
+        "workspace": {
+          "assistant_name": "NOVA Personal Assistant",
+          "privacy_mode": "100% Offline & Private on Your Laptop",
+          "active_brain_mode": "bootstrap",
+          "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+          "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+          "security_log_verified": true,
+          "messages": [
+            {
+              "message_id": "msg_a3aa198e89",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not exist",
+                  "title": "Denied note"
+                },
+                "expires_at": 1794759664.8466308,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not exist"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+            },
+            {
+              "message_id": "msg_be7ee0a52b",
+              "role": "assistant",
+              "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+            },
+            {
+              "message_id": "msg_01c5f601aa",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759664.9428418,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+            },
+            {
+              "message_id": "msg_895e177f19",
+              "role": "assistant",
+              "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+              "action_category": "note_saved",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+            },
+            {
+              "message_id": "msg_aa90026952",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not overwrite",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759665.0871603,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not overwrite"
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+            },
+            {
+              "message_id": "msg_9ded7aefbb",
+              "role": "assistant",
+              "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+            }
+          ],
+          "calendar_events": [],
+          "notes": [
+            {
+              "note_id": "note_exact_title",
+              "title": "Exact - title",
+              "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            }
+          ],
+          "system_summary": {
+            "disk_free_gb": 137.66,
+            "workspace_files_count": 1,
+            "notes_count": 1,
+            "upcoming_events_count": 0
+          },
+          "recent_activity": [
+            {
+              "what_happened": "Note creation failed; side effects may be partial",
+              "permission_note": "Approved by you",
+              "status": "error"
+            },
+            {
+              "what_happened": "Saved a personal note",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Note creation denied; not executed",
+              "permission_note": "Denied by you",
+              "status": "not_executed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/tasks/task_assistant_a60f95e8f31a465688a9daf1807967d3/events/sse",
+      "request": null,
+      "status": 200,
+      "response": "id: evt_aedac1267136465babca90631794d4ae\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_be26869bae204c31beec5455552a9f5e\",\"event_id\":\"evt_aedac1267136465babca90631794d4ae\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"Must not overwrite\",\"title\":\"Exact - title\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_be26869bae204c31beec5455552a9f5e\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_a60f95e8f31a465688a9daf1807967d3\",\"timestamp_utc\":\"2026-11-15T16:16:05.093685+00:00\"}\n\nid: evt_05b07292ae2c41658ffea1fb527dfa7f\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_be26869bae204c31beec5455552a9f5e\",\"event_id\":\"evt_05b07292ae2c41658ffea1fb527dfa7f\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_a60f95e8f31a465688a9daf1807967d3\",\"timestamp_utc\":\"2026-11-15T16:16:05.116736+00:00\"}\n\nid: evt_19aae7fecff649cc8342a3a3037e4785\nevent: tool.started\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_be26869bae204c31beec5455552a9f5e\",\"event_id\":\"evt_19aae7fecff649cc8342a3a3037e4785\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_a60f95e8f31a465688a9daf1807967d3\",\"timestamp_utc\":\"2026-11-15T16:16:05.116736+00:00\"}\n\nid: evt_56c6153a9a4447c3bdcb70046997d4ec\nevent: tool.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_be26869bae204c31beec5455552a9f5e\",\"event_id\":\"evt_56c6153a9a4447c3bdcb70046997d4ec\",\"event_type\":\"tool.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"status\":\"error\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_a60f95e8f31a465688a9daf1807967d3\",\"timestamp_utc\":\"2026-11-15T16:16:05.135769+00:00\"}\n\nid: evt_f4bf5c7b169d49a38c0556f595e97457\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_be26869bae204c31beec5455552a9f5e\",\"event_id\":\"evt_f4bf5c7b169d49a38c0556f595e97457\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\\\\\Users\\\\\\\\Elango s\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\nova-c01-live-ditecrxy\\\\\\\\workspace\\\\\\\\notes\\\\\\\\exact_title.md'\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_a60f95e8f31a465688a9daf1807967d3\",\"timestamp_utc\":\"2026-11-15T16:16:05.147798+00:00\"}\n\n"
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/quick-event",
+      "request": {
+        "title": "Study",
+        "start_iso": "2026-11-17T10:00:00",
+        "end_iso": "2026-11-17T11:00:00"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+          "tool_name": "calendar.create_event",
+          "agent_role": "comms",
+          "arguments": {
+            "end_iso": "2026-11-17T11:00:00",
+            "start_iso": "2026-11-17T10:00:00",
+            "title": "Study"
+          },
+          "expires_at": 1794759665.2038286,
+          "summary_label": "calendar.create_event",
+          "recipient": "",
+          "subject": "",
+          "body": ""
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+        "approved": true
+      },
+      "status": 409,
+      "response": {
+        "detail": "Action is not awaiting a decision."
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+        "approved": true
+      },
+      "status": 409,
+      "response": {
+        "detail": "Action is not awaiting a decision."
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+        "approved": true
+      },
+      "status": 409,
+      "response": {
+        "detail": "Action is not awaiting a decision."
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+        "approved": true
+      },
+      "status": 409,
+      "response": {
+        "detail": "Action is not awaiting a decision."
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+        "approved": true
+      },
+      "status": 409,
+      "response": {
+        "detail": "Action is not awaiting a decision."
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+        "approved": true
+      },
+      "status": 200,
+      "response": {
+        "reply": {
+          "message_id": "msg_8853ac2027",
+          "role": "assistant",
+          "text": "I've scheduled 'Study': no schedule conflicts.",
+          "action_category": "event_scheduled",
+          "highlights": [
+            "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "Status: Completed"
+          ]
+        },
+        "workspace": {
+          "assistant_name": "NOVA Personal Assistant",
+          "privacy_mode": "100% Offline & Private on Your Laptop",
+          "active_brain_mode": "bootstrap",
+          "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+          "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+          "security_log_verified": true,
+          "messages": [
+            {
+              "message_id": "msg_a3aa198e89",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not exist",
+                  "title": "Denied note"
+                },
+                "expires_at": 1794759664.8466308,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not exist"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+            },
+            {
+              "message_id": "msg_be7ee0a52b",
+              "role": "assistant",
+              "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+            },
+            {
+              "message_id": "msg_01c5f601aa",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759664.9428418,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+            },
+            {
+              "message_id": "msg_895e177f19",
+              "role": "assistant",
+              "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+              "action_category": "note_saved",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+            },
+            {
+              "message_id": "msg_aa90026952",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not overwrite",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759665.0871603,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not overwrite"
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+            },
+            {
+              "message_id": "msg_9ded7aefbb",
+              "role": "assistant",
+              "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+            },
+            {
+              "message_id": "msg_eb1fdc3079",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+                "tool_name": "calendar.create_event",
+                "agent_role": "comms",
+                "arguments": {
+                  "end_iso": "2026-11-17T11:00:00",
+                  "start_iso": "2026-11-17T10:00:00",
+                  "title": "Study"
+                },
+                "expires_at": 1794759665.2038286,
+                "summary_label": "calendar.create_event",
+                "recipient": "",
+                "subject": "",
+                "body": ""
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+            },
+            {
+              "message_id": "msg_8853ac2027",
+              "role": "assistant",
+              "text": "I've scheduled 'Study': no schedule conflicts.",
+              "action_category": "event_scheduled",
+              "highlights": [
+                "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+            }
+          ],
+          "calendar_events": [
+            {
+              "event_id": "evt_ae7a674234",
+              "title": "Study",
+              "start_iso": "2026-11-17T10:00:00",
+              "end_iso": "2026-11-17T11:00:00",
+              "description": ""
+            }
+          ],
+          "notes": [
+            {
+              "note_id": "note_exact_title",
+              "title": "Exact - title",
+              "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            }
+          ],
+          "system_summary": {
+            "disk_free_gb": 137.66,
+            "workspace_files_count": 1,
+            "notes_count": 1,
+            "upcoming_events_count": 1
+          },
+          "recent_activity": [
+            {
+              "what_happened": "Scheduled a calendar event",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Note creation failed; side effects may be partial",
+              "permission_note": "Approved by you",
+              "status": "error"
+            },
+            {
+              "what_happened": "Saved a personal note",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Note creation denied; not executed",
+              "permission_note": "Denied by you",
+              "status": "not_executed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/quick-event",
+      "request": {
+        "title": "Revoked",
+        "start_iso": "2026-11-17T10:00:00",
+        "end_iso": "2026-11-17T11:00:00"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+          "tool_name": "calendar.create_event",
+          "agent_role": "comms",
+          "arguments": {
+            "end_iso": "2026-11-17T11:00:00",
+            "start_iso": "2026-11-17T10:00:00",
+            "title": "Revoked"
+          },
+          "expires_at": 1794759665.367522,
+          "summary_label": "calendar.create_event",
+          "recipient": "",
+          "subject": "",
+          "body": ""
+        }
+      }
+    },
+    {
+      "port": 38577,
+      "path": "/health",
+      "request": null,
+      "status": 200,
+      "response": {
+        "app_name": "NOVA",
+        "version": "0.1.0",
+        "offline_by_default": true,
+        "allow_cloud_inference": false,
+        "registered_mcp_servers": 21,
+        "registered_tools": 43
+      }
+    },
+    {
+      "port": 38577,
+      "path": "/permissions/revoke",
+      "request": {
+        "tool_name": "calendar.create_event"
+      },
+      "status": 200,
+      "response": {
+        "tightened_tiers": {},
+        "revoked_global_tools": [
+          "calendar.create_event"
+        ],
+        "revoked_agent_tools": {}
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+        "approved": true
+      },
+      "status": 200,
+      "response": {
+        "reply": {
+          "message_id": "msg_103bc61045",
+          "role": "assistant",
+          "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+          "action_category": "action_failed",
+          "highlights": [
+            "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+          ]
+        },
+        "workspace": {
+          "assistant_name": "NOVA Personal Assistant",
+          "privacy_mode": "100% Offline & Private on Your Laptop",
+          "active_brain_mode": "bootstrap",
+          "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+          "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+          "security_log_verified": true,
+          "messages": [
+            {
+              "message_id": "msg_a3aa198e89",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not exist",
+                  "title": "Denied note"
+                },
+                "expires_at": 1794759664.8466308,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not exist"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+            },
+            {
+              "message_id": "msg_be7ee0a52b",
+              "role": "assistant",
+              "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+            },
+            {
+              "message_id": "msg_01c5f601aa",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759664.9428418,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+            },
+            {
+              "message_id": "msg_895e177f19",
+              "role": "assistant",
+              "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+              "action_category": "note_saved",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+            },
+            {
+              "message_id": "msg_aa90026952",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not overwrite",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759665.0871603,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not overwrite"
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+            },
+            {
+              "message_id": "msg_9ded7aefbb",
+              "role": "assistant",
+              "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+            },
+            {
+              "message_id": "msg_eb1fdc3079",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+                "tool_name": "calendar.create_event",
+                "agent_role": "comms",
+                "arguments": {
+                  "end_iso": "2026-11-17T11:00:00",
+                  "start_iso": "2026-11-17T10:00:00",
+                  "title": "Study"
+                },
+                "expires_at": 1794759665.2038286,
+                "summary_label": "calendar.create_event",
+                "recipient": "",
+                "subject": "",
+                "body": ""
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+            },
+            {
+              "message_id": "msg_8853ac2027",
+              "role": "assistant",
+              "text": "I've scheduled 'Study': no schedule conflicts.",
+              "action_category": "event_scheduled",
+              "highlights": [
+                "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+            },
+            {
+              "message_id": "msg_9c945bc525",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+                "tool_name": "calendar.create_event",
+                "agent_role": "comms",
+                "arguments": {
+                  "end_iso": "2026-11-17T11:00:00",
+                  "start_iso": "2026-11-17T10:00:00",
+                  "title": "Revoked"
+                },
+                "expires_at": 1794759665.367522,
+                "summary_label": "calendar.create_event",
+                "recipient": "",
+                "subject": "",
+                "body": ""
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+            },
+            {
+              "message_id": "msg_103bc61045",
+              "role": "assistant",
+              "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+            }
+          ],
+          "calendar_events": [
+            {
+              "event_id": "evt_ae7a674234",
+              "title": "Study",
+              "start_iso": "2026-11-17T10:00:00",
+              "end_iso": "2026-11-17T11:00:00",
+              "description": ""
+            }
+          ],
+          "notes": [
+            {
+              "note_id": "note_exact_title",
+              "title": "Exact - title",
+              "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            }
+          ],
+          "system_summary": {
+            "disk_free_gb": 137.66,
+            "workspace_files_count": 1,
+            "notes_count": 1,
+            "upcoming_events_count": 1
+          },
+          "recent_activity": [
+            {
+              "what_happened": "Calendar event creation denied; not executed",
+              "permission_note": "Blocked by policy",
+              "status": "not_executed"
+            },
+            {
+              "what_happened": "Scheduled a calendar event",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Note creation failed; side effects may be partial",
+              "permission_note": "Approved by you",
+              "status": "error"
+            },
+            {
+              "what_happened": "Saved a personal note",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Note creation denied; not executed",
+              "permission_note": "Denied by you",
+              "status": "not_executed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [
+          {
+            "message_id": "msg_a3aa198e89",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not exist",
+                "title": "Denied note"
+              },
+              "expires_at": 1794759664.8466308,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not exist"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+          },
+          {
+            "message_id": "msg_be7ee0a52b",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+          },
+          {
+            "message_id": "msg_01c5f601aa",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759664.9428418,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+          },
+          {
+            "message_id": "msg_895e177f19",
+            "role": "assistant",
+            "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+          },
+          {
+            "message_id": "msg_aa90026952",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not overwrite",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759665.0871603,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not overwrite"
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+          },
+          {
+            "message_id": "msg_9ded7aefbb",
+            "role": "assistant",
+            "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+          },
+          {
+            "message_id": "msg_eb1fdc3079",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Study"
+              },
+              "expires_at": 1794759665.2038286,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+          },
+          {
+            "message_id": "msg_8853ac2027",
+            "role": "assistant",
+            "text": "I've scheduled 'Study': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+          },
+          {
+            "message_id": "msg_9c945bc525",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Revoked"
+              },
+              "expires_at": 1794759665.367522,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+          },
+          {
+            "message_id": "msg_103bc61045",
+            "role": "assistant",
+            "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+          }
+        ],
+        "calendar_events": [
+          {
+            "event_id": "evt_ae7a674234",
+            "title": "Study",
+            "start_iso": "2026-11-17T10:00:00",
+            "end_iso": "2026-11-17T11:00:00",
+            "description": ""
+          }
+        ],
+        "notes": [
+          {
+            "note_id": "note_exact_title",
+            "title": "Exact - title",
+            "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+          }
+        ],
+        "system_summary": {
+          "disk_free_gb": 137.66,
+          "workspace_files_count": 1,
+          "notes_count": 1,
+          "upcoming_events_count": 1
+        },
+        "recent_activity": [
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Scheduled a calendar event",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation failed; side effects may be partial",
+            "permission_note": "Approved by you",
+            "status": "error"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation denied; not executed",
+            "permission_note": "Denied by you",
+            "status": "not_executed"
+          }
+        ]
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [
+          {
+            "message_id": "msg_a3aa198e89",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not exist",
+                "title": "Denied note"
+              },
+              "expires_at": 1794759664.8466308,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not exist"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+          },
+          {
+            "message_id": "msg_be7ee0a52b",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+          },
+          {
+            "message_id": "msg_01c5f601aa",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759664.9428418,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+          },
+          {
+            "message_id": "msg_895e177f19",
+            "role": "assistant",
+            "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+          },
+          {
+            "message_id": "msg_aa90026952",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not overwrite",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759665.0871603,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not overwrite"
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+          },
+          {
+            "message_id": "msg_9ded7aefbb",
+            "role": "assistant",
+            "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+          },
+          {
+            "message_id": "msg_eb1fdc3079",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Study"
+              },
+              "expires_at": 1794759665.2038286,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+          },
+          {
+            "message_id": "msg_8853ac2027",
+            "role": "assistant",
+            "text": "I've scheduled 'Study': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+          },
+          {
+            "message_id": "msg_9c945bc525",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Revoked"
+              },
+              "expires_at": 1794759665.367522,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+          },
+          {
+            "message_id": "msg_103bc61045",
+            "role": "assistant",
+            "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+          }
+        ],
+        "calendar_events": [
+          {
+            "event_id": "evt_ae7a674234",
+            "title": "Study",
+            "start_iso": "2026-11-17T10:00:00",
+            "end_iso": "2026-11-17T11:00:00",
+            "description": ""
+          }
+        ],
+        "notes": [
+          {
+            "note_id": "note_exact_title",
+            "title": "Exact - title",
+            "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+          }
+        ],
+        "system_summary": {
+          "disk_free_gb": 137.66,
+          "workspace_files_count": 1,
+          "notes_count": 1,
+          "upcoming_events_count": 1
+        },
+        "recent_activity": [
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Scheduled a calendar event",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation failed; side effects may be partial",
+            "permission_note": "Approved by you",
+            "status": "error"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation denied; not executed",
+            "permission_note": "Denied by you",
+            "status": "not_executed"
+          }
+        ]
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+        "approved": true
+      },
+      "status": 409,
+      "response": {
+        "detail": "Task 'task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac' is in status 'completed', not 'awaiting_approval'."
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/quick-event",
+      "request": {
+        "title": "Still revoked",
+        "start_iso": "2026-11-17T10:00:00",
+        "end_iso": "2026-11-17T11:00:00"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Action not completed: Permission denied for tool 'calendar.create_event': FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+        "action_category": "action_failed",
+        "pending_approval": null
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/quick-note",
+      "request": {
+        "title": "Claim first",
+        "body": "Allowed claimed operation"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+          "tool_name": "notes.create_note",
+          "agent_role": "coding",
+          "arguments": {
+            "body": "Allowed claimed operation",
+            "title": "Claim first"
+          },
+          "expires_at": 1794759668.1858587,
+          "summary_label": "notes.create_note",
+          "recipient": "",
+          "subject": "",
+          "body": "Allowed claimed operation"
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [
+          {
+            "message_id": "msg_a3aa198e89",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not exist",
+                "title": "Denied note"
+              },
+              "expires_at": 1794759664.8466308,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not exist"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+          },
+          {
+            "message_id": "msg_be7ee0a52b",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+          },
+          {
+            "message_id": "msg_01c5f601aa",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759664.9428418,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+          },
+          {
+            "message_id": "msg_895e177f19",
+            "role": "assistant",
+            "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+          },
+          {
+            "message_id": "msg_aa90026952",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not overwrite",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759665.0871603,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not overwrite"
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+          },
+          {
+            "message_id": "msg_9ded7aefbb",
+            "role": "assistant",
+            "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+          },
+          {
+            "message_id": "msg_eb1fdc3079",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Study"
+              },
+              "expires_at": 1794759665.2038286,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+          },
+          {
+            "message_id": "msg_8853ac2027",
+            "role": "assistant",
+            "text": "I've scheduled 'Study': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+          },
+          {
+            "message_id": "msg_9c945bc525",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Revoked"
+              },
+              "expires_at": 1794759665.367522,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+          },
+          {
+            "message_id": "msg_103bc61045",
+            "role": "assistant",
+            "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+          },
+          {
+            "message_id": "msg_e98bbdc7e0",
+            "role": "assistant",
+            "text": "Action not completed: Permission denied for tool 'calendar.create_event': FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_be7d02a54942409c90e4716f9ea67291"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:08.163884+00:00"
+          },
+          {
+            "message_id": "msg_d31ab51e40",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Allowed claimed operation",
+                "title": "Claim first"
+              },
+              "expires_at": 1794759668.1858587,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Allowed claimed operation"
+            },
+            "timestamp_utc": "2026-11-15T16:16:08.193238+00:00"
+          }
+        ],
+        "calendar_events": [
+          {
+            "event_id": "evt_ae7a674234",
+            "title": "Study",
+            "start_iso": "2026-11-17T10:00:00",
+            "end_iso": "2026-11-17T11:00:00",
+            "description": ""
+          }
+        ],
+        "notes": [
+          {
+            "note_id": "note_exact_title",
+            "title": "Exact - title",
+            "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+          }
+        ],
+        "system_summary": {
+          "disk_free_gb": 137.66,
+          "workspace_files_count": 1,
+          "notes_count": 1,
+          "upcoming_events_count": 1
+        },
+        "recent_activity": [
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Scheduled a calendar event",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation failed; side effects may be partial",
+            "permission_note": "Approved by you",
+            "status": "error"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation denied; not executed",
+            "permission_note": "Denied by you",
+            "status": "not_executed"
+          }
+        ]
+      }
+    },
+    {
+      "port": 38577,
+      "path": "/permissions/revoke",
+      "request": {
+        "tool_name": "notes.create_note"
+      },
+      "status": 200,
+      "response": {
+        "tightened_tiers": {},
+        "revoked_global_tools": [
+          "calendar.create_event",
+          "notes.create_note"
+        ],
+        "revoked_agent_tools": {}
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+        "approved": true
+      },
+      "status": 200,
+      "response": {
+        "reply": {
+          "message_id": "msg_64f5cf4a6b",
+          "role": "assistant",
+          "text": "I've saved your note 'Claim first'. Indexed chunks: 1.",
+          "action_category": "note_saved",
+          "highlights": [
+            "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+            "Status: Completed"
+          ]
+        },
+        "workspace": {
+          "assistant_name": "NOVA Personal Assistant",
+          "privacy_mode": "100% Offline & Private on Your Laptop",
+          "active_brain_mode": "bootstrap",
+          "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+          "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+          "security_log_verified": true,
+          "messages": [
+            {
+              "message_id": "msg_a3aa198e89",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not exist",
+                  "title": "Denied note"
+                },
+                "expires_at": 1794759664.8466308,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not exist"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+            },
+            {
+              "message_id": "msg_be7ee0a52b",
+              "role": "assistant",
+              "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+            },
+            {
+              "message_id": "msg_01c5f601aa",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759664.9428418,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+              },
+              "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+            },
+            {
+              "message_id": "msg_895e177f19",
+              "role": "assistant",
+              "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+              "action_category": "note_saved",
+              "highlights": [
+                "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+            },
+            {
+              "message_id": "msg_aa90026952",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Must not overwrite",
+                  "title": "Exact - title"
+                },
+                "expires_at": 1794759665.0871603,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Must not overwrite"
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+            },
+            {
+              "message_id": "msg_9ded7aefbb",
+              "role": "assistant",
+              "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+            },
+            {
+              "message_id": "msg_eb1fdc3079",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+                "tool_name": "calendar.create_event",
+                "agent_role": "comms",
+                "arguments": {
+                  "end_iso": "2026-11-17T11:00:00",
+                  "start_iso": "2026-11-17T10:00:00",
+                  "title": "Study"
+                },
+                "expires_at": 1794759665.2038286,
+                "summary_label": "calendar.create_event",
+                "recipient": "",
+                "subject": "",
+                "body": ""
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+            },
+            {
+              "message_id": "msg_8853ac2027",
+              "role": "assistant",
+              "text": "I've scheduled 'Study': no schedule conflicts.",
+              "action_category": "event_scheduled",
+              "highlights": [
+                "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+            },
+            {
+              "message_id": "msg_9c945bc525",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+                "tool_name": "calendar.create_event",
+                "agent_role": "comms",
+                "arguments": {
+                  "end_iso": "2026-11-17T11:00:00",
+                  "start_iso": "2026-11-17T10:00:00",
+                  "title": "Revoked"
+                },
+                "expires_at": 1794759665.367522,
+                "summary_label": "calendar.create_event",
+                "recipient": "",
+                "subject": "",
+                "body": ""
+              },
+              "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+            },
+            {
+              "message_id": "msg_103bc61045",
+              "role": "assistant",
+              "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+            },
+            {
+              "message_id": "msg_e98bbdc7e0",
+              "role": "assistant",
+              "text": "Action not completed: Permission denied for tool 'calendar.create_event': FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+              "action_category": "action_failed",
+              "highlights": [
+                "Task: task_assistant_be7d02a54942409c90e4716f9ea67291"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:08.163884+00:00"
+            },
+            {
+              "message_id": "msg_d31ab51e40",
+              "role": "assistant",
+              "text": "Please review the exact action and click Approve or Deny.",
+              "action_category": "awaiting_approval",
+              "highlights": [
+                "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0"
+              ],
+              "pending_approval": {
+                "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+                "node_id": "assistant_action",
+                "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+                "tool_name": "notes.create_note",
+                "agent_role": "coding",
+                "arguments": {
+                  "body": "Allowed claimed operation",
+                  "title": "Claim first"
+                },
+                "expires_at": 1794759668.1858587,
+                "summary_label": "notes.create_note",
+                "recipient": "",
+                "subject": "",
+                "body": "Allowed claimed operation"
+              },
+              "timestamp_utc": "2026-11-15T16:16:08.193238+00:00"
+            },
+            {
+              "message_id": "msg_64f5cf4a6b",
+              "role": "assistant",
+              "text": "I've saved your note 'Claim first'. Indexed chunks: 1.",
+              "action_category": "note_saved",
+              "highlights": [
+                "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+                "Status: Completed"
+              ],
+              "pending_approval": null,
+              "timestamp_utc": "2026-11-15T16:16:09.345796+00:00"
+            }
+          ],
+          "calendar_events": [
+            {
+              "event_id": "evt_ae7a674234",
+              "title": "Study",
+              "start_iso": "2026-11-17T10:00:00",
+              "end_iso": "2026-11-17T11:00:00",
+              "description": ""
+            }
+          ],
+          "notes": [
+            {
+              "note_id": "note_claim_first",
+              "title": "Claim first",
+              "preview": "# Claim first\n\nAllowed claimed operation"
+            },
+            {
+              "note_id": "note_exact_title",
+              "title": "Exact - title",
+              "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            }
+          ],
+          "system_summary": {
+            "disk_free_gb": 137.66,
+            "workspace_files_count": 2,
+            "notes_count": 2,
+            "upcoming_events_count": 1
+          },
+          "recent_activity": [
+            {
+              "what_happened": "Saved a personal note",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Calendar event creation denied; not executed",
+              "permission_note": "Blocked by policy",
+              "status": "not_executed"
+            },
+            {
+              "what_happened": "Calendar event creation denied; not executed",
+              "permission_note": "Blocked by policy",
+              "status": "not_executed"
+            },
+            {
+              "what_happened": "Scheduled a calendar event",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Note creation failed; side effects may be partial",
+              "permission_note": "Approved by you",
+              "status": "error"
+            },
+            {
+              "what_happened": "Saved a personal note",
+              "permission_note": "Approved by you",
+              "status": "Success"
+            },
+            {
+              "what_happened": "Note creation denied; not executed",
+              "permission_note": "Denied by you",
+              "status": "not_executed"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "port": 38577,
+      "path": "/permissions/restore",
+      "request": {
+        "tool_name": "notes.create_note"
+      },
+      "status": 200,
+      "response": {
+        "tightened_tiers": {},
+        "revoked_global_tools": [
+          "calendar.create_event"
+        ],
+        "revoked_agent_tools": {}
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [
+          {
+            "message_id": "msg_a3aa198e89",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not exist",
+                "title": "Denied note"
+              },
+              "expires_at": 1794759664.8466308,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not exist"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+          },
+          {
+            "message_id": "msg_be7ee0a52b",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+          },
+          {
+            "message_id": "msg_01c5f601aa",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759664.9428418,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+          },
+          {
+            "message_id": "msg_895e177f19",
+            "role": "assistant",
+            "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+          },
+          {
+            "message_id": "msg_aa90026952",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not overwrite",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759665.0871603,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not overwrite"
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+          },
+          {
+            "message_id": "msg_9ded7aefbb",
+            "role": "assistant",
+            "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+          },
+          {
+            "message_id": "msg_eb1fdc3079",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Study"
+              },
+              "expires_at": 1794759665.2038286,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+          },
+          {
+            "message_id": "msg_8853ac2027",
+            "role": "assistant",
+            "text": "I've scheduled 'Study': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+          },
+          {
+            "message_id": "msg_9c945bc525",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Revoked"
+              },
+              "expires_at": 1794759665.367522,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+          },
+          {
+            "message_id": "msg_103bc61045",
+            "role": "assistant",
+            "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+          },
+          {
+            "message_id": "msg_e98bbdc7e0",
+            "role": "assistant",
+            "text": "Action not completed: Permission denied for tool 'calendar.create_event': FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_be7d02a54942409c90e4716f9ea67291"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:08.163884+00:00"
+          },
+          {
+            "message_id": "msg_d31ab51e40",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Allowed claimed operation",
+                "title": "Claim first"
+              },
+              "expires_at": 1794759668.1858587,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Allowed claimed operation"
+            },
+            "timestamp_utc": "2026-11-15T16:16:08.193238+00:00"
+          },
+          {
+            "message_id": "msg_64f5cf4a6b",
+            "role": "assistant",
+            "text": "I've saved your note 'Claim first'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:09.345796+00:00"
+          }
+        ],
+        "calendar_events": [
+          {
+            "event_id": "evt_ae7a674234",
+            "title": "Study",
+            "start_iso": "2026-11-17T10:00:00",
+            "end_iso": "2026-11-17T11:00:00",
+            "description": ""
+          }
+        ],
+        "notes": [
+          {
+            "note_id": "note_claim_first",
+            "title": "Claim first",
+            "preview": "# Claim first\n\nAllowed claimed operation"
+          },
+          {
+            "note_id": "note_exact_title",
+            "title": "Exact - title",
+            "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+          }
+        ],
+        "system_summary": {
+          "disk_free_gb": 137.66,
+          "workspace_files_count": 2,
+          "notes_count": 2,
+          "upcoming_events_count": 1
+        },
+        "recent_activity": [
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Scheduled a calendar event",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation failed; side effects may be partial",
+            "permission_note": "Approved by you",
+            "status": "error"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation denied; not executed",
+            "permission_note": "Denied by you",
+            "status": "not_executed"
+          }
+        ]
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/quick-note",
+      "request": {
+        "title": "Uncertain write",
+        "body": "Do not replay"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+          "tool_name": "notes.create_note",
+          "agent_role": "coding",
+          "arguments": {
+            "body": "Do not replay",
+            "title": "Uncertain write"
+          },
+          "expires_at": 1794759670.4423149,
+          "summary_label": "notes.create_note",
+          "recipient": "",
+          "subject": "",
+          "body": "Do not replay"
+        }
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [
+          {
+            "message_id": "msg_a3aa198e89",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not exist",
+                "title": "Denied note"
+              },
+              "expires_at": 1794759664.8466308,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not exist"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+          },
+          {
+            "message_id": "msg_be7ee0a52b",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+          },
+          {
+            "message_id": "msg_01c5f601aa",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759664.9428418,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+          },
+          {
+            "message_id": "msg_895e177f19",
+            "role": "assistant",
+            "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+          },
+          {
+            "message_id": "msg_aa90026952",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not overwrite",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759665.0871603,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not overwrite"
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+          },
+          {
+            "message_id": "msg_9ded7aefbb",
+            "role": "assistant",
+            "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+          },
+          {
+            "message_id": "msg_eb1fdc3079",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Study"
+              },
+              "expires_at": 1794759665.2038286,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+          },
+          {
+            "message_id": "msg_8853ac2027",
+            "role": "assistant",
+            "text": "I've scheduled 'Study': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+          },
+          {
+            "message_id": "msg_9c945bc525",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Revoked"
+              },
+              "expires_at": 1794759665.367522,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+          },
+          {
+            "message_id": "msg_103bc61045",
+            "role": "assistant",
+            "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+          },
+          {
+            "message_id": "msg_e98bbdc7e0",
+            "role": "assistant",
+            "text": "Action not completed: Permission denied for tool 'calendar.create_event': FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_be7d02a54942409c90e4716f9ea67291"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:08.163884+00:00"
+          },
+          {
+            "message_id": "msg_d31ab51e40",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Allowed claimed operation",
+                "title": "Claim first"
+              },
+              "expires_at": 1794759668.1858587,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Allowed claimed operation"
+            },
+            "timestamp_utc": "2026-11-15T16:16:08.193238+00:00"
+          },
+          {
+            "message_id": "msg_64f5cf4a6b",
+            "role": "assistant",
+            "text": "I've saved your note 'Claim first'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:09.345796+00:00"
+          },
+          {
+            "message_id": "msg_bf1499b08e",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_d2920f7873d84048b08c6353a17a6a59"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Do not replay",
+                "title": "Uncertain write"
+              },
+              "expires_at": 1794759670.4423149,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Do not replay"
+            },
+            "timestamp_utc": "2026-11-15T16:16:10.448266+00:00"
+          }
+        ],
+        "calendar_events": [
+          {
+            "event_id": "evt_ae7a674234",
+            "title": "Study",
+            "start_iso": "2026-11-17T10:00:00",
+            "end_iso": "2026-11-17T11:00:00",
+            "description": ""
+          }
+        ],
+        "notes": [
+          {
+            "note_id": "note_claim_first",
+            "title": "Claim first",
+            "preview": "# Claim first\n\nAllowed claimed operation"
+          },
+          {
+            "note_id": "note_exact_title",
+            "title": "Exact - title",
+            "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+          }
+        ],
+        "system_summary": {
+          "disk_free_gb": 137.66,
+          "workspace_files_count": 2,
+          "notes_count": 2,
+          "upcoming_events_count": 1
+        },
+        "recent_activity": [
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Scheduled a calendar event",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation failed; side effects may be partial",
+            "permission_note": "Approved by you",
+            "status": "error"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation denied; not executed",
+            "permission_note": "Denied by you",
+            "status": "not_executed"
+          }
+        ]
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [
+          {
+            "message_id": "msg_a3aa198e89",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not exist",
+                "title": "Denied note"
+              },
+              "expires_at": 1794759664.8466308,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not exist"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+          },
+          {
+            "message_id": "msg_be7ee0a52b",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+          },
+          {
+            "message_id": "msg_01c5f601aa",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759664.9428418,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+          },
+          {
+            "message_id": "msg_895e177f19",
+            "role": "assistant",
+            "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+          },
+          {
+            "message_id": "msg_aa90026952",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not overwrite",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759665.0871603,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not overwrite"
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+          },
+          {
+            "message_id": "msg_9ded7aefbb",
+            "role": "assistant",
+            "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+          },
+          {
+            "message_id": "msg_eb1fdc3079",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Study"
+              },
+              "expires_at": 1794759665.2038286,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+          },
+          {
+            "message_id": "msg_8853ac2027",
+            "role": "assistant",
+            "text": "I've scheduled 'Study': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+          },
+          {
+            "message_id": "msg_9c945bc525",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Revoked"
+              },
+              "expires_at": 1794759665.367522,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+          },
+          {
+            "message_id": "msg_103bc61045",
+            "role": "assistant",
+            "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+          },
+          {
+            "message_id": "msg_e98bbdc7e0",
+            "role": "assistant",
+            "text": "Action not completed: Permission denied for tool 'calendar.create_event': FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_be7d02a54942409c90e4716f9ea67291"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:08.163884+00:00"
+          },
+          {
+            "message_id": "msg_d31ab51e40",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Allowed claimed operation",
+                "title": "Claim first"
+              },
+              "expires_at": 1794759668.1858587,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Allowed claimed operation"
+            },
+            "timestamp_utc": "2026-11-15T16:16:08.193238+00:00"
+          },
+          {
+            "message_id": "msg_64f5cf4a6b",
+            "role": "assistant",
+            "text": "I've saved your note 'Claim first'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:09.345796+00:00"
+          },
+          {
+            "message_id": "msg_bf1499b08e",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_d2920f7873d84048b08c6353a17a6a59"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Do not replay",
+                "title": "Uncertain write"
+              },
+              "expires_at": 1794759670.4423149,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Do not replay"
+            },
+            "timestamp_utc": "2026-11-15T16:16:10.448266+00:00"
+          }
+        ],
+        "calendar_events": [
+          {
+            "event_id": "evt_ae7a674234",
+            "title": "Study",
+            "start_iso": "2026-11-17T10:00:00",
+            "end_iso": "2026-11-17T11:00:00",
+            "description": ""
+          }
+        ],
+        "notes": [
+          {
+            "note_id": "note_claim_first",
+            "title": "Claim first",
+            "preview": "# Claim first\n\nAllowed claimed operation"
+          },
+          {
+            "note_id": "note_exact_title",
+            "title": "Exact - title",
+            "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+          },
+          {
+            "note_id": "note_uncertain_write",
+            "title": "Uncertain write",
+            "preview": "# Uncertain write\n\nDo not replay"
+          }
+        ],
+        "system_summary": {
+          "disk_free_gb": 137.66,
+          "workspace_files_count": 3,
+          "notes_count": 3,
+          "upcoming_events_count": 1
+        },
+        "recent_activity": [
+          {
+            "what_happened": "notes.create_note started; completion unconfirmed",
+            "permission_note": "Authorization claimed; do not automatically retry",
+            "status": "Uncertain"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Scheduled a calendar event",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation failed; side effects may be partial",
+            "permission_note": "Approved by you",
+            "status": "error"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation denied; not executed",
+            "permission_note": "Denied by you",
+            "status": "not_executed"
+          }
+        ]
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+        "approved": true
+      },
+      "status": 409,
+      "response": {
+        "detail": "Authorization already claimed; replay forbidden (outcome may be uncertain)."
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [
+          {
+            "message_id": "msg_a3aa198e89",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_ff981650c707487aaf6ed258ed469b31",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_3622146bdde54317bc50cec1cd54dab9",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not exist",
+                "title": "Denied note"
+              },
+              "expires_at": 1794759664.8466308,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not exist"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.853842+00:00"
+          },
+          {
+            "message_id": "msg_be7ee0a52b",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_ff981650c707487aaf6ed258ed469b31"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:04.915609+00:00"
+          },
+          {
+            "message_id": "msg_01c5f601aa",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759664.9428418,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Body with \u2014 delimiter\nSecond line <script>untrusted</script>"
+            },
+            "timestamp_utc": "2026-11-15T16:16:04.949346+00:00"
+          },
+          {
+            "message_id": "msg_895e177f19",
+            "role": "assistant",
+            "text": "I've saved your note 'Exact - title'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.012145+00:00"
+          },
+          {
+            "message_id": "msg_aa90026952",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Must not overwrite",
+                "title": "Exact - title"
+              },
+              "expires_at": 1794759665.0871603,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Must not overwrite"
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.093685+00:00"
+          },
+          {
+            "message_id": "msg_9ded7aefbb",
+            "role": "assistant",
+            "text": "Action not completed: Tool failed; side effects may be partial: FileExistsError: [Errno 17] File exists: 'C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-live-ditecrxy\\\\workspace\\\\notes\\\\exact_title.md'",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_a60f95e8f31a465688a9daf1807967d3"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.147798+00:00"
+          },
+          {
+            "message_id": "msg_eb1fdc3079",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Study"
+              },
+              "expires_at": 1794759665.2038286,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.211870+00:00"
+          },
+          {
+            "message_id": "msg_8853ac2027",
+            "role": "assistant",
+            "text": "I've scheduled 'Study': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:05.332696+00:00"
+          },
+          {
+            "message_id": "msg_9c945bc525",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_b74d6696a1774390afe6dafee3db1a36",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_40629f97c66a4c768ade78aaacf63803",
+              "tool_name": "calendar.create_event",
+              "agent_role": "comms",
+              "arguments": {
+                "end_iso": "2026-11-17T11:00:00",
+                "start_iso": "2026-11-17T10:00:00",
+                "title": "Revoked"
+              },
+              "expires_at": 1794759665.367522,
+              "summary_label": "calendar.create_event",
+              "recipient": "",
+              "subject": "",
+              "body": ""
+            },
+            "timestamp_utc": "2026-11-15T16:16:05.376454+00:00"
+          },
+          {
+            "message_id": "msg_103bc61045",
+            "role": "assistant",
+            "text": "Action not completed: FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_b74d6696a1774390afe6dafee3db1a36"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:06.501535+00:00"
+          },
+          {
+            "message_id": "msg_e98bbdc7e0",
+            "role": "assistant",
+            "text": "Action not completed: Permission denied for tool 'calendar.create_event': FR-15 policy: Tool 'calendar.create_event' has been revoked by the user.",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_be7d02a54942409c90e4716f9ea67291"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:08.163884+00:00"
+          },
+          {
+            "message_id": "msg_d31ab51e40",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Allowed claimed operation",
+                "title": "Claim first"
+              },
+              "expires_at": 1794759668.1858587,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Allowed claimed operation"
+            },
+            "timestamp_utc": "2026-11-15T16:16:08.193238+00:00"
+          },
+          {
+            "message_id": "msg_64f5cf4a6b",
+            "role": "assistant",
+            "text": "I've saved your note 'Claim first'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+              "Status: Completed"
+            ],
+            "pending_approval": null,
+            "timestamp_utc": "2026-11-15T16:16:09.345796+00:00"
+          },
+          {
+            "message_id": "msg_bf1499b08e",
+            "role": "assistant",
+            "text": "Please review the exact action and click Approve or Deny.",
+            "action_category": "awaiting_approval",
+            "highlights": [
+              "Task: task_assistant_d2920f7873d84048b08c6353a17a6a59"
+            ],
+            "pending_approval": {
+              "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+              "node_id": "assistant_action",
+              "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+              "tool_name": "notes.create_note",
+              "agent_role": "coding",
+              "arguments": {
+                "body": "Do not replay",
+                "title": "Uncertain write"
+              },
+              "expires_at": 1794759670.4423149,
+              "summary_label": "notes.create_note",
+              "recipient": "",
+              "subject": "",
+              "body": "Do not replay"
+            },
+            "timestamp_utc": "2026-11-15T16:16:10.448266+00:00"
+          }
+        ],
+        "calendar_events": [
+          {
+            "event_id": "evt_ae7a674234",
+            "title": "Study",
+            "start_iso": "2026-11-17T10:00:00",
+            "end_iso": "2026-11-17T11:00:00",
+            "description": ""
+          }
+        ],
+        "notes": [
+          {
+            "note_id": "note_claim_first",
+            "title": "Claim first",
+            "preview": "# Claim first\n\nAllowed claimed operation"
+          },
+          {
+            "note_id": "note_exact_title",
+            "title": "Exact - title",
+            "preview": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>"
+          },
+          {
+            "note_id": "note_uncertain_write",
+            "title": "Uncertain write",
+            "preview": "# Uncertain write\n\nDo not replay"
+          }
+        ],
+        "system_summary": {
+          "disk_free_gb": 137.66,
+          "workspace_files_count": 3,
+          "notes_count": 3,
+          "upcoming_events_count": 1
+        },
+        "recent_activity": [
+          {
+            "what_happened": "notes.create_note started; completion unconfirmed",
+            "permission_note": "Authorization claimed; do not automatically retry",
+            "status": "Uncertain"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Calendar event creation denied; not executed",
+            "permission_note": "Blocked by policy",
+            "status": "not_executed"
+          },
+          {
+            "what_happened": "Scheduled a calendar event",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation failed; side effects may be partial",
+            "permission_note": "Approved by you",
+            "status": "error"
+          },
+          {
+            "what_happened": "Saved a personal note",
+            "permission_note": "Approved by you",
+            "status": "Success"
+          },
+          {
+            "what_happened": "Note creation denied; not executed",
+            "permission_note": "Denied by you",
+            "status": "not_executed"
+          }
+        ]
+      }
+    },
+    {
+      "port": 38550,
+      "path": "/audit/authorization-attempts",
+      "request": null,
+      "status": 200,
+      "response": [
+        {
+          "attempt_id": "9fcd5e3dde264a1cb16a0a860f2d576f",
+          "timestamp": 1794759364.9752357,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca",
+            "tool_name": "notes.create_note"
+          }
+        },
+        {
+          "attempt_id": "1fcc2d00384647a889e54db87b1da397",
+          "timestamp": 1794759365.046453,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca"
+          }
+        },
+        {
+          "attempt_id": "5ba08d7e12924154ac046f1b9839e5d6",
+          "timestamp": 1794759365.1177368,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_a60f95e8f31a465688a9daf1807967d3",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_be26869bae204c31beec5455552a9f5e",
+            "tool_name": "notes.create_note"
+          }
+        },
+        {
+          "attempt_id": "e63603a9c7fb42efb0c5c99ed43c2cac",
+          "timestamp": 1794759365.2395785,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "9cd06e5327034d70b50b7f42e48c227d",
+          "timestamp": 1794759365.2451737,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "0482e77ac98140e3aafe4eba68f64f19",
+          "timestamp": 1794759365.248172,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "ce95aeaf3dfa48889c565b625439f2e7",
+          "timestamp": 1794759365.2577198,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "f47de8dc873f4619a2faaf836e19d49f",
+          "timestamp": 1794759365.2871606,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "node_id": "assistant_action"
+          }
+        },
+        {
+          "attempt_id": "e0163787cf0042a9a83ed72aff5331e1",
+          "timestamp": 1794759365.2921846,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_3e5787663b3d4d1493c1ebcec86e47b1",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "comms"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_012903005dbf4bf6889beefada3a633e",
+            "tool_name": "calendar.create_event"
+          }
+        },
+        {
+          "attempt_id": "1d82cd97db654692a9f3bce025ee739b",
+          "timestamp": 1794759368.1245272,
+          "outcome": "rejected",
+          "reason_code": "authorization_rejected",
+          "trusted_context": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "task_id": "task_assistant_2daf17a9b62d448f8dbe7ea9540fc7ac",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_b01e3f04df5448d3988d5111c018dbca"
+          }
+        },
+        {
+          "attempt_id": "3a649e9ef9e24dc59f754533a9bbd2e4",
+          "timestamp": 1794759369.294434,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_003ba581f68c4a84b1d2c09747720fb0",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_0726f83cef474801936aeb7375207759",
+            "tool_name": "notes.create_note"
+          }
+        },
+        {
+          "attempt_id": "d0a61a0d94d348e6bd19bcf4bb2a99f7",
+          "timestamp": 1794759371.5417051,
+          "outcome": "claimed",
+          "reason_code": "authorization_claimed",
+          "trusted_context": {
+            "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+            "tool_name": "notes.create_note"
+          }
+        },
+        {
+          "attempt_id": "88380ebbb8dc4aaaa72e75d115a49374",
+          "timestamp": 1794759372.6455815,
+          "outcome": "rejected",
+          "reason_code": "replay",
+          "trusted_context": {
+            "task_id": "task_assistant_d2920f7873d84048b08c6353a17a6a59",
+            "session_id": "sess_personal_chat",
+            "node_id": "assistant_action",
+            "agent_role": "coding"
+          },
+          "submitted_claims": {
+            "proposal_id": "prop_ff6df7304b8d480fb1ff13fbba053e7c",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "node_id": "assistant_action"
+          }
+        }
+      ]
+    }
+  ],
+  "result": "PASS"
+}

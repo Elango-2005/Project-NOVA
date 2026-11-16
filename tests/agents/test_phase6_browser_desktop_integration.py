@@ -79,6 +79,7 @@ class TestPhase6BrowserAndDesktopOrchestratorIntegration:
             )
 
             executor = SandboxedMcpToolExecutor(
+                permission_gate=gate,
                 registry=registry,
                 filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
                 audit_log=audit_log,
@@ -257,6 +258,7 @@ class TestPhase6BrowserAndDesktopOrchestratorIntegration:
                 audit_log=audit_log,
             )
             executor = SandboxedMcpToolExecutor(
+                permission_gate=gate,
                 registry=registry,
                 filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
                 audit_log=audit_log,

@@ -113,6 +113,8 @@ class NodeExecutionRecord(BaseModel):
     react_state: ReActNodeState = Field(
         ..., description="Bounded Thought-Action-Observation notepad for this node"
     )
+    direct_action: bool = False
+    approval_expires_at: Optional[float] = None
     pending_tool_proposal: Optional[ToolCallProposal] = Field(
         default=None,
         description="ToolCallProposal currently paused awaiting Reflection or Human Approval",
@@ -170,6 +172,7 @@ class TaskExecutionState(BaseModel):
     updated_at_utc: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
     )
+    approval_attempt_id: Optional[str] = Field(default=None)
     failure_reason: Optional[str] = Field(default=None)
 
     def __init__(self, **data: object) -> None:
@@ -354,5 +357,6 @@ class TaskExecutionState(BaseModel):
             max_graph_steps=self.max_graph_steps,
             checkpoint_seq=self.checkpoint_seq + 1,
             updated_at_utc=datetime.now(timezone.utc).isoformat(),
+            approval_attempt_id=self.approval_attempt_id,
             failure_reason=failure_reason,
         )

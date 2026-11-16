@@ -1,0 +1,11 @@
+{
+  "services\\backend\\src\\nova\\main.py": "b7939d2413059df5dcbc9b892e1d007559524a8db8997d62fb2ec1dc75ebca61",
+  "services\\backend\\src\\nova\\api\\app.py": "e1a91bbf71a0547dc784b06c01e631895c7db6c2e3a9cc8d7b46dc3a51a848b6",
+  "services\\backend\\src\\nova\\api\\assistant_ui.py": "4d7cad1f381cc8cb5fa6f6abd362842930259a2940445bf34a21cf467a2a9d73",
+  "services\\backend\\src\\nova\\core\\orchestration\\checkpoint.py": "ff3408e6e37ee7786e6cc06345f59a063a84be3f08bc242ca6b4f0a66d04ec8b",
+  "services\\backend\\src\\nova\\core\\orchestration\\engine.py": "65c7b992f4cb68f9103824a19712c3a03bede5d6fbb68644f00d5974cde14594",
+  "services\\backend\\src\\nova\\core\\permissions\\authorization.py": "6d74dcbd48775f2c85b87eea91702a61814e3d323cb00592693a53e2ba7c1694",
+  "services\\backend\\src\\nova\\core\\permissions\\sandbox_and_audit.py": "4847bdcf483731b44c49386cee730c6659f867ac9a47ff470a3b414548b744a7",
+  "tests/permissions_security/test_c01_corrections.py": "fd61517ee00d23c76afa89061c02761d79fbf93e58394a19ea88b906f815b036",
+  "tests/integration/c01_live_api.py": "9fde00e77c523e02bc89ebd827fe7e18a9f3ed87520f3534ac3608a6481782c2"
+}

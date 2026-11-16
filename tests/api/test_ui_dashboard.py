@@ -5,7 +5,7 @@ Verifies:
    with all 4 interactive panels (Command Center, Audit Trail, Hybrid RAG Ingest, MCP Tool Catalog)
    and client-side fetch wiring (`/tasks`, `/approve`, `/rag/ingest`, `/ui/overview`).
 2. `get_dashboard_overview_snapshot(container)` returns live telemetry (`offline_by_default=True`,
-   `registered_tools_count == 42`, and real-time `recent_audit_logs` after a task runs).
+   `registered_tools_count == 43`, and real-time `recent_audit_logs` after a task runs).
 3. `get_dashboard_overview_snapshot` tracks multi-step paused email tasks (`AWAITING_APPROVAL`) and
    subsequent user approval cleanly.
 """
@@ -61,9 +61,9 @@ class TestNovaMissionControlDashboard:
             initial_snap = get_dashboard_overview_snapshot(container)
             assert initial_snap["status"] == "ok"
             assert initial_snap["offline_by_default"] is True
-            assert initial_snap["registered_mcp_servers"] == 20
-            assert initial_snap["registered_tools_count"] == 42
-            assert len(initial_snap["tools"]) == 42
+            assert initial_snap["registered_mcp_servers"] == 21
+            assert initial_snap["registered_tools_count"] == 43
+            assert len(initial_snap["tools"]) == 43
             assert initial_snap["recent_audit_logs"] == []
 
             # Run a real task and confirm the dashboard snapshot includes the new audit log entry

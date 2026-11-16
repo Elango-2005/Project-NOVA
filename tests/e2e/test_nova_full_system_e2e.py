@@ -280,6 +280,7 @@ class TestNovaFullSevenLayerSystemE2E:
                 return {"bytes_written": len(text)}
 
             executor = SandboxedMcpToolExecutor(
+                permission_gate=gate,
                 registry=registry,
                 filesystem_sandbox=fs_sandbox,
                 audit_log=audit_log,

@@ -544,10 +544,9 @@ def build_mission_control_app(
     return fastapi_app
 
 
-try:
-    app = build_mission_control_app()
-except Exception:  # pragma: no cover
-    app = None
+from nova.main import DeferredAsgiApp
+
+app = DeferredAsgiApp(build_mission_control_app)
 
 
 __all__ = [

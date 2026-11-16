@@ -1,0 +1,11 @@
+[
+  "services\\backend\\src\\nova\\api\\app.py",
+  "services\\backend\\src\\nova\\api\\assistant_ui.py",
+  "services\\backend\\src\\nova\\core\\orchestration\\checkpoint.py",
+  "services\\backend\\src\\nova\\core\\orchestration\\engine.py",
+  "services\\backend\\src\\nova\\core\\orchestration\\ports.py",
+  "services\\backend\\src\\nova\\core\\orchestration\\state.py",
+  "services\\backend\\src\\nova\\core\\permissions\\authorization.py",
+  "services\\backend\\src\\nova\\core\\permissions\\sandbox_and_audit.py",
+  "tests\\orchestration\\test_phase2_crash_recovery.py"
+]

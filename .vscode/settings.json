@@ -1,1 +1,6 @@
-﻿{"python.analysis.extraPaths": ["services/backend/src"]}
+{
+    "python.analysis.extraPaths": [
+        "services/backend/src"
+    ],
+    "python.terminal.useEnvFile": true
+}

@@ -20,7 +20,7 @@ directly. Instead, the Manager uses two walkie-talkies:
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Literal, Mapping, Optional, Protocol, Tuple, runtime_checkable
+from typing import Any, TypeVar, Callable, Dict, List, Literal, Mapping, Optional, Protocol, Tuple, runtime_checkable
 
 from pydantic import BaseModel, Field
 
@@ -43,6 +43,34 @@ from nova.core.domain.proposals import ToolCallProposal
 
 class UnapprovedToolExecutionError(PermissionError):
     """Raised when code attempts to execute a tool without a verified approval stamp (ADR-010)."""
+
+
+class AuthorizationAlreadyClaimedError(UnapprovedToolExecutionError):
+    """An execution winner exists; its outcome must not be replaced."""
+
+
+ModelT = TypeVar("ModelT", bound=BaseModel)
+
+
+def copy_model(model: ModelT, **updates: Any) -> ModelT:
+    """Preserve the repository's Pydantic 1/2 compatibility for immutable updates."""
+    if hasattr(model, "model_copy"):
+        return model.model_copy(update=updates)
+    return model.copy(update=updates)
+
+
+class ToolActionContext(BaseModel):
+    """Identity supplied by the runtime, never accepted from a model or HTTP body."""
+    if PYDANTIC_V2:
+        model_config = ConfigDict(frozen=True, extra="forbid")
+    else:
+        class Config:
+            allow_mutation = False
+            extra = "forbid"
+    task_id: str = Field(..., min_length=1)
+    session_id: str = Field(..., min_length=1)
+    node_id: str = Field(..., min_length=1)
+    agent_role: AgentRole
 
 
 class PermissionCheckResult(BaseModel):
@@ -71,6 +99,10 @@ class PermissionCheckResult(BaseModel):
         description="True when the orchestrator must pause in AWAITING_APPROVAL and ask the user",
     )
     reason: str = Field(..., min_length=1, description="Audit explanation for this decision")
+    context: Optional[ToolActionContext] = None
+    action_digest: Optional[str] = None
+    authorization_id: Optional[str] = None
+    expires_at: Optional[float] = None
 
     @property
     def is_approved(self) -> bool:
@@ -133,6 +165,7 @@ class PermissionGatePort(Protocol):
     def evaluate_tool_proposal(
         self,
         proposal: ToolCallProposal,
+        *, context: Optional[ToolActionContext] = None,
     ) -> PermissionCheckResult:
         """Evaluate whether `proposal` is auto-approved, denied, or requires user confirmation."""
 
@@ -141,6 +174,7 @@ class PermissionGatePort(Protocol):
         proposal_id: str,
         approved: bool,
         reason: str = "User interactive decision",
+        *, proposal: Optional[ToolCallProposal] = None, context: Optional[ToolActionContext] = None,
     ) -> None:
         """Record the human user's Approve/Deny click for a paused `proposal_id`."""
 
@@ -153,6 +187,8 @@ class ToolExecutorPort(Protocol):
         self,
         proposal: ToolCallProposal,
         permission_stamp: PermissionCheckResult,
+        *, context: Optional[ToolActionContext] = None,
+        on_started: Optional[Callable[[], None]] = None,
     ) -> ToolExecutionResult:
         """Execute `proposal` ONLY after verifying `permission_stamp.is_approved` is True."""
 
@@ -184,6 +220,7 @@ class DefaultPolicyPermissionGate:
         proposal_id: str,
         approved: bool,
         reason: str = "User interactive decision",
+        *, proposal: Optional[ToolCallProposal] = None, context: Optional[ToolActionContext] = None,
     ) -> None:
         """Store a human Approve (`True`) or Deny (`False`) decision for `proposal_id`."""
         self._user_decisions[proposal_id] = (approved, reason)
@@ -191,6 +228,7 @@ class DefaultPolicyPermissionGate:
     def evaluate_tool_proposal(
         self,
         proposal: ToolCallProposal,
+        *, context: Optional[ToolActionContext] = None,
     ) -> PermissionCheckResult:
         """Evaluate a ToolCallProposal against ADR-008 scope and ADR-010 sensitivity rules."""
         spec = get_agent_spec(proposal.agent_role)
@@ -293,6 +331,12 @@ def verify_approval_stamp(
         raise UnapprovedToolExecutionError(
             "ADR-010 violation: Missing PermissionCheckResult stamp."
         )
+    if permission_stamp.agent_role != proposal.agent_role:
+        raise UnapprovedToolExecutionError("Approval agent identity mismatch.")
+    if permission_stamp.context is not None:
+        from nova.core.permissions.authorization import action_digest
+        if action_digest(proposal, permission_stamp.context) != permission_stamp.action_digest:
+            raise UnapprovedToolExecutionError("Approval arguments/context mismatch.")
     if permission_stamp.proposal_id != proposal.proposal_id:
         raise UnapprovedToolExecutionError(
             f"ADR-010 violation: Permission stamp proposal_id {permission_stamp.proposal_id!r} "
@@ -332,6 +376,8 @@ class InMemoryMockToolExecutor:
         self,
         proposal: ToolCallProposal,
         permission_stamp: PermissionCheckResult,
+        *, context: Optional[ToolActionContext] = None,
+        on_started: Optional[Callable[[], None]] = None,
     ) -> ToolExecutionResult:
         """Verify the approval stamp and run the registered handler."""
         verify_approval_stamp(proposal, permission_stamp)
@@ -346,6 +392,8 @@ class InMemoryMockToolExecutor:
                 sanitized_output=f"Tool '{proposal.tool_name}' is not registered in executor.",
             )
 
+        if on_started is not None:
+            on_started()
         try:
             raw_output = handler(dict(proposal.arguments))
             return ToolExecutionResult(

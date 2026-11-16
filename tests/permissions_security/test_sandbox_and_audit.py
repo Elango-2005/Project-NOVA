@@ -176,6 +176,7 @@ class TestSandboxPolicyAndAuditLog:
             )
             bus = InMemoryEventBus()
             executor = SandboxedMcpToolExecutor(
+                permission_gate=gate,
                 registry=registry,
                 filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
                 audit_log=audit_log,

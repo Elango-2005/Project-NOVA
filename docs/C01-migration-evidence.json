@@ -1,0 +1,246 @@
+{
+  "result": "PASS",
+  "data_root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-migration-f2_zrzsh",
+  "commands": [
+    {
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-c",
+        "import sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nfrom nova.main import NovaRuntimeContainer\nfrom nova.core.cognition.conversation_session import PersonalAssistantChatSession\nr=Path(sys.argv[2])\nc=NovaRuntimeContainer(data_dir=r/'data',workspace_dir=r/'workspace')\nif sys.argv[3]=='create':\n s=PersonalAssistantChatSession(c)\n assert s.submit_action('notes.create_note',{'title':'Pre C01','body':'Preserve existing synthetic data'}).action_category=='note_saved'\n c.policy_store.revoke_tool('calendar.create_event')\nprint('OK')\n",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-baseline-ogws_ij2\\services\\backend\\src",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-migration-f2_zrzsh",
+        "create"
+      ],
+      "exit_code": 0,
+      "stdout": "OK\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "-c",
+        "import sys\nfrom pathlib import Path\nsys.path.insert(0,sys.argv[1])\nfrom nova.main import NovaRuntimeContainer\nfrom nova.core.cognition.conversation_session import PersonalAssistantChatSession\nr=Path(sys.argv[2])\nc=NovaRuntimeContainer(data_dir=r/'data',workspace_dir=r/'workspace')\nif sys.argv[3]=='create':\n s=PersonalAssistantChatSession(c)\n assert s.submit_action('notes.create_note',{'title':'Pre C01','body':'Preserve existing synthetic data'}).action_category=='note_saved'\n c.policy_store.revoke_tool('calendar.create_event')\nprint('OK')\n",
+        "C:\\NOVA\\services\\backend\\src",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-migration-f2_zrzsh",
+        "open"
+      ],
+      "exit_code": 0,
+      "stdout": "OK\n",
+      "stderr": ""
+    }
+  ],
+  "before": {
+    "nova_audit.db": {
+      "permission_policy": [
+        [
+          1,
+          "{\"tightened_tiers\": {}, \"revoked_global_tools\": [\"calendar.create_event\"], \"revoked_agent_tools\": {}}"
+        ]
+      ],
+      "tool_audit_log": [
+        [
+          "aud_6e2718696cf5449da8ddf0eafdfcdf85",
+          "2026-11-15T16:23:25.596661+00:00",
+          "task_assistant_0934b98f17d844d89c0d43fe865c8160",
+          "sess_personal_chat",
+          "assistant_action",
+          "prop_70094d49a69c49b3bf9055bc27ed83c0",
+          "coding",
+          "notes.create_note",
+          "reversible_write",
+          "auto_approved",
+          "success",
+          "{\"body\": \"Preserve existing synthetic data\", \"title\": \"Pre C01\"}",
+          "Execute the exact note/calendar action requested by the user.",
+          "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-migration-f2_zrzsh\\\\workspace\\\\notes\\\\pre_c01.md\", \"note_id\": \"note_pre_c01\", \"title\": \"Pre C01\"}",
+          "1.0.0"
+        ]
+      ],
+      "tool_authorizations": [
+        [
+          "prop_70094d49a69c49b3bf9055bc27ed83c0",
+          "942d8bb2eb2311cbd1b384f3f9fa004e077643866a4539d562a0ac6840b96ce9",
+          1794760105.5635047,
+          "success",
+          "{\"proposal_id\":\"prop_70094d49a69c49b3bf9055bc27ed83c0\",\"tool_name\":\"notes.create_note\",\"agent_role\":\"coding\",\"effective_sensitivity\":\"reversible_write\",\"decision\":\"auto_approved\",\"requires_interactive_prompt\":false,\"reason\":\"Auto-approved reversible_write tool per policy.\",\"context\":{\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"},\"action_digest\":\"942d8bb2eb2311cbd1b384f3f9fa004e077643866a4539d562a0ac6840b96ce9\",\"authorization_id\":\"ab9975987a894d03b01fa13c15792edc\",\"expires_at\":1794760105.5635047}"
+        ]
+      ]
+    },
+    "nova_calendar.db": {
+      "calendar_events": []
+    },
+    "nova_chat_history.db": {
+      "chat_messages": [
+        [
+          1,
+          "msg_a2d329d1d2",
+          "assistant",
+          "I've saved your note 'Pre C01'. Indexed chunks: 1.",
+          "note_saved",
+          "[\"Task: task_assistant_0934b98f17d844d89c0d43fe865c8160\", \"Status: Completed\"]",
+          null,
+          "2026-11-15T16:23:25.605859+00:00"
+        ]
+      ]
+    },
+    "nova_checkpoints.db": {
+      "task_checkpoints": [
+        [
+          "task_assistant_0934b98f17d844d89c0d43fe865c8160",
+          2,
+          "assistant_action",
+          "running",
+          "4347872124fad4a1e7d211a106850593e3cbe4cc769ded4ef4d3258fafff2e19",
+          "2026-11-15T16:23:25.554365+00:00",
+          "{\"checkpoint_seq\":2,\"failure_reason\":null,\"max_graph_steps\":25,\"node_records\":{\"assistant_action\":{\"agent_role\":\"coding\",\"approval_expires_at\":null,\"attempt_count\":0,\"direct_action\":true,\"final_answer\":null,\"last_error\":null,\"node_id\":\"assistant_action\",\"pending_tool_proposal\":{\"agent_role\":\"coding\",\"arguments\":{\"body\":\"Preserve existing synthetic data\",\"title\":\"Pre C01\"},\"declared_sensitivity\":\"reversible_write\",\"kind\":\"tool_call\",\"node_id\":\"assistant_action\",\"proposal_id\":\"prop_70094d49a69c49b3bf9055bc27ed83c0\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"schema_version\":\"1.0.0\",\"thought\":\"Explicit assistant command; no model inference performed.\",\"tool_name\":\"notes.create_note\"},\"react_state\":{\"max_iterations\":5,\"node_id\":\"assistant_action\",\"turns\":[]},\"status\":\"pending\"}},\"plan_graph\":{\"edges\":[],\"goal_summary\":\"notes.create_note\",\"max_graph_steps\":25,\"nodes\":[{\"depends_on\":[],\"estimated_sensitivity\":\"read_only\",\"max_react_iterations\":5,\"max_retries\":3,\"node_id\":\"assistant_action\",\"objective\":\"notes.create_note\",\"requires_human_approval\":false,\"requires_reflection\":false,\"target_agent\":\"coding\"}],\"plan_id\":\"plan_2881cda4ea1248e59cad9a2034d9a406\",\"schema_version\":\"1.0.0\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\"},\"schema_version\":\"1.0.0\",\"session_id\":\"sess_personal_chat\",\"status\":\"running\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\",\"total_transitions\":2,\"updated_at_utc\":\"2026-11-15T16:23:25.554365+00:00\",\"user_goal\":\"notes.create_note\"}"
+        ],
+        [
+          "task_assistant_0934b98f17d844d89c0d43fe865c8160",
+          3,
+          "assistant_action",
+          "running",
+          "bf678e572b91e66f7e16f6eec1de6a383bcd32fecbe317d1ec92643ad02d6b88",
+          "2026-11-15T16:23:25.566843+00:00",
+          "{\"checkpoint_seq\":3,\"failure_reason\":null,\"max_graph_steps\":25,\"node_records\":{\"assistant_action\":{\"agent_role\":\"coding\",\"approval_expires_at\":null,\"attempt_count\":0,\"direct_action\":true,\"final_answer\":null,\"last_error\":null,\"node_id\":\"assistant_action\",\"pending_tool_proposal\":{\"agent_role\":\"coding\",\"arguments\":{\"body\":\"Preserve existing synthetic data\",\"title\":\"Pre C01\"},\"declared_sensitivity\":\"reversible_write\",\"kind\":\"tool_call\",\"node_id\":\"assistant_action\",\"proposal_id\":\"prop_70094d49a69c49b3bf9055bc27ed83c0\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"schema_version\":\"1.0.0\",\"thought\":\"Explicit assistant command; no model inference performed.\",\"tool_name\":\"notes.create_note\"},\"react_state\":{\"max_iterations\":5,\"node_id\":\"assistant_action\",\"turns\":[]},\"status\":\"pending\"}},\"plan_graph\":{\"edges\":[],\"goal_summary\":\"notes.create_note\",\"max_graph_steps\":25,\"nodes\":[{\"depends_on\":[],\"estimated_sensitivity\":\"read_only\",\"max_react_iterations\":5,\"max_retries\":3,\"node_id\":\"assistant_action\",\"objective\":\"notes.create_note\",\"requires_human_approval\":false,\"requires_reflection\":false,\"target_agent\":\"coding\"}],\"plan_id\":\"plan_2881cda4ea1248e59cad9a2034d9a406\",\"schema_version\":\"1.0.0\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\"},\"schema_version\":\"1.0.0\",\"session_id\":\"sess_personal_chat\",\"status\":\"running\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\",\"total_transitions\":3,\"updated_at_utc\":\"2026-11-15T16:23:25.566843+00:00\",\"user_goal\":\"notes.create_note\"}"
+        ],
+        [
+          "task_assistant_0934b98f17d844d89c0d43fe865c8160",
+          4,
+          "assistant_action",
+          "completed",
+          "efccad217b3bb0383253e35b6a240a2b95f9e2a8776c5e12c91006f321c79faf",
+          "2026-11-15T16:23:25.601240+00:00",
+          "{\"checkpoint_seq\":4,\"failure_reason\":null,\"max_graph_steps\":25,\"node_records\":{\"assistant_action\":{\"agent_role\":\"coding\",\"approval_expires_at\":null,\"attempt_count\":0,\"direct_action\":true,\"final_answer\":{\"agent_role\":\"coding\",\"cited_source_ids\":[],\"confidence\":1.0,\"content\":\"{\\\"chunks_indexed\\\": 1, \\\"file_path\\\": \\\"C:\\\\\\\\Users\\\\\\\\Elango s\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\nova-c01-migration-f2_zrzsh\\\\\\\\workspace\\\\\\\\notes\\\\\\\\pre_c01.md\\\", \\\"note_id\\\": \\\"note_pre_c01\\\", \\\"title\\\": \\\"Pre C01\\\"}\",\"kind\":\"final_answer\",\"node_id\":\"assistant_action\",\"proposal_id\":\"prop_3e806f4d8858497db5870009cd3023a6\",\"schema_version\":\"1.0.0\",\"thought\":\"Result returned by the actual local handler.\"},\"last_error\":null,\"node_id\":\"assistant_action\",\"pending_tool_proposal\":null,\"react_state\":{\"max_iterations\":5,\"node_id\":\"assistant_action\",\"turns\":[]},\"status\":\"completed\"}},\"plan_graph\":{\"edges\":[],\"goal_summary\":\"notes.create_note\",\"max_graph_steps\":25,\"nodes\":[{\"depends_on\":[],\"estimated_sensitivity\":\"read_only\",\"max_react_iterations\":5,\"max_retries\":3,\"node_id\":\"assistant_action\",\"objective\":\"notes.create_note\",\"requires_human_approval\":false,\"requires_reflection\":false,\"target_agent\":\"coding\"}],\"plan_id\":\"plan_2881cda4ea1248e59cad9a2034d9a406\",\"schema_version\":\"1.0.0\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\"},\"schema_version\":\"1.0.0\",\"session_id\":\"sess_personal_chat\",\"status\":\"completed\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\",\"total_transitions\":4,\"updated_at_utc\":\"2026-11-15T16:23:25.601240+00:00\",\"user_goal\":\"notes.create_note\"}"
+        ]
+      ]
+    },
+    "nova_memory.db": {
+      "long_term_memories": []
+    },
+    "nova_rag.db": {
+      "rag_document_chunks": [
+        [
+          "note_pre_c01#chunk_0",
+          "note_pre_c01",
+          "file:///C:/Users/Elango%20s/AppData/Local/Temp/nova-c01-migration-f2_zrzsh/workspace/notes/pre_c01.md",
+          "local_file",
+          0,
+          "# Pre C01\n\nPreserve existing synthetic data",
+          "user_content_local",
+          "[0.0, 0.0, 0.0, 0.603023, 0.0, 0.0, 0.301511, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.301511, 0.0, 0.0, 0.0, 0.301511, 0.0, 0.603023, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]",
+          "1.0.0"
+        ]
+      ]
+    },
+    "note_sha256": "a88e68d346a7afc7dee6d0bb13466e41f172495e5a5118e5f6e37bb1df1064c7"
+  },
+  "after": {
+    "nova_audit.db": {
+      "permission_policy": [
+        [
+          1,
+          "{\"tightened_tiers\": {}, \"revoked_global_tools\": [\"calendar.create_event\"], \"revoked_agent_tools\": {}}"
+        ]
+      ],
+      "tool_audit_log": [
+        [
+          "aud_6e2718696cf5449da8ddf0eafdfcdf85",
+          "2026-11-15T16:23:25.596661+00:00",
+          "task_assistant_0934b98f17d844d89c0d43fe865c8160",
+          "sess_personal_chat",
+          "assistant_action",
+          "prop_70094d49a69c49b3bf9055bc27ed83c0",
+          "coding",
+          "notes.create_note",
+          "reversible_write",
+          "auto_approved",
+          "success",
+          "{\"body\": \"Preserve existing synthetic data\", \"title\": \"Pre C01\"}",
+          "Execute the exact note/calendar action requested by the user.",
+          "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c01-migration-f2_zrzsh\\\\workspace\\\\notes\\\\pre_c01.md\", \"note_id\": \"note_pre_c01\", \"title\": \"Pre C01\"}",
+          "1.0.0"
+        ]
+      ],
+      "tool_authorizations": [
+        [
+          "prop_70094d49a69c49b3bf9055bc27ed83c0",
+          "942d8bb2eb2311cbd1b384f3f9fa004e077643866a4539d562a0ac6840b96ce9",
+          1794760105.5635047,
+          "success",
+          "{\"proposal_id\":\"prop_70094d49a69c49b3bf9055bc27ed83c0\",\"tool_name\":\"notes.create_note\",\"agent_role\":\"coding\",\"effective_sensitivity\":\"reversible_write\",\"decision\":\"auto_approved\",\"requires_interactive_prompt\":false,\"reason\":\"Auto-approved reversible_write tool per policy.\",\"context\":{\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"},\"action_digest\":\"942d8bb2eb2311cbd1b384f3f9fa004e077643866a4539d562a0ac6840b96ce9\",\"authorization_id\":\"ab9975987a894d03b01fa13c15792edc\",\"expires_at\":1794760105.5635047}"
+        ]
+      ],
+      "authorization_attempts": []
+    },
+    "nova_calendar.db": {
+      "calendar_events": []
+    },
+    "nova_chat_history.db": {
+      "chat_messages": [
+        [
+          1,
+          "msg_a2d329d1d2",
+          "assistant",
+          "I've saved your note 'Pre C01'. Indexed chunks: 1.",
+          "note_saved",
+          "[\"Task: task_assistant_0934b98f17d844d89c0d43fe865c8160\", \"Status: Completed\"]",
+          null,
+          "2026-11-15T16:23:25.605859+00:00"
+        ]
+      ]
+    },
+    "nova_checkpoints.db": {
+      "task_checkpoints": [
+        [
+          "task_assistant_0934b98f17d844d89c0d43fe865c8160",
+          2,
+          "assistant_action",
+          "running",
+          "4347872124fad4a1e7d211a106850593e3cbe4cc769ded4ef4d3258fafff2e19",
+          "2026-11-15T16:23:25.554365+00:00",
+          "{\"checkpoint_seq\":2,\"failure_reason\":null,\"max_graph_steps\":25,\"node_records\":{\"assistant_action\":{\"agent_role\":\"coding\",\"approval_expires_at\":null,\"attempt_count\":0,\"direct_action\":true,\"final_answer\":null,\"last_error\":null,\"node_id\":\"assistant_action\",\"pending_tool_proposal\":{\"agent_role\":\"coding\",\"arguments\":{\"body\":\"Preserve existing synthetic data\",\"title\":\"Pre C01\"},\"declared_sensitivity\":\"reversible_write\",\"kind\":\"tool_call\",\"node_id\":\"assistant_action\",\"proposal_id\":\"prop_70094d49a69c49b3bf9055bc27ed83c0\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"schema_version\":\"1.0.0\",\"thought\":\"Explicit assistant command; no model inference performed.\",\"tool_name\":\"notes.create_note\"},\"react_state\":{\"max_iterations\":5,\"node_id\":\"assistant_action\",\"turns\":[]},\"status\":\"pending\"}},\"plan_graph\":{\"edges\":[],\"goal_summary\":\"notes.create_note\",\"max_graph_steps\":25,\"nodes\":[{\"depends_on\":[],\"estimated_sensitivity\":\"read_only\",\"max_react_iterations\":5,\"max_retries\":3,\"node_id\":\"assistant_action\",\"objective\":\"notes.create_note\",\"requires_human_approval\":false,\"requires_reflection\":false,\"target_agent\":\"coding\"}],\"plan_id\":\"plan_2881cda4ea1248e59cad9a2034d9a406\",\"schema_version\":\"1.0.0\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\"},\"schema_version\":\"1.0.0\",\"session_id\":\"sess_personal_chat\",\"status\":\"running\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\",\"total_transitions\":2,\"updated_at_utc\":\"2026-11-15T16:23:25.554365+00:00\",\"user_goal\":\"notes.create_note\"}"
+        ],
+        [
+          "task_assistant_0934b98f17d844d89c0d43fe865c8160",
+          3,
+          "assistant_action",
+          "running",
+          "bf678e572b91e66f7e16f6eec1de6a383bcd32fecbe317d1ec92643ad02d6b88",
+          "2026-11-15T16:23:25.566843+00:00",
+          "{\"checkpoint_seq\":3,\"failure_reason\":null,\"max_graph_steps\":25,\"node_records\":{\"assistant_action\":{\"agent_role\":\"coding\",\"approval_expires_at\":null,\"attempt_count\":0,\"direct_action\":true,\"final_answer\":null,\"last_error\":null,\"node_id\":\"assistant_action\",\"pending_tool_proposal\":{\"agent_role\":\"coding\",\"arguments\":{\"body\":\"Preserve existing synthetic data\",\"title\":\"Pre C01\"},\"declared_sensitivity\":\"reversible_write\",\"kind\":\"tool_call\",\"node_id\":\"assistant_action\",\"proposal_id\":\"prop_70094d49a69c49b3bf9055bc27ed83c0\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"schema_version\":\"1.0.0\",\"thought\":\"Explicit assistant command; no model inference performed.\",\"tool_name\":\"notes.create_note\"},\"react_state\":{\"max_iterations\":5,\"node_id\":\"assistant_action\",\"turns\":[]},\"status\":\"pending\"}},\"plan_graph\":{\"edges\":[],\"goal_summary\":\"notes.create_note\",\"max_graph_steps\":25,\"nodes\":[{\"depends_on\":[],\"estimated_sensitivity\":\"read_only\",\"max_react_iterations\":5,\"max_retries\":3,\"node_id\":\"assistant_action\",\"objective\":\"notes.create_note\",\"requires_human_approval\":false,\"requires_reflection\":false,\"target_agent\":\"coding\"}],\"plan_id\":\"plan_2881cda4ea1248e59cad9a2034d9a406\",\"schema_version\":\"1.0.0\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\"},\"schema_version\":\"1.0.0\",\"session_id\":\"sess_personal_chat\",\"status\":\"running\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\",\"total_transitions\":3,\"updated_at_utc\":\"2026-11-15T16:23:25.566843+00:00\",\"user_goal\":\"notes.create_note\"}"
+        ],
+        [
+          "task_assistant_0934b98f17d844d89c0d43fe865c8160",
+          4,
+          "assistant_action",
+          "completed",
+          "efccad217b3bb0383253e35b6a240a2b95f9e2a8776c5e12c91006f321c79faf",
+          "2026-11-15T16:23:25.601240+00:00",
+          "{\"checkpoint_seq\":4,\"failure_reason\":null,\"max_graph_steps\":25,\"node_records\":{\"assistant_action\":{\"agent_role\":\"coding\",\"approval_expires_at\":null,\"attempt_count\":0,\"direct_action\":true,\"final_answer\":{\"agent_role\":\"coding\",\"cited_source_ids\":[],\"confidence\":1.0,\"content\":\"{\\\"chunks_indexed\\\": 1, \\\"file_path\\\": \\\"C:\\\\\\\\Users\\\\\\\\Elango s\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\nova-c01-migration-f2_zrzsh\\\\\\\\workspace\\\\\\\\notes\\\\\\\\pre_c01.md\\\", \\\"note_id\\\": \\\"note_pre_c01\\\", \\\"title\\\": \\\"Pre C01\\\"}\",\"kind\":\"final_answer\",\"node_id\":\"assistant_action\",\"proposal_id\":\"prop_3e806f4d8858497db5870009cd3023a6\",\"schema_version\":\"1.0.0\",\"thought\":\"Result returned by the actual local handler.\"},\"last_error\":null,\"node_id\":\"assistant_action\",\"pending_tool_proposal\":null,\"react_state\":{\"max_iterations\":5,\"node_id\":\"assistant_action\",\"turns\":[]},\"status\":\"completed\"}},\"plan_graph\":{\"edges\":[],\"goal_summary\":\"notes.create_note\",\"max_graph_steps\":25,\"nodes\":[{\"depends_on\":[],\"estimated_sensitivity\":\"read_only\",\"max_react_iterations\":5,\"max_retries\":3,\"node_id\":\"assistant_action\",\"objective\":\"notes.create_note\",\"requires_human_approval\":false,\"requires_reflection\":false,\"target_agent\":\"coding\"}],\"plan_id\":\"plan_2881cda4ea1248e59cad9a2034d9a406\",\"schema_version\":\"1.0.0\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\"},\"schema_version\":\"1.0.0\",\"session_id\":\"sess_personal_chat\",\"status\":\"completed\",\"task_id\":\"task_assistant_0934b98f17d844d89c0d43fe865c8160\",\"total_transitions\":4,\"updated_at_utc\":\"2026-11-15T16:23:25.601240+00:00\",\"user_goal\":\"notes.create_note\"}"
+        ]
+      ],
+      "terminal_event_claims": []
+    },
+    "nova_memory.db": {
+      "long_term_memories": []
+    },
+    "nova_rag.db": {
+      "rag_document_chunks": [
+        [
+          "note_pre_c01#chunk_0",
+          "note_pre_c01",
+          "file:///C:/Users/Elango%20s/AppData/Local/Temp/nova-c01-migration-f2_zrzsh/workspace/notes/pre_c01.md",
+          "local_file",
+          0,
+          "# Pre C01\n\nPreserve existing synthetic data",
+          "user_content_local",
+          "[0.0, 0.0, 0.0, 0.603023, 0.0, 0.0, 0.301511, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.301511, 0.0, 0.0, 0.0, 0.301511, 0.0, 0.603023, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]",
+          "1.0.0"
+        ]
+      ]
+    },
+    "note_sha256": "a88e68d346a7afc7dee6d0bb13466e41f172495e5a5118e5f6e37bb1df1064c7"
+  }
+}

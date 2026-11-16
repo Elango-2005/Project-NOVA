@@ -1,0 +1,195 @@
+{
+  "data_root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu",
+  "transport": "real HTTP to loopback Uvicorn child process",
+  "checks": [
+    {
+      "name": "DENY produces no file",
+      "passed": true,
+      "task_id": "task_assistant_3090298ff2a24d3d80a8b4698e2ce914",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_6ff1043973e24d95a0a0c4260e49a184"
+    },
+    {
+      "name": "APPROVE writes exact structured note",
+      "passed": true,
+      "task_id": "task_assistant_6308c85fdbef47baac2d580343fe5068",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_f6e4fb08a23f4b5eab21d25220df0808",
+      "file_text": "# Exact - title\n\nBody with \u2014 delimiter\nSecond line <script>untrusted</script>\n"
+    },
+    {
+      "name": "HTTP replay rejected",
+      "passed": true,
+      "http_status": 409
+    },
+    {
+      "name": "Concurrent HTTP approvals allow one calendar write",
+      "passed": true,
+      "statuses": [
+        409,
+        200,
+        409,
+        409,
+        409,
+        409
+      ],
+      "task_id": "task_assistant_90a7ae4bb3754db6b42a58677cc98b40",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_fe57d666a673493e8ac0fc056379238b"
+    },
+    {
+      "name": "REVOKE blocks pending approval",
+      "passed": true,
+      "task_id": "task_assistant_b3ab7fc8e44845768a5f0e19aaecd2c7",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_3f1f874216d1472aa7019710b59182d9"
+    },
+    {
+      "name": "Process restart preserves data, revocation and replay rejection",
+      "passed": true
+    },
+    {
+      "name": "Injected crash after claim rejects replay after restart",
+      "passed": true,
+      "exit_code": 73,
+      "task_id": "task_assistant_61f015f4cd914138b12514d066b8fb6c",
+      "node_id": "assistant_action",
+      "proposal_id": "prop_0426e166429c497f9dc095db9c93bf80"
+    },
+    {
+      "name": "Direct SQLite inspection confirms writes, claim state and audit identities",
+      "passed": true,
+      "events": [
+        [
+          "Study",
+          "2026-11-17T10:00:00",
+          "2026-11-17T11:00:00"
+        ]
+      ],
+      "authorizations": [
+        [
+          "prop_6ff1043973e24d95a0a0c4260e49a184",
+          "denied"
+        ],
+        [
+          "prop_f6e4fb08a23f4b5eab21d25220df0808",
+          "success"
+        ],
+        [
+          "prop_fe57d666a673493e8ac0fc056379238b",
+          "success"
+        ],
+        [
+          "prop_3f1f874216d1472aa7019710b59182d9",
+          "denied"
+        ],
+        [
+          "prop_a67c6bb7178440109a75c7a095eea606",
+          "denied"
+        ],
+        [
+          "prop_0426e166429c497f9dc095db9c93bf80",
+          "claimed"
+        ]
+      ],
+      "audits": [
+        [
+          "task_assistant_3090298ff2a24d3d80a8b4698e2ce914",
+          "sess_personal_chat",
+          "coding",
+          "notes.create_note",
+          "denied_by_user",
+          "not_executed"
+        ],
+        [
+          "task_assistant_6308c85fdbef47baac2d580343fe5068",
+          "sess_personal_chat",
+          "coding",
+          "notes.create_note",
+          "user_approved",
+          "success"
+        ],
+        [
+          "task_assistant_90a7ae4bb3754db6b42a58677cc98b40",
+          "sess_personal_chat",
+          "comms",
+          "calendar.create_event",
+          "user_approved",
+          "success"
+        ],
+        [
+          "task_assistant_b3ab7fc8e44845768a5f0e19aaecd2c7",
+          "sess_personal_chat",
+          "comms",
+          "calendar.create_event",
+          "denied_by_policy",
+          "not_executed"
+        ],
+        [
+          "task_assistant_49e7356b65964d128b6fa3bd6b742bab",
+          "sess_personal_chat",
+          "comms",
+          "calendar.create_event",
+          "denied_by_policy",
+          "not_executed"
+        ]
+      ]
+    }
+  ],
+  "processes": [
+    {
+      "pid": 24556,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\r01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu",
+        "--port",
+        "45162"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu\\server-0.log"
+    },
+    {
+      "pid": 15336,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\r01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu",
+        "--port",
+        "45162"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu\\server-1.log"
+    },
+    {
+      "pid": 25244,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\r01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu",
+        "--port",
+        "45162",
+        "--crash"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu\\server-2.log"
+    },
+    {
+      "pid": 23320,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\r01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu",
+        "--port",
+        "45162"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-r01-live-topwflvu\\server-3.log"
+    }
+  ],
+  "result": "PASS"
+}

@@ -442,32 +442,21 @@ class TestPhase2CrashRecoveryAndGraphFlows(unittest.TestCase):
                 event_bus=bus,
             )
 
-            orchestrator_1.start_task(
-                task_id="task_mid_crash",
-                session_id="sess_mid",
-                user_goal="Run two steps",
-            )
-
-            # Inspect checkpoint history in SQLite:
-            # Checkpoint #0: QUEUED
-            # Checkpoint #1: PLANNING
-            # Checkpoint #2: RUNNING (plan attached)
-            # Checkpoint #3: RUNNING (step_1 COMPLETED, step_2 still PENDING!)
-            history = store.list_history("task_mid_crash")
-            checkpoint_after_step_1 = next(
-                env
-                for env in history
-                if "step_1" in env.state.completed_node_ids
-                and env.state.status == TaskStatus.RUNNING
-            )
-            # Roll SQLite back to the exact checkpoint right after step_1 finished (before step_2 crashed)
-            # by saving it as the latest recovery point
-            recovered_state = checkpoint_after_step_1.state
+            # Interrupt immediately after a durable nonterminal checkpoint. A crash
+            # must not be simulated by overwriting an already failed task.
+            class ControlledCrash(BaseException):
+                pass
+            actual_save = store.save_checkpoint
+            def interrupt_after_step_one(state, *args, **kwargs):
+                saved = actual_save(state, *args, **kwargs)
+                if "step_1" in state.completed_node_ids and state.status == TaskStatus.RUNNING:
+                    raise ControlledCrash()
+                return saved
+            store.save_checkpoint = interrupt_after_step_one
+            with self.assertRaises(ControlledCrash):
+                orchestrator_1.start_task(task_id="task_mid_crash", session_id="sess_mid",
+                                          user_goal="Run two steps")
             store_2 = SqliteCheckpointStore(db_path)
-            store_2.save_checkpoint(
-                recovered_state.transition_task_status(TaskStatus.RUNNING),
-                node_id="step_1",
-            )
 
             # Now Process #2 starts up with ONLY step_2's scripted response!
             research_model_resume = DeterministicMockModelAdapter(

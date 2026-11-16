@@ -104,6 +104,8 @@ class NovaSettings(BaseModel):
         description="ADR-010: Sensitive/irreversible actions must never default to auto_approve",
     )
 
+    approval_ttl_seconds: int = Field(default=300, ge=1, le=3600)
+
     # --- ADR-003 & ADR-004: Bounded Orchestration & Reasoning ---
     max_graph_steps: int = Field(
         default=25,

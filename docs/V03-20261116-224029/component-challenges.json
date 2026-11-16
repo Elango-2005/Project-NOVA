@@ -1,0 +1,38 @@
+{
+  "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-v03-component-1vrfvu6b",
+  "checks": [
+    {
+      "name": "owner cannot be stolen with current sequence",
+      "verdict": "FAIL",
+      "before_owner": "runtime-A",
+      "after_owner": "runtime-B",
+      "scope": "internal CheckpointStorePort, no public HTTP route demonstrated"
+    },
+    {
+      "name": "stale sequence rejected",
+      "verdict": "PASS",
+      "error": "Stale checkpoint transition"
+    },
+    {
+      "name": "terminal winner completed",
+      "verdict": "PASS",
+      "persisted": "completed"
+    },
+    {
+      "name": "terminal winner failed",
+      "verdict": "PASS",
+      "persisted": "failed"
+    },
+    {
+      "name": "legacy checkpoint without ownership field",
+      "verdict": "PASS"
+    },
+    {
+      "name": "legacy pending approval real handler",
+      "verdict": "PASS",
+      "files": [
+        "C:\\Users\\Elango s\\AppData\\Local\\Temp\\nova-v03-component-1vrfvu6b\\workspace\\notes\\legacy.md"
+      ]
+    }
+  ]
+}

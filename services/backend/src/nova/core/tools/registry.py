@@ -263,6 +263,10 @@ class ToolContract(BaseModel):
             if value is not None:
                 param_map[name].validate_value(value)
 
+        if self.tool_name in ("notes.create_note", "calendar.create_event"):
+            from nova.core.tools.personal_assistant_tools import validate_assistant_arguments
+            validate_assistant_arguments(self.tool_name, dict(arguments))
+
     def validate_output(self, output: Mapping[str, Any]) -> None:
         """Validate that the tool's returned output conforms to its declared output schema (Phase 7)."""
         if not isinstance(output, Mapping):
@@ -828,10 +832,10 @@ def build_default_mcp_catalog() -> Tuple[McpServerManifest, ...]:
         # 9. Calendar MCP Server (Section 14, p. 51)
         McpServerManifest(
             server_id="calendar",
-            display_name="Calendar Scheduling MCP Server",
+            display_name="Local Calendar Store",
             purpose="List, create, and update calendar events for personal scheduling.",
-            source_kind=ToolSourceKind.MCP,
-            transport=McpTransportKind.STDIO,
+            source_kind=ToolSourceKind.NATIVE,
+            transport=McpTransportKind.IN_PROCESS,
             package_sha256=_deterministic_sha256("calendar"),
             tools=(
                 ToolContract(
@@ -839,7 +843,7 @@ def build_default_mcp_catalog() -> Tuple[McpServerManifest, ...]:
                     server_id="calendar",
                     description="List upcoming calendar events in a date window.",
                     sensitivity_tier=T.READ_ONLY,
-                    data_classification=D.USER_CONTENT_CONNECTED,
+                    data_classification=D.USER_CONTENT_LOCAL,
                     parameters=(
                         _param("start_iso", S.STRING, "Start timestamp ISO-8601"),
                         _param("end_iso", S.STRING, "End timestamp ISO-8601"),
@@ -851,7 +855,7 @@ def build_default_mcp_catalog() -> Tuple[McpServerManifest, ...]:
                     server_id="calendar",
                     description="Create a new calendar event.",
                     sensitivity_tier=T.REVERSIBLE_WRITE,
-                    data_classification=D.USER_CONTENT_CONNECTED,
+                    data_classification=D.USER_CONTENT_LOCAL,
                     parameters=(
                         _param("title", S.STRING, "Event title"),
                         _param("start_iso", S.STRING, "Start timestamp ISO-8601"),
@@ -864,7 +868,7 @@ def build_default_mcp_catalog() -> Tuple[McpServerManifest, ...]:
                     server_id="calendar",
                     description="Update an existing calendar event.",
                     sensitivity_tier=T.REVERSIBLE_WRITE,
-                    data_classification=D.USER_CONTENT_CONNECTED,
+                    data_classification=D.USER_CONTENT_LOCAL,
                     parameters=(
                         _param("event_id", S.STRING, "Event ID to modify"),
                         _param("title", S.STRING, "Updated event title"),
@@ -1155,6 +1159,18 @@ def build_default_tool_registry(*, allow_remote_mcp_globally: bool = False) -> T
     registry = ToolRegistry(allow_remote_mcp_globally=allow_remote_mcp_globally)
     for manifest in build_default_mcp_catalog():
         registry.register_server(manifest)
+    registry.register_server(McpServerManifest(
+        server_id="notes", display_name="Local Notes", purpose="Create local workspace notes.",
+        source_kind=ToolSourceKind.NATIVE, transport=McpTransportKind.IN_PROCESS,
+        package_sha256=_deterministic_sha256("notes"),
+        tools=(ToolContract(tool_name="notes.create_note", server_id="notes",
+            description="Create a new local note without replacing existing files.",
+            sensitivity_tier=SensitivityTier.REVERSIBLE_WRITE,
+            data_classification=DataClassification.USER_CONTENT_LOCAL,
+            parameters=(_param("title", JsonSchemaPrimitiveType.STRING, "Note title"),
+                        _param("body", JsonSchemaPrimitiveType.STRING, "Note body")),
+            required_output_keys=("note_id", "title", "chunks_indexed")),),
+    ))
     return registry
 
 

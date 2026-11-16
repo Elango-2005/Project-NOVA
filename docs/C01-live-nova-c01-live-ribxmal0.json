@@ -1,0 +1,100 @@
+{
+  "data_root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ribxmal0",
+  "transport": "real HTTP to loopback Uvicorn child process",
+  "checks": [],
+  "processes": [
+    {
+      "pid": 5840,
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c01_live_api.py",
+        "--serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ribxmal0",
+        "--port",
+        "48254",
+        "--ttl",
+        "300"
+      ],
+      "log": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c01-live-ribxmal0\\server-0.log",
+      "exit_code": 1
+    }
+  ],
+  "http": [
+    {
+      "port": 48254,
+      "path": "/assistant/workspace",
+      "request": null,
+      "status": 200,
+      "response": {
+        "assistant_name": "NOVA Personal Assistant",
+        "privacy_mode": "100% Offline & Private on Your Laptop",
+        "active_brain_mode": "bootstrap",
+        "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+        "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+        "security_log_verified": true,
+        "messages": [],
+        "calendar_events": [],
+        "notes": [],
+        "system_summary": {
+          "disk_free_gb": 149.12,
+          "workspace_files_count": 0,
+          "notes_count": 0,
+          "upcoming_events_count": 0
+        },
+        "recent_activity": []
+      }
+    },
+    {
+      "port": 48254,
+      "path": "/assistant/quick-note",
+      "request": {
+        "title": "Denied note",
+        "body": "Must not exist"
+      },
+      "status": 200,
+      "response": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_e5e0a9a603954cc69ba2c4c0756aec9d",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_8b1a350655b5448b82137d4daf3da4bb",
+          "tool_name": "notes.create_note",
+          "agent_role": "coding",
+          "arguments": {
+            "body": "Must not exist",
+            "title": "Denied note"
+          },
+          "expires_at": 1794848015.6007447,
+          "summary_label": "notes.create_note",
+          "recipient": "",
+          "subject": "",
+          "body": "Must not exist"
+        }
+      }
+    },
+    {
+      "port": 48254,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_e5e0a9a603954cc69ba2c4c0756aec9d",
+        "node_id": "assistant_action",
+        "proposal_id": "prop_8b1a350655b5448b82137d4daf3da4bb",
+        "approved": false
+      },
+      "status": 409,
+      "response": {
+        "detail": "Checkpoint belongs to another approval attempt"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "label": "initial_empty_workspace",
+      "files": {},
+      "authorizations": [],
+      "attempts": []
+    }
+  ]
+}

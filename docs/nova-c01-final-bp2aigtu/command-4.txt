@@ -1,0 +1,3 @@
+{"result": "PASS", "checks": 12, "evidence": "C:\\NOVA\\docs\\C01-live-nova-c01-live-5p8_d631.json"}
+
+STDERR

@@ -16,9 +16,13 @@ to your local SQLite database (`nova.db`).
 
 from __future__ import annotations
 
+from nova.core.domain.events import NovaEvent
+from contextlib import closing
+
 import hashlib
 import json
 import sqlite3
+import threading
 from pathlib import Path
 from typing import Dict, List, Optional, Protocol, Tuple, runtime_checkable
 
@@ -87,11 +91,19 @@ class CheckpointStorePort(Protocol):
         self,
         state: TaskExecutionState,
         node_id: Optional[str] = None,
+        *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
+        terminal_event: Optional[NovaEvent] = None,
     ) -> CheckpointEnvelope:
         """Persist a task state snapshot and return its verified CheckpointEnvelope."""
 
     def load_latest(self, task_id: str) -> Optional[CheckpointEnvelope]:
         """Load and integrity-check the most recent checkpoint for `task_id`."""
+
+    def terminal_events(self, task_id: str) -> Tuple[NovaEvent, ...]:
+        """Return durable task terminal events."""
+
+    def claim_terminal_event(self, task_id: str, key: str) -> bool:
+        """Reserve one terminal emission; crash-safe delivery is not guaranteed."""
 
     def list_history(self, task_id: str) -> Tuple[CheckpointEnvelope, ...]:
         """Return all saved checkpoints for `task_id` in chronological sequence order."""
@@ -101,33 +113,61 @@ class InMemoryCheckpointStore:
     """Fast in-memory CheckpointStorePort implementation for isolated unit tests."""
 
     def __init__(self) -> None:
+        self._terminal_events = set()
+        self._durable_events = {}
+        self._event_lock = threading.RLock()
         self._history: Dict[str, List[Tuple[int, Optional[str], str, str, str]]] = {}
+
+    def terminal_events(self, task_id: str) -> Tuple[NovaEvent, ...]:
+        event = self._durable_events.get(task_id)
+        return (event,) if event else ()
+
+    def claim_terminal_event(self, task_id: str, key: str) -> bool:
+        with self._event_lock:
+            identity = (task_id, key)
+            if identity in self._terminal_events:
+                return False
+            self._terminal_events.add(identity)
+            return True
 
     def save_checkpoint(
         self,
         state: TaskExecutionState,
         node_id: Optional[str] = None,
+        *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
+        terminal_event: Optional[NovaEvent] = None,
     ) -> CheckpointEnvelope:
-        payload_json = _serialize_state_json(state)
-        checksum = _compute_sha256(payload_json)
-        seq = state.checkpoint_seq
-        created_at = state.updated_at_utc
+        with self._event_lock:
+            latest = self.load_latest(state.task_id)
+            if protect_terminal and latest and latest.state.approval_attempt_id and latest.state.approval_attempt_id != state.approval_attempt_id and expected_seq is None:
+                raise ValueError("Checkpoint belongs to another approval attempt")
+            if expected_seq is not None and (latest is None or latest.checkpoint_seq != expected_seq):
+                raise ValueError("Stale checkpoint transition")
+            if protect_terminal and latest and latest.state.status.value in ("completed", "failed", "cancelled"):
+                return latest
+            payload_json = _serialize_state_json(state)
+            checksum = _compute_sha256(payload_json)
+            seq = state.checkpoint_seq
+            created_at = state.updated_at_utc
 
-        bucket = self._history.setdefault(state.task_id, [])
-        # Replace if same sequence number exists, otherwise append
-        bucket = [row for row in bucket if row[0] != seq]
-        bucket.append((seq, node_id, checksum, created_at, payload_json))
-        bucket.sort(key=lambda r: r[0])
-        self._history[state.task_id] = bucket
+            bucket = self._history.setdefault(state.task_id, [])
+            # Replace if same sequence number exists, otherwise append
+            bucket = [row for row in bucket if row[0] != seq]
+            bucket.append((seq, node_id, checksum, created_at, payload_json))
+            bucket.sort(key=lambda r: r[0])
+            self._history[state.task_id] = bucket
+            if terminal_event is not None:
+                self._terminal_events.add((state.task_id, terminal_event.event_type.value))
+                self._durable_events.setdefault(state.task_id, terminal_event)
 
-        return CheckpointEnvelope(
-            task_id=state.task_id,
-            checkpoint_seq=seq,
-            node_id=node_id,
-            sha256_checksum=checksum,
-            created_at_utc=created_at,
-            state=state,
-        )
+            return CheckpointEnvelope(
+                task_id=state.task_id,
+                checkpoint_seq=seq,
+                node_id=node_id,
+                sha256_checksum=checksum,
+                created_at_utc=created_at,
+                state=state,
+            )
 
     def load_latest(self, task_id: str) -> Optional[CheckpointEnvelope]:
         bucket = self._history.get(task_id, [])
@@ -197,7 +237,9 @@ class SqliteCheckpointStore:
         return conn
 
     def _init_schema(self) -> None:
-        with self._connect() as conn:
+        with closing(self._connect()) as conn, conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS task_terminal_events (task_id TEXT PRIMARY KEY, event_json TEXT NOT NULL)")
+            conn.execute("CREATE TABLE IF NOT EXISTS terminal_event_claims (task_id TEXT NOT NULL, event_key TEXT NOT NULL, PRIMARY KEY(task_id,event_key))")
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS task_checkpoints (
@@ -219,10 +261,27 @@ class SqliteCheckpointStore:
                 """
             )
 
+    def terminal_events(self, task_id: str) -> Tuple[NovaEvent, ...]:
+        with closing(self._connect()) as conn, conn:
+            rows = conn.execute("SELECT event_json FROM task_terminal_events WHERE task_id=?", (task_id,)).fetchall()
+        return tuple(NovaEvent(**json.loads(row[0])) for row in rows)
+
+    def claim_terminal_event(self, task_id: str, key: str) -> bool:
+        conn = self._connect()
+        try:
+            with conn:
+                changed = conn.execute("INSERT OR IGNORE INTO terminal_event_claims VALUES (?, ?)",
+                                       (task_id, key)).rowcount
+                return changed == 1
+        finally:
+            conn.close()
+
     def save_checkpoint(
         self,
         state: TaskExecutionState,
         node_id: Optional[str] = None,
+        *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
+        terminal_event: Optional[NovaEvent] = None,
     ) -> CheckpointEnvelope:
         """Atomically persist a checkpoint snapshot to SQLite."""
         payload_json = _serialize_state_json(state)
@@ -230,7 +289,22 @@ class SqliteCheckpointStore:
         seq = state.checkpoint_seq
         created_at = state.updated_at_utc
 
-        with self._connect() as conn:
+        with closing(self._connect()) as conn, conn:
+            conn.execute("BEGIN IMMEDIATE")
+            latest = conn.execute("SELECT checkpoint_seq, node_id, sha256_checksum, created_at_utc, state_json, task_status FROM task_checkpoints WHERE task_id=? ORDER BY checkpoint_seq DESC LIMIT 1", (state.task_id,)).fetchone()
+            owner = json.loads(latest[4]).get("approval_attempt_id") if latest else None
+            if protect_terminal and owner and owner != state.approval_attempt_id and expected_seq is None:
+                raise ValueError("Checkpoint belongs to another approval attempt")
+            if expected_seq is not None and (latest is None or latest[0] != expected_seq):
+                raise ValueError("Stale checkpoint transition")
+            if protect_terminal and latest and latest[5] in ("completed", "failed", "cancelled"):
+                return InMemoryCheckpointStore._verify_and_hydrate(
+                    task_id=state.task_id, seq=latest[0], node_id=latest[1], checksum=latest[2],
+                    created_at=latest[3], payload_json=latest[4])
+            if terminal_event is not None:
+                raw = terminal_event.model_dump_json() if hasattr(terminal_event, "model_dump_json") else terminal_event.json()
+                conn.execute("INSERT INTO task_terminal_events VALUES (?, ?)", (state.task_id, raw))
+                conn.execute("INSERT OR IGNORE INTO terminal_event_claims VALUES (?, ?)", (state.task_id, terminal_event.event_type.value))
             conn.execute(
                 """
                 INSERT OR REPLACE INTO task_checkpoints (
@@ -265,7 +339,7 @@ class SqliteCheckpointStore:
 
     def load_latest(self, task_id: str) -> Optional[CheckpointEnvelope]:
         """Load and verify the highest-sequence checkpoint for `task_id`."""
-        with self._connect() as conn:
+        with closing(self._connect()) as conn, conn:
             cursor = conn.execute(
                 """
                 SELECT checkpoint_seq, node_id, sha256_checksum, created_at_utc, state_json
@@ -292,7 +366,7 @@ class SqliteCheckpointStore:
 
     def list_history(self, task_id: str) -> Tuple[CheckpointEnvelope, ...]:
         """Return the complete ordered checkpoint history for `task_id`."""
-        with self._connect() as conn:
+        with closing(self._connect()) as conn, conn:
             cursor = conn.execute(
                 """
                 SELECT checkpoint_seq, node_id, sha256_checksum, created_at_utc, state_json

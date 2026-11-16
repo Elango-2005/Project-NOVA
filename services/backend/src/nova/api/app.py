@@ -24,6 +24,8 @@ that connects your Desktop UI (Electron / Tauri + React) to the Python backend o
 
 from __future__ import annotations
 
+from nova.core.permissions.authorization import AuthorizationLedger
+
 import json
 from typing import Any, Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
 
@@ -39,6 +41,8 @@ except ImportError:  # pragma: no cover
 try:
     from fastapi import FastAPI, HTTPException
     from fastapi.responses import StreamingResponse
+    from fastapi.exceptions import RequestValidationError
+    from fastapi.exception_handlers import request_validation_exception_handler
 
     FASTAPI_AVAILABLE = True
 except ImportError:  # pragma: no cover
@@ -123,6 +127,7 @@ class PendingApprovalCard(BaseModel):
     proposal_id: str = Field(..., min_length=1)
     agent_role: AgentRole = Field(...)
     tool_name: str = Field(..., min_length=1)
+    expires_at: Optional[float] = None
     arguments: Dict[str, Any] = Field(default_factory=dict)
     declared_sensitivity: SensitivityTier = Field(...)
     rationale: str = Field(..., min_length=1)
@@ -237,7 +242,9 @@ class NovaLocalApiService:
         policy_store: Optional[UserPermissionPolicyStore] = None,
         audit_log: Optional[SqliteToolAuditLog] = None,
         settings: Optional[NovaSettings] = None,
+        authorization_ledger: Optional[AuthorizationLedger] = None,
     ) -> None:
+        self._authorization_ledger = authorization_ledger
         self._orchestrator = orchestrator
         self._checkpoint_store = checkpoint_store
         self._event_bus = event_bus
@@ -245,6 +252,21 @@ class NovaLocalApiService:
         self._policy_store = policy_store or UserPermissionPolicyStore(self._registry)
         self._audit_log = audit_log
         self._settings = settings or load_settings(environ={})
+
+    def query_authorization_attempts(self) -> List[Dict[str, Any]]:
+        return self._authorization_ledger.query_attempts() if self._authorization_ledger else []
+
+    def unconfirmed_actions(self) -> List[Dict[str, Any]]:
+        return self._authorization_ledger.unconfirmed_actions() if self._authorization_ledger else []
+
+    def record_invalid_approval(self, path: str, body: Any) -> None:
+        if self._authorization_ledger is None:
+            return
+        claims = {k: body[k] for k in ("task_id", "node_id", "proposal_id", "agent_role")
+                  if isinstance(body, dict) and isinstance(body.get(k), str)}
+        if path.startswith("/tasks/") and path.endswith("/approval"):
+            claims["task_id"] = path.split("/")[2]
+        self._authorization_ledger.record_rejection(None, claims, "invalid_approval_payload")
 
     def get_health(self) -> HealthStatusResponse:
         """Return system health, offline-first posture, and registered MCP catalog counts."""
@@ -272,6 +294,10 @@ class NovaLocalApiService:
             require_citations=request.require_citations,
         )
         return self._state_to_response(state)
+
+    def start_assistant_action(self, tool_name: str, arguments: Dict[str, Any]) -> TaskStatusResponse:
+        return self._state_to_response(self._orchestrator.start_assistant_action(
+            tool_name=tool_name, arguments=arguments))
 
     def get_task_status(self, task_id: str) -> TaskStatusResponse:
         """Load the latest checkpoint for `task_id` and return its structured status."""
@@ -301,9 +327,10 @@ class NovaLocalApiService:
 
     def stream_task_events_sse(self, task_id: str) -> Iterator[str]:
         """Yield all published events for `task_id` formatted as W3C Server-Sent Events (`text/event-stream`)."""
-        for event in self._event_bus.published_events:
-            if event.task_id == task_id:
-                yield format_nova_event_as_sse(event)
+        events = {event.event_id: event for event in self._event_bus.published_events if event.task_id == task_id}
+        events.update({event.event_id: event for event in self._checkpoint_store.terminal_events(task_id)})
+        for event in sorted(events.values(), key=lambda e: e.timestamp_utc):
+            yield format_nova_event_as_sse(event)
 
     def inspect_permission_policies(self) -> Dict[str, Any]:
         """Return active user permission overrides (`FR-15`)."""
@@ -360,7 +387,7 @@ class NovaLocalApiService:
         citations: Dict[str, Tuple[str, ...]] = {}
 
         for node_id, rec in state.node_records.items():
-            if rec.pending_tool_proposal is not None:
+            if rec.pending_tool_proposal is not None and state.status == TaskStatus.AWAITING_APPROVAL:
                 prop = rec.pending_tool_proposal
                 pending_cards.append(
                     PendingApprovalCard(
@@ -371,6 +398,7 @@ class NovaLocalApiService:
                         arguments=dict(prop.arguments),
                         declared_sensitivity=prop.declared_sensitivity,
                         rationale=prop.rationale,
+                        expires_at=rec.approval_expires_at,
                     )
                 )
             if rec.final_answer is not None:
@@ -401,6 +429,13 @@ def create_nova_fastapi_app(api_service: NovaLocalApiService) -> Any:
         description="Single-user, offline-first agentic backend API (ADR-001, ADR-009, ADR-010).",
     )
 
+    @app.exception_handler(RequestValidationError)
+    async def audit_invalid_approval(request, exc):
+        path = request.url.path
+        if path == "/assistant/approve" or (path.startswith("/tasks/") and path.endswith("/approval")):
+            api_service.record_invalid_approval(path, exc.body)
+        return await request_validation_exception_handler(request, exc)
+
     @app.get("/health", response_model=HealthStatusResponse)
     def get_health() -> HealthStatusResponse:
         return api_service.get_health()
@@ -421,6 +456,10 @@ def create_nova_fastapi_app(api_service: NovaLocalApiService) -> Any:
         try:
             return api_service.submit_approval(task_id, request)
         except Exception as exc:
+            if hasattr(exc, "task_status"):
+                from fastapi.responses import JSONResponse
+                return JSONResponse(status_code=409, content={"detail": str(exc),
+                    "task_id": exc.task_id, "task_status": exc.task_status})
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.get("/tasks/{task_id}/events/sse")
@@ -448,6 +487,10 @@ def create_nova_fastapi_app(api_service: NovaLocalApiService) -> Any:
     @app.post("/permissions/restore")
     def restore_permission(request: PolicyRevokeRequest) -> Dict[str, Any]:
         return api_service.restore_permission(request)
+
+    @app.get("/audit/authorization-attempts")
+    def authorization_attempts() -> List[Dict[str, Any]]:
+        return api_service.query_authorization_attempts()
 
     @app.get("/audit/logs")
     def get_audit_logs(task_id: Optional[str] = None) -> List[Dict[str, Any]]:

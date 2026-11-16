@@ -1,0 +1,32 @@
+[
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "stdout": "e5785edd5338ea8a5d2b4e2bc2cebed4673777a0\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "branch",
+      "--show-current"
+    ],
+    "exit_code": 0,
+    "stdout": "main\n",
+    "stderr": ""
+  }
+]

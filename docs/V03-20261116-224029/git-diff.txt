@@ -1,0 +1,1989 @@
+diff --git a/.vscode/settings.json b/.vscode/settings.json
+index 704f718..90355c2 100644
+--- a/.vscode/settings.json
++++ b/.vscode/settings.json
+@@ -1 +1,6 @@
+-ï»¿{"python.analysis.extraPaths": ["services/backend/src"]}
++{
++    "python.analysis.extraPaths": [
++        "services/backend/src"
++    ],
++    "python.terminal.useEnvFile": true
++}
+diff --git a/services/backend/src/nova/api/app.py b/services/backend/src/nova/api/app.py
+index 6415f85..0d4148d 100644
+--- a/services/backend/src/nova/api/app.py
++++ b/services/backend/src/nova/api/app.py
+@@ -24,6 +24,8 @@ that connects your Desktop UI (Electron / Tauri + React) to the Python backend o
+ 
+ from __future__ import annotations
+ 
++from nova.core.permissions.authorization import AuthorizationLedger
++
+ import json
+ from typing import Any, Dict, Iterator, List, Mapping, Optional, Sequence, Tuple
+ 
+@@ -39,6 +41,8 @@ except ImportError:  # pragma: no cover
+ try:
+     from fastapi import FastAPI, HTTPException
+     from fastapi.responses import StreamingResponse
++    from fastapi.exceptions import RequestValidationError
++    from fastapi.exception_handlers import request_validation_exception_handler
+ 
+     FASTAPI_AVAILABLE = True
+ except ImportError:  # pragma: no cover
+@@ -123,6 +127,7 @@ class PendingApprovalCard(BaseModel):
+     proposal_id: str = Field(..., min_length=1)
+     agent_role: AgentRole = Field(...)
+     tool_name: str = Field(..., min_length=1)
++    expires_at: Optional[float] = None
+     arguments: Dict[str, Any] = Field(default_factory=dict)
+     declared_sensitivity: SensitivityTier = Field(...)
+     rationale: str = Field(..., min_length=1)
+@@ -237,7 +242,9 @@ class NovaLocalApiService:
+         policy_store: Optional[UserPermissionPolicyStore] = None,
+         audit_log: Optional[SqliteToolAuditLog] = None,
+         settings: Optional[NovaSettings] = None,
++        authorization_ledger: Optional[AuthorizationLedger] = None,
+     ) -> None:
++        self._authorization_ledger = authorization_ledger
+         self._orchestrator = orchestrator
+         self._checkpoint_store = checkpoint_store
+         self._event_bus = event_bus
+@@ -246,6 +253,21 @@ class NovaLocalApiService:
+         self._audit_log = audit_log
+         self._settings = settings or load_settings(environ={})
+ 
++    def query_authorization_attempts(self) -> List[Dict[str, Any]]:
++        return self._authorization_ledger.query_attempts() if self._authorization_ledger else []
++
++    def unconfirmed_actions(self) -> List[Dict[str, Any]]:
++        return self._authorization_ledger.unconfirmed_actions() if self._authorization_ledger else []
++
++    def record_invalid_approval(self, path: str, body: Any) -> None:
++        if self._authorization_ledger is None:
++            return
++        claims = {k: body[k] for k in ("task_id", "node_id", "proposal_id", "agent_role")
++                  if isinstance(body, dict) and isinstance(body.get(k), str)}
++        if path.startswith("/tasks/") and path.endswith("/approval"):
++            claims["task_id"] = path.split("/")[2]
++        self._authorization_ledger.record_rejection(None, claims, "invalid_approval_payload")
++
+     def get_health(self) -> HealthStatusResponse:
+         """Return system health, offline-first posture, and registered MCP catalog counts."""
+         return HealthStatusResponse(
+@@ -273,6 +295,10 @@ class NovaLocalApiService:
+         )
+         return self._state_to_response(state)
+ 
++    def start_assistant_action(self, tool_name: str, arguments: Dict[str, Any]) -> TaskStatusResponse:
++        return self._state_to_response(self._orchestrator.start_assistant_action(
++            tool_name=tool_name, arguments=arguments))
++
+     def get_task_status(self, task_id: str) -> TaskStatusResponse:
+         """Load the latest checkpoint for `task_id` and return its structured status."""
+         envelope = self._checkpoint_store.load_latest(task_id)
+@@ -301,9 +327,10 @@ class NovaLocalApiService:
+ 
+     def stream_task_events_sse(self, task_id: str) -> Iterator[str]:
+         """Yield all published events for `task_id` formatted as W3C Server-Sent Events (`text/event-stream`)."""
+-        for event in self._event_bus.published_events:
+-            if event.task_id == task_id:
+-                yield format_nova_event_as_sse(event)
++        events = {event.event_id: event for event in self._event_bus.published_events if event.task_id == task_id}
++        events.update({event.event_id: event for event in self._checkpoint_store.terminal_events(task_id)})
++        for event in sorted(events.values(), key=lambda e: e.timestamp_utc):
++            yield format_nova_event_as_sse(event)
+ 
+     def inspect_permission_policies(self) -> Dict[str, Any]:
+         """Return active user permission overrides (`FR-15`)."""
+@@ -360,7 +387,7 @@ class NovaLocalApiService:
+         citations: Dict[str, Tuple[str, ...]] = {}
+ 
+         for node_id, rec in state.node_records.items():
+-            if rec.pending_tool_proposal is not None:
++            if rec.pending_tool_proposal is not None and state.status == TaskStatus.AWAITING_APPROVAL:
+                 prop = rec.pending_tool_proposal
+                 pending_cards.append(
+                     PendingApprovalCard(
+@@ -371,6 +398,7 @@ class NovaLocalApiService:
+                         arguments=dict(prop.arguments),
+                         declared_sensitivity=prop.declared_sensitivity,
+                         rationale=prop.rationale,
++                        expires_at=rec.approval_expires_at,
+                     )
+                 )
+             if rec.final_answer is not None:
+@@ -401,6 +429,13 @@ def create_nova_fastapi_app(api_service: NovaLocalApiService) -> Any:
+         description="Single-user, offline-first agentic backend API (ADR-001, ADR-009, ADR-010).",
+     )
+ 
++    @app.exception_handler(RequestValidationError)
++    async def audit_invalid_approval(request, exc):
++        path = request.url.path
++        if path == "/assistant/approve" or (path.startswith("/tasks/") and path.endswith("/approval")):
++            api_service.record_invalid_approval(path, exc.body)
++        return await request_validation_exception_handler(request, exc)
++
+     @app.get("/health", response_model=HealthStatusResponse)
+     def get_health() -> HealthStatusResponse:
+         return api_service.get_health()
+@@ -421,6 +456,10 @@ def create_nova_fastapi_app(api_service: NovaLocalApiService) -> Any:
+         try:
+             return api_service.submit_approval(task_id, request)
+         except Exception as exc:
++            if hasattr(exc, "task_status"):
++                from fastapi.responses import JSONResponse
++                return JSONResponse(status_code=409, content={"detail": str(exc),
++                    "task_id": exc.task_id, "task_status": exc.task_status})
+             raise HTTPException(status_code=400, detail=str(exc)) from exc
+ 
+     @app.get("/tasks/{task_id}/events/sse")
+@@ -449,6 +488,10 @@ def create_nova_fastapi_app(api_service: NovaLocalApiService) -> Any:
+     def restore_permission(request: PolicyRevokeRequest) -> Dict[str, Any]:
+         return api_service.restore_permission(request)
+ 
++    @app.get("/audit/authorization-attempts")
++    def authorization_attempts() -> List[Dict[str, Any]]:
++        return api_service.query_authorization_attempts()
++
+     @app.get("/audit/logs")
+     def get_audit_logs(task_id: Optional[str] = None) -> List[Dict[str, Any]]:
+         entries = api_service.query_audit_logs(task_id=task_id)
+@@ -474,4 +517,4 @@ __all__ = [
+     "TaskStatusResponse",
+     "create_nova_fastapi_app",
+     "format_nova_event_as_sse",
+-]
+\ No newline at end of file
++]
+diff --git a/services/backend/src/nova/api/dashboard.py b/services/backend/src/nova/api/dashboard.py
+index b5d3f35..a943462 100644
+--- a/services/backend/src/nova/api/dashboard.py
++++ b/services/backend/src/nova/api/dashboard.py
+@@ -544,10 +544,9 @@ def build_mission_control_app(
+     return fastapi_app
+ 
+ 
+-try:
+-    app = build_mission_control_app()
+-except Exception:  # pragma: no cover
+-    app = None
++from nova.main import DeferredAsgiApp
++
++app = DeferredAsgiApp(build_mission_control_app)
+ 
+ 
+ __all__ = [
+diff --git a/services/backend/src/nova/core/config/settings.py b/services/backend/src/nova/core/config/settings.py
+index 470b35e..f891b52 100644
+--- a/services/backend/src/nova/core/config/settings.py
++++ b/services/backend/src/nova/core/config/settings.py
+@@ -104,6 +104,8 @@ class NovaSettings(BaseModel):
+         description="ADR-010: Sensitive/irreversible actions must never default to auto_approve",
+     )
+ 
++    approval_ttl_seconds: int = Field(default=300, ge=1, le=3600)
++
+     # --- ADR-003 & ADR-004: Bounded Orchestration & Reasoning ---
+     max_graph_steps: int = Field(
+         default=25,
+diff --git a/services/backend/src/nova/core/domain/agent_spec.py b/services/backend/src/nova/core/domain/agent_spec.py
+index bc4fe48..07b362e 100644
+--- a/services/backend/src/nova/core/domain/agent_spec.py
++++ b/services/backend/src/nova/core/domain/agent_spec.py
+@@ -236,6 +236,7 @@ CODING_AGENT_SPEC = AgentSpecification(
+         "interact with version control and CI."
+     ),
+     allowed_tools=(
++        "notes.create_note",  # Narrow local note creation; no additional path access.
+         "filesystem.read_file",
+         "filesystem.write_file",
+         "filesystem.list_directory",
+diff --git a/services/backend/src/nova/core/orchestration/checkpoint.py b/services/backend/src/nova/core/orchestration/checkpoint.py
+index 14904e9..c2bd5d7 100644
+--- a/services/backend/src/nova/core/orchestration/checkpoint.py
++++ b/services/backend/src/nova/core/orchestration/checkpoint.py
+@@ -16,9 +16,13 @@ to your local SQLite database (`nova.db`).
+ 
+ from __future__ import annotations
+ 
++from nova.core.domain.events import NovaEvent
++from contextlib import closing
++
+ import hashlib
+ import json
+ import sqlite3
++import threading
+ from pathlib import Path
+ from typing import Dict, List, Optional, Protocol, Tuple, runtime_checkable
+ 
+@@ -87,12 +91,20 @@ class CheckpointStorePort(Protocol):
+         self,
+         state: TaskExecutionState,
+         node_id: Optional[str] = None,
++        *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
++        terminal_event: Optional[NovaEvent] = None,
+     ) -> CheckpointEnvelope:
+         """Persist a task state snapshot and return its verified CheckpointEnvelope."""
+ 
+     def load_latest(self, task_id: str) -> Optional[CheckpointEnvelope]:
+         """Load and integrity-check the most recent checkpoint for `task_id`."""
+ 
++    def terminal_events(self, task_id: str) -> Tuple[NovaEvent, ...]:
++        """Return durable task terminal events."""
++
++    def claim_terminal_event(self, task_id: str, key: str) -> bool:
++        """Reserve one terminal emission; crash-safe delivery is not guaranteed."""
++
+     def list_history(self, task_id: str) -> Tuple[CheckpointEnvelope, ...]:
+         """Return all saved checkpoints for `task_id` in chronological sequence order."""
+ 
+@@ -101,33 +113,61 @@ class InMemoryCheckpointStore:
+     """Fast in-memory CheckpointStorePort implementation for isolated unit tests."""
+ 
+     def __init__(self) -> None:
++        self._terminal_events = set()
++        self._durable_events = {}
++        self._event_lock = threading.RLock()
+         self._history: Dict[str, List[Tuple[int, Optional[str], str, str, str]]] = {}
+ 
++    def terminal_events(self, task_id: str) -> Tuple[NovaEvent, ...]:
++        event = self._durable_events.get(task_id)
++        return (event,) if event else ()
++
++    def claim_terminal_event(self, task_id: str, key: str) -> bool:
++        with self._event_lock:
++            identity = (task_id, key)
++            if identity in self._terminal_events:
++                return False
++            self._terminal_events.add(identity)
++            return True
++
+     def save_checkpoint(
+         self,
+         state: TaskExecutionState,
+         node_id: Optional[str] = None,
++        *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
++        terminal_event: Optional[NovaEvent] = None,
+     ) -> CheckpointEnvelope:
+-        payload_json = _serialize_state_json(state)
+-        checksum = _compute_sha256(payload_json)
+-        seq = state.checkpoint_seq
+-        created_at = state.updated_at_utc
+-
+-        bucket = self._history.setdefault(state.task_id, [])
+-        # Replace if same sequence number exists, otherwise append
+-        bucket = [row for row in bucket if row[0] != seq]
+-        bucket.append((seq, node_id, checksum, created_at, payload_json))
+-        bucket.sort(key=lambda r: r[0])
+-        self._history[state.task_id] = bucket
+-
+-        return CheckpointEnvelope(
+-            task_id=state.task_id,
+-            checkpoint_seq=seq,
+-            node_id=node_id,
+-            sha256_checksum=checksum,
+-            created_at_utc=created_at,
+-            state=state,
+-        )
++        with self._event_lock:
++            latest = self.load_latest(state.task_id)
++            if protect_terminal and latest and latest.state.approval_attempt_id and latest.state.approval_attempt_id != state.approval_attempt_id and expected_seq is None:
++                raise ValueError("Checkpoint belongs to another approval attempt")
++            if expected_seq is not None and (latest is None or latest.checkpoint_seq != expected_seq):
++                raise ValueError("Stale checkpoint transition")
++            if protect_terminal and latest and latest.state.status.value in ("completed", "failed", "cancelled"):
++                return latest
++            payload_json = _serialize_state_json(state)
++            checksum = _compute_sha256(payload_json)
++            seq = state.checkpoint_seq
++            created_at = state.updated_at_utc
++
++            bucket = self._history.setdefault(state.task_id, [])
++            # Replace if same sequence number exists, otherwise append
++            bucket = [row for row in bucket if row[0] != seq]
++            bucket.append((seq, node_id, checksum, created_at, payload_json))
++            bucket.sort(key=lambda r: r[0])
++            self._history[state.task_id] = bucket
++            if terminal_event is not None:
++                self._terminal_events.add((state.task_id, terminal_event.event_type.value))
++                self._durable_events.setdefault(state.task_id, terminal_event)
++
++            return CheckpointEnvelope(
++                task_id=state.task_id,
++                checkpoint_seq=seq,
++                node_id=node_id,
++                sha256_checksum=checksum,
++                created_at_utc=created_at,
++                state=state,
++            )
+ 
+     def load_latest(self, task_id: str) -> Optional[CheckpointEnvelope]:
+         bucket = self._history.get(task_id, [])
+@@ -197,7 +237,9 @@ class SqliteCheckpointStore:
+         return conn
+ 
+     def _init_schema(self) -> None:
+-        with self._connect() as conn:
++        with closing(self._connect()) as conn, conn:
++            conn.execute("CREATE TABLE IF NOT EXISTS task_terminal_events (task_id TEXT PRIMARY KEY, event_json TEXT NOT NULL)")
++            conn.execute("CREATE TABLE IF NOT EXISTS terminal_event_claims (task_id TEXT NOT NULL, event_key TEXT NOT NULL, PRIMARY KEY(task_id,event_key))")
+             conn.execute(
+                 """
+                 CREATE TABLE IF NOT EXISTS task_checkpoints (
+@@ -219,10 +261,27 @@ class SqliteCheckpointStore:
+                 """
+             )
+ 
++    def terminal_events(self, task_id: str) -> Tuple[NovaEvent, ...]:
++        with closing(self._connect()) as conn, conn:
++            rows = conn.execute("SELECT event_json FROM task_terminal_events WHERE task_id=?", (task_id,)).fetchall()
++        return tuple(NovaEvent(**json.loads(row[0])) for row in rows)
++
++    def claim_terminal_event(self, task_id: str, key: str) -> bool:
++        conn = self._connect()
++        try:
++            with conn:
++                changed = conn.execute("INSERT OR IGNORE INTO terminal_event_claims VALUES (?, ?)",
++                                       (task_id, key)).rowcount
++                return changed == 1
++        finally:
++            conn.close()
++
+     def save_checkpoint(
+         self,
+         state: TaskExecutionState,
+         node_id: Optional[str] = None,
++        *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
++        terminal_event: Optional[NovaEvent] = None,
+     ) -> CheckpointEnvelope:
+         """Atomically persist a checkpoint snapshot to SQLite."""
+         payload_json = _serialize_state_json(state)
+@@ -230,7 +289,22 @@ class SqliteCheckpointStore:
+         seq = state.checkpoint_seq
+         created_at = state.updated_at_utc
+ 
+-        with self._connect() as conn:
++        with closing(self._connect()) as conn, conn:
++            conn.execute("BEGIN IMMEDIATE")
++            latest = conn.execute("SELECT checkpoint_seq, node_id, sha256_checksum, created_at_utc, state_json, task_status FROM task_checkpoints WHERE task_id=? ORDER BY checkpoint_seq DESC LIMIT 1", (state.task_id,)).fetchone()
++            owner = json.loads(latest[4]).get("approval_attempt_id") if latest else None
++            if protect_terminal and owner and owner != state.approval_attempt_id and expected_seq is None:
++                raise ValueError("Checkpoint belongs to another approval attempt")
++            if expected_seq is not None and (latest is None or latest[0] != expected_seq):
++                raise ValueError("Stale checkpoint transition")
++            if protect_terminal and latest and latest[5] in ("completed", "failed", "cancelled"):
++                return InMemoryCheckpointStore._verify_and_hydrate(
++                    task_id=state.task_id, seq=latest[0], node_id=latest[1], checksum=latest[2],
++                    created_at=latest[3], payload_json=latest[4])
++            if terminal_event is not None:
++                raw = terminal_event.model_dump_json() if hasattr(terminal_event, "model_dump_json") else terminal_event.json()
++                conn.execute("INSERT INTO task_terminal_events VALUES (?, ?)", (state.task_id, raw))
++                conn.execute("INSERT OR IGNORE INTO terminal_event_claims VALUES (?, ?)", (state.task_id, terminal_event.event_type.value))
+             conn.execute(
+                 """
+                 INSERT OR REPLACE INTO task_checkpoints (
+@@ -265,7 +339,7 @@ class SqliteCheckpointStore:
+ 
+     def load_latest(self, task_id: str) -> Optional[CheckpointEnvelope]:
+         """Load and verify the highest-sequence checkpoint for `task_id`."""
+-        with self._connect() as conn:
++        with closing(self._connect()) as conn, conn:
+             cursor = conn.execute(
+                 """
+                 SELECT checkpoint_seq, node_id, sha256_checksum, created_at_utc, state_json
+@@ -292,7 +366,7 @@ class SqliteCheckpointStore:
+ 
+     def list_history(self, task_id: str) -> Tuple[CheckpointEnvelope, ...]:
+         """Return the complete ordered checkpoint history for `task_id`."""
+-        with self._connect() as conn:
++        with closing(self._connect()) as conn, conn:
+             cursor = conn.execute(
+                 """
+                 SELECT checkpoint_seq, node_id, sha256_checksum, created_at_utc, state_json
+diff --git a/services/backend/src/nova/core/orchestration/engine.py b/services/backend/src/nova/core/orchestration/engine.py
+index c92f181..30c95d6 100644
+--- a/services/backend/src/nova/core/orchestration/engine.py
++++ b/services/backend/src/nova/core/orchestration/engine.py
+@@ -29,6 +29,11 @@ Now, `NovaGraphOrchestrator` runs the entire office automatically:
+ 
+ from __future__ import annotations
+ 
++import logging
++from nova.core.orchestration.ports import AuthorizationAlreadyClaimedError
++
++import uuid
++
+ from typing import Dict, Mapping, Optional, Protocol, Sequence, Tuple, runtime_checkable
+ 
+ from nova.core.agents.base import BaseSpecializedAgent
+@@ -42,8 +47,8 @@ from nova.core.domain.context import (
+     UntrustedDataItem,
+ )
+ from nova.core.domain.events import EventType, NovaEvent
+-from nova.core.domain.plan import PlanNode, PlanNodeStatus
+-from nova.core.domain.primitives import AgentRole, TaskStatus
++from nova.core.domain.plan import PlanNode, PlanNodeStatus, ExecutionPlanGraph
++from nova.core.domain.primitives import AgentRole, TaskStatus, SensitivityTier
+ from nova.core.domain.proposals import (
+     ClarificationProposal,
+     CritiqueProposal,
+@@ -51,9 +56,14 @@ from nova.core.domain.proposals import (
+     PlanProposal,
+     ToolCallProposal,
+ )
+-from nova.core.orchestration.checkpoint import CheckpointStorePort
++from nova.core.orchestration.checkpoint import CheckpointStorePort, CheckpointEnvelope
+ from nova.core.orchestration.ports import (
+     PermissionGatePort,
++    PermissionCheckResult,
++    UnapprovedToolExecutionError,
++    ToolActionContext,
++    copy_model,
++    ToolExecutionResult,
+     ToolExecutorPort,
+ )
+ from nova.core.orchestration.state import (
+@@ -127,6 +137,105 @@ class NovaGraphOrchestrator:
+         self._event_bus = event_bus
+         self._settings = settings if settings is not None else load_settings(environ={})
+ 
++    def _save_checkpoint(self, state: TaskExecutionState, node_id: Optional[str] = None,
++                         *, expected_seq: Optional[int] = None) -> CheckpointEnvelope:
++        event = None
++        if state.status in (TaskStatus.COMPLETED, TaskStatus.FAILED):
++            rec = state.node_records.get(node_id)
++            event = NovaEvent(event_type=EventType.TASK_COMPLETED if state.status == TaskStatus.COMPLETED else EventType.TASK_FAILED,
++                task_id=state.task_id, session_id=state.session_id, node_id=node_id,
++                agent_role=rec.agent_role if rec else None,
++                correlation_id=(rec.pending_tool_proposal.proposal_id if rec and rec.pending_tool_proposal else
++                    self._terminal_correlation(state.task_id, node_id)),
++                payload=({"completed_nodes": sorted(state.completed_node_ids)} if state.status == TaskStatus.COMPLETED
++                         else {"reason": state.failure_reason}))
++        try:
++            saved = self._checkpoint_store.save_checkpoint(state, node_id=node_id, protect_terminal=True,
++                                                           expected_seq=expected_seq, terminal_event=event)
++        except ValueError as exc:
++            if expected_seq is not None:
++                raise
++            raise OrchestrationExecutionError("Task has a terminal outcome or another execution owner; stale execution stopped.") from exc
++        if saved.state != state:
++            raise OrchestrationExecutionError("Task already has a terminal outcome; stale execution stopped.")
++        if event and any(e.event_id == event.event_id for e in self._checkpoint_store.terminal_events(state.task_id)):
++            try:
++                self._event_bus.publish(event)
++            except Exception:
++                logging.getLogger(__name__).exception("Terminal event persisted; live publication failed")
++        return saved
++
++    def _terminal_correlation(self, task_id: str, node_id: Optional[str]) -> Optional[str]:
++        latest = self._checkpoint_store.load_latest(task_id)
++        rec = latest.state.node_records.get(node_id) if latest else None
++        return rec.pending_tool_proposal.proposal_id if rec and rec.pending_tool_proposal else None
++
++    @staticmethod
++    def _action_context(state: TaskExecutionState, node_id: str) -> ToolActionContext:
++        # Identity comes from the runtime graph, never from proposal fields or HTTP arguments.
++        rec = state.node_records[node_id]
++        return ToolActionContext(task_id=state.task_id, session_id=state.session_id,
++                                 node_id=node_id, agent_role=rec.agent_role)
++
++    def start_assistant_action(self, *, tool_name: str, arguments: dict,
++                               session_id: str = "sess_personal_chat") -> TaskExecutionState:
++        roles = {"notes.create_note": AgentRole.CODING, "calendar.create_event": AgentRole.COMMS}
++        if tool_name not in roles:
++            raise ValueError("Unsupported assistant action.")
++        role = roles[tool_name]
++        task_id = "task_assistant_" + uuid.uuid4().hex
++        node_id = "assistant_action"
++        proposal = ToolCallProposal(agent_role=role, node_id=node_id,
++            thought="Explicit assistant command; no model inference performed.",
++            tool_name=tool_name, arguments=arguments,
++            declared_sensitivity=SensitivityTier.REVERSIBLE_WRITE,
++            rationale="Execute the exact note/calendar action requested by the user.")
++        node = PlanNode(node_id=node_id, target_agent=role, objective=tool_name)
++        state = TaskExecutionState.create_initial(task_id=task_id, session_id=session_id,
++                                                  user_goal=tool_name)
++        state = state.attach_plan_graph(ExecutionPlanGraph(task_id=task_id,
++            goal_summary=tool_name, nodes=(node,)))
++        rec = copy_model(state.node_records[node_id], **{
++            "direct_action": True, "pending_tool_proposal": proposal})
++        state = state.update_node_record(rec)
++        self._save_checkpoint(state, node_id=node_id)
++        return self.run_until_blocked_or_complete(task_id)
++
++    def _execute_authorized(self, state: TaskExecutionState, proposal: ToolCallProposal,
++                            stamp: PermissionCheckResult) -> ToolExecutionResult:
++        context = self._action_context(state, proposal.node_id)
++        try:
++            result = self._tool_executor.execute_approved_tool(proposal, stamp, context=context,
++                on_started=lambda: self._emit(state, EventType.TOOL_STARTED,
++                    {"tool_name": proposal.tool_name}, proposal.node_id, context.agent_role, proposal.proposal_id))
++        except UnapprovedToolExecutionError:
++            # Rejected attempts are not new task outcomes and cannot overwrite the winner.
++            raise
++        except Exception:
++            self._emit(state, EventType.TOOL_FAILED, {"tool_name": proposal.tool_name},
++                       proposal.node_id, context.agent_role, proposal.proposal_id)
++            raise
++        self._emit(state, EventType.TOOL_COMPLETED if result.status == "success" else EventType.TOOL_FAILED,
++                   {"tool_name": proposal.tool_name, "status": result.status},
++                   proposal.node_id, context.agent_role, proposal.proposal_id)
++        return result
++
++    def _complete_direct_action(self, state: TaskExecutionState, rec: NodeExecutionRecord,
++                                proposal: ToolCallProposal, result: ToolExecutionResult) -> TaskExecutionState:
++        if result.status != "success":
++            node = next(n for n in state.plan_graph.nodes if n.node_id == rec.node_id)
++            return self._fail_node(state, node, rec, result.sanitized_output)
++        final = FinalAnswerProposal(agent_role=rec.agent_role, node_id=rec.node_id,
++            thought="Result returned by the actual local handler.", content=result.sanitized_output)
++        done = copy_model(rec, **{"status": PlanNodeStatus.COMPLETED,
++            "pending_tool_proposal": None, "final_answer": final})
++        state = state.update_node_record(done)
++        state = self._save_checkpoint(state, node_id=rec.node_id).state
++        if state.status == TaskStatus.COMPLETED:
++            self._emit(state, EventType.TASK_COMPLETED, {"completed_nodes": sorted(state.completed_node_ids)},
++                       rec.node_id, rec.agent_role, proposal.proposal_id)
++        return state
++
+     def start_task(
+         self,
+         task_id: str,
+@@ -143,7 +252,7 @@ class NovaGraphOrchestrator:
+             user_goal=user_goal,
+             max_graph_steps=self._settings.max_graph_steps,
+         )
+-        self._checkpoint_store.save_checkpoint(state, node_id=None)
++        self._save_checkpoint(state, node_id=None)
+         self._emit(
+             state=state,
+             event_type=EventType.TASK_STARTED,
+@@ -152,7 +261,7 @@ class NovaGraphOrchestrator:
+ 
+         # 2. Transition to PLANNING and invoke PlannerAgent
+         state = state.transition_task_status(TaskStatus.PLANNING)
+-        self._checkpoint_store.save_checkpoint(state, node_id="node_planner")
++        self._save_checkpoint(state, node_id="node_planner")
+         self._emit(
+             state=state,
+             event_type=EventType.TASK_PLANNING,
+@@ -182,7 +291,7 @@ class NovaGraphOrchestrator:
+                 TaskStatus.FAILED,
+                 failure_reason=f"PlannerAgent must return a PlanProposal, got {plan_proposal.kind!r}.",
+             )
+-            self._checkpoint_store.save_checkpoint(state, node_id="node_planner")
++            self._save_checkpoint(state, node_id="node_planner")
+             self._emit(
+                 state=state,
+                 event_type=EventType.TASK_FAILED,
+@@ -200,7 +309,7 @@ class NovaGraphOrchestrator:
+             default_max_retries=self._settings.max_retries_per_node,
+         )
+         state = state.attach_plan_graph(plan_graph)
+-        self._checkpoint_store.save_checkpoint(state, node_id="node_planner")
++        self._save_checkpoint(state, node_id="node_planner")
+ 
+         # 3. Advance the execution graph until completion or human approval pause
+         return self.run_until_blocked_or_complete(
+@@ -221,6 +330,8 @@ class NovaGraphOrchestrator:
+             raise OrchestrationExecutionError(f"No checkpoint found for task_id {task_id!r}.")
+ 
+         state = envelope.state
++        if state.approval_attempt_id is not None:
++            return state
+         if state.status != TaskStatus.RUNNING or state.plan_graph is None:
+             return state
+ 
+@@ -252,7 +363,25 @@ class NovaGraphOrchestrator:
+ 
+         return state
+ 
+-    def submit_user_approval(
++    def submit_user_approval(self, task_id: str, node_id: str, proposal_id: str,
++                             approved: bool, reason: str = "User interactive decision",
++                             untrusted_data: Sequence[UntrustedDataItem] = (),
++                             require_citations: bool = False) -> TaskExecutionState:
++        try:
++            return self._submit_user_approval(task_id, node_id, proposal_id, approved, reason,
++                                             untrusted_data, require_citations)
++        except (PermissionError, ValueError, OrchestrationExecutionError) as exc:
++            recorder = getattr(self._permission_gate, "record_rejected_attempt", None)
++            if recorder:
++                context = None
++                envelope = self._checkpoint_store.load_latest(task_id)
++                if envelope and node_id in envelope.state.node_records:
++                    context = self._action_context(envelope.state, node_id)
++                recorder(None, context, exc, submitted={"task_id": task_id,
++                         "node_id": node_id, "proposal_id": proposal_id})
++            raise
++
++    def _submit_user_approval(
+         self,
+         task_id: str,
+         node_id: str,
+@@ -286,14 +415,56 @@ class NovaGraphOrchestrator:
+                 f"submitted proposal_id {proposal_id!r}."
+             )
+ 
++        owned = copy_model(state.transition_task_status(TaskStatus.RUNNING),
++                           approval_attempt_id=uuid.uuid4().hex)
++        try:
++            self._save_checkpoint(owned, node_id=node_id, expected_seq=envelope.checkpoint_seq)
++        except ValueError:
++            raise OrchestrationExecutionError("Approval is already being resolved; reload task status.")
++        try:
++            return self._resolve_owned_approval(owned, node_id, proposal_id, approved, reason,
++                                                untrusted_data, require_citations)
++        except AuthorizationAlreadyClaimedError:
++            # Legacy or externally claimed action: outcome may be uncertain. Never replay.
++            raise
++        except UnapprovedToolExecutionError as exc:
++            failed_rec = copy_model(rec, status=PlanNodeStatus.FAILED, pending_tool_proposal=None,
++                                    last_error="Authorization rejected before execution.")
++            failed = owned.update_node_record(failed_rec, new_task_status=TaskStatus.FAILED,
++                                              failure_reason="Authorization rejected before execution.")
++            event = NovaEvent(event_type=EventType.TASK_FAILED, task_id=failed.task_id,
++                session_id=failed.session_id, node_id=node_id, agent_role=rec.agent_role,
++                correlation_id=proposal_id, payload={"reason": "authorization_rejected", "execution_started": False})
++            try:
++                saved = self._checkpoint_store.save_checkpoint(failed, node_id=node_id, protect_terminal=True,
++                    expected_seq=owned.checkpoint_seq, terminal_event=event)
++            except ValueError:
++                saved = self._checkpoint_store.load_latest(owned.task_id)
++            if saved.state == failed:
++                try:
++                    self._event_bus.publish(event)
++                except Exception:
++                    logging.getLogger(__name__).exception("Rejection event persisted; live publication failed")
++            exc.task_status = saved.state.status.value
++            exc.task_id = saved.state.task_id
++            raise
++
++    def _resolve_owned_approval(self, state: TaskExecutionState, node_id: str, proposal_id: str,
++                                approved: bool, reason: str, untrusted_data: Sequence[UntrustedDataItem],
++                                require_citations: bool) -> TaskExecutionState:
++        task_id = state.task_id
++        rec = state.node_records[node_id]
++        pending_proposal = rec.pending_tool_proposal
+         # Record the human decision in the Permission Gate
+         self._permission_gate.record_user_decision(
+             proposal_id=proposal_id,
+             approved=approved,
+             reason=reason,
++            proposal=pending_proposal, context=self._action_context(state, node_id),
+         )
+ 
+         if not approved:
++            self._permission_gate.evaluate_tool_proposal(pending_proposal, context=self._action_context(state, node_id))
+             self._emit(
+                 state=state,
+                 event_type=EventType.PERMISSION_DENIED,
+@@ -316,18 +487,22 @@ class NovaGraphOrchestrator:
+                 new_task_status=TaskStatus.FAILED,
+                 failure_reason=f"User denied tool {pending_proposal.tool_name!r}: {reason}",
+             )
+-            self._checkpoint_store.save_checkpoint(state, node_id=node_id)
++            self._save_checkpoint(state, node_id=node_id)
+             self._emit(
+                 state=state,
+                 event_type=EventType.TASK_FAILED,
+                 node_id=node_id,
+                 agent_role=rec.agent_role,
+                 payload={"reason": state.failure_reason},
++                correlation_id=proposal_id,
+             )
+             return state
+ 
+         # Approved! Re-evaluate through the Permission Gate to obtain the official USER_APPROVED stamp
+-        stamp = self._permission_gate.evaluate_tool_proposal(pending_proposal)
++        stamp = self._permission_gate.evaluate_tool_proposal(pending_proposal, context=self._action_context(state, node_id))
++        if not stamp.is_approved:
++            node = next(n for n in state.plan_graph.nodes if n.node_id == node_id)
++            return self._fail_node(state, node, rec, stamp.reason)
+         self._emit(
+             state=state,
+             event_type=EventType.PERMISSION_APPROVED,
+@@ -342,27 +517,18 @@ class NovaGraphOrchestrator:
+         )
+ 
+         # Resume task to RUNNING and execute the approved tool
+-        state = state.transition_task_status(TaskStatus.RUNNING)
+-        self._emit(
+-            state=state,
+-            event_type=EventType.TOOL_STARTED,
+-            node_id=node_id,
+-            agent_role=rec.agent_role,
+-            correlation_id=proposal_id,
+-            payload={"tool_name": pending_proposal.tool_name},
+-        )
+-        tool_result = self._tool_executor.execute_approved_tool(pending_proposal, stamp)
+-        self._emit(
+-            state=state,
+-            event_type=EventType.TOOL_COMPLETED,
+-            node_id=node_id,
+-            agent_role=rec.agent_role,
+-            correlation_id=proposal_id,
+-            payload={
+-                "tool_name": pending_proposal.tool_name,
+-                "status": tool_result.status,
+-            },
+-        )
++        try:
++            tool_result = self._execute_authorized(state, pending_proposal, stamp)
++        except UnapprovedToolExecutionError:
++            raise
++        except Exception as exc:
++            node = next(n for n in state.plan_graph.nodes if n.node_id == node_id)
++            return self._fail_node(state, node, rec, str(exc))
++        if rec.direct_action:
++            return self._complete_direct_action(state, rec, pending_proposal, tool_result)
++        if tool_result.status != "success":
++            node = next(n for n in state.plan_graph.nodes if n.node_id == node_id)
++            return self._fail_node(state, node, rec, tool_result.sanitized_output)
+ 
+         updated_react = rec.react_state.record_observation(
+             proposal=pending_proposal,
+@@ -378,8 +544,9 @@ class NovaGraphOrchestrator:
+             pending_tool_proposal=None,
+             last_error=None,
+         )
+-        state = state.update_node_record(resumed_rec, new_task_status=TaskStatus.RUNNING)
+-        self._checkpoint_store.save_checkpoint(state, node_id=node_id)
++        expected_seq = state.checkpoint_seq
++        state = copy_model(state.update_node_record(resumed_rec, new_task_status=TaskStatus.RUNNING), approval_attempt_id=None)
++        self._save_checkpoint(state, node_id=node_id, expected_seq=expected_seq)
+ 
+         # Continue running the node (and any downstream nodes)
+         return self.run_until_blocked_or_complete(
+@@ -430,7 +597,8 @@ class NovaGraphOrchestrator:
+             )
+ 
+             try:
+-                proposal = agent.propose_next_action(ctx, react_state=rec.react_state)
++                proposal = (rec.pending_tool_proposal if rec.pending_tool_proposal is not None
++                            else agent.propose_next_action(ctx, react_state=rec.react_state))
+             except Exception as exc:
+                 failed_rec = NodeExecutionRecord(
+                     node_id=node.node_id,
+@@ -445,7 +613,7 @@ class NovaGraphOrchestrator:
+                     new_task_status=TaskStatus.FAILED,
+                     failure_reason=str(exc),
+                 )
+-                self._checkpoint_store.save_checkpoint(state, node_id=node.node_id)
++                self._save_checkpoint(state, node_id=node.node_id)
+                 self._emit(
+                     state=state,
+                     event_type=EventType.TASK_FAILED,
+@@ -462,7 +630,7 @@ class NovaGraphOrchestrator:
+                     node=node,
+                     require_citations=require_citations,
+                 )
+-                if reflection.should_reflect and self._critic_agent is not None:
++                if reflection.should_reflect and self._critic_agent is not None and not rec.direct_action:
+                     critique = self._run_reflection_check(
+                         state=state,
+                         node=node,
+@@ -499,7 +667,7 @@ class NovaGraphOrchestrator:
+                     last_error=None,
+                 )
+                 state = state.update_node_record(done_rec)
+-                self._checkpoint_store.save_checkpoint(state, node_id=node.node_id)
++                self._save_checkpoint(state, node_id=node.node_id)
+                 return state
+ 
+             # --- Case 2: Agent proposed a ToolCallProposal ---
+@@ -509,7 +677,7 @@ class NovaGraphOrchestrator:
+                     node=node,
+                     require_citations=require_citations,
+                 )
+-                if reflection.should_reflect and self._critic_agent is not None:
++                if reflection.should_reflect and self._critic_agent is not None and not rec.direct_action:
+                     self._emit(
+                         state=state,
+                         event_type=EventType.AGENT_REFLECTION_TRIGGERED,
+@@ -547,7 +715,13 @@ class NovaGraphOrchestrator:
+                         )
+ 
+                 # Evaluate through the Permission Gate (ADR-010)
+-                stamp = self._permission_gate.evaluate_tool_proposal(proposal)
++                try:
++                    stamp = self._permission_gate.evaluate_tool_proposal(proposal,
++                        context=self._action_context(state, node.node_id))
++                except UnapprovedToolExecutionError:
++                    raise
++                except Exception as exc:
++                    return self._fail_node(state, node, rec, str(exc))
+ 
+                 if stamp.requires_interactive_prompt:
+                     paused_rec = NodeExecutionRecord(
+@@ -557,13 +731,15 @@ class NovaGraphOrchestrator:
+                         attempt_count=rec.attempt_count + 1,
+                         react_state=rec.react_state,
+                         pending_tool_proposal=proposal,
++                        direct_action=rec.direct_action,
++                        approval_expires_at=stamp.expires_at,
+                         last_error=None,
+                     )
+                     state = state.update_node_record(
+                         paused_rec,
+                         new_task_status=TaskStatus.AWAITING_APPROVAL,
+                     )
+-                    self._checkpoint_store.save_checkpoint(state, node_id=node.node_id)
++                    self._save_checkpoint(state, node_id=node.node_id)
+                     self._emit(
+                         state=state,
+                         event_type=EventType.PERMISSION_REQUESTED,
+@@ -611,26 +787,21 @@ class NovaGraphOrchestrator:
+                         "decision": stamp.decision.value if stamp.decision else "auto_approved",
+                     },
+                 )
+-                self._emit(
+-                    state=state,
+-                    event_type=EventType.TOOL_STARTED,
+-                    node_id=node.node_id,
+-                    agent_role=node.target_agent,
+-                    correlation_id=proposal.proposal_id,
+-                    payload={"tool_name": proposal.tool_name},
+-                )
+-                tool_result = self._tool_executor.execute_approved_tool(proposal, stamp)
+-                self._emit(
+-                    state=state,
+-                    event_type=EventType.TOOL_COMPLETED,
+-                    node_id=node.node_id,
+-                    agent_role=node.target_agent,
+-                    correlation_id=proposal.proposal_id,
+-                    payload={
+-                        "tool_name": proposal.tool_name,
+-                        "status": tool_result.status,
+-                    },
+-                )
++                # Persist the exact proposal before claiming it. Recovery must not ask
++                # the model for a new proposal ID and repeat an uncertain side effect.
++                rec = copy_model(rec, **{"pending_tool_proposal": proposal})
++                state = state.update_node_record(rec)
++                self._save_checkpoint(state, node_id=node.node_id)
++                try:
++                    tool_result = self._execute_authorized(state, proposal, stamp)
++                except UnapprovedToolExecutionError:
++                    raise
++                except Exception as exc:
++                    return self._fail_node(state, node, rec, str(exc))
++                if rec.direct_action:
++                    return self._complete_direct_action(state, rec, proposal, tool_result)
++                if tool_result.status != "success":
++                    return self._fail_node(state, node, rec, tool_result.sanitized_output)
+ 
+                 updated_react = rec.react_state.record_observation(
+                     proposal=proposal,
+@@ -647,7 +818,7 @@ class NovaGraphOrchestrator:
+                     last_error=None,
+                 )
+                 state = state.update_node_record(running_rec)
+-                self._checkpoint_store.save_checkpoint(state, node_id=node.node_id)
++                self._save_checkpoint(state, node_id=node.node_id)
+                 continue
+ 
+             # --- Case 3: ClarificationProposal or unexpected proposal kind ---
+@@ -731,7 +902,7 @@ class NovaGraphOrchestrator:
+             last_error=revision_instructions,
+         )
+         state = state.update_node_record(revised_rec)
+-        self._checkpoint_store.save_checkpoint(state, node_id=node.node_id)
++        self._save_checkpoint(state, node_id=node.node_id)
+         return state
+ 
+     def _fail_node(
+@@ -755,13 +926,16 @@ class NovaGraphOrchestrator:
+             new_task_status=TaskStatus.FAILED,
+             failure_reason=reason,
+         )
+-        self._checkpoint_store.save_checkpoint(state, node_id=node.node_id)
++        state = self._save_checkpoint(state, node_id=node.node_id).state
++        if state.status != TaskStatus.FAILED:
++            return state
+         self._emit(
+             state=state,
+             event_type=EventType.TASK_FAILED,
+             node_id=node.node_id,
+             agent_role=node.target_agent,
+             payload={"reason": reason},
++            correlation_id=rec.pending_tool_proposal.proposal_id if rec.pending_tool_proposal else None,
+         )
+         return state
+ 
+@@ -774,6 +948,18 @@ class NovaGraphOrchestrator:
+         agent_role: Optional[AgentRole] = None,
+         correlation_id: Optional[str] = None,
+     ) -> None:
++        terminal = (EventType.TOOL_COMPLETED, EventType.TOOL_FAILED,
++                    EventType.TASK_COMPLETED, EventType.TASK_FAILED)
++        if event_type in terminal:
++            # Completed and failed share a reservation, preventing conflicting outcomes.
++            key = ("tool:" + str(correlation_id)) if event_type in terminal[:2] else event_type.value
++            if event_type in terminal[2:]:
++                latest = self._checkpoint_store.load_latest(state.task_id)
++                expected = TaskStatus.COMPLETED if event_type == EventType.TASK_COMPLETED else TaskStatus.FAILED
++                if latest is None or latest.state.status != expected:
++                    return
++            if not self._checkpoint_store.claim_terminal_event(state.task_id, key):
++                return
+         self._event_bus.publish(
+             NovaEvent(
+                 event_type=event_type,
+@@ -784,4 +970,4 @@ class NovaGraphOrchestrator:
+                 correlation_id=correlation_id,
+                 payload=payload,
+             )
+-        )
+\ No newline at end of file
++        )
+diff --git a/services/backend/src/nova/core/orchestration/ports.py b/services/backend/src/nova/core/orchestration/ports.py
+index 1998b2d..8be5392 100644
+--- a/services/backend/src/nova/core/orchestration/ports.py
++++ b/services/backend/src/nova/core/orchestration/ports.py
+@@ -20,7 +20,7 @@ directly. Instead, the Manager uses two walkie-talkies:
+ 
+ from __future__ import annotations
+ 
+-from typing import Callable, Dict, List, Literal, Mapping, Optional, Protocol, Tuple, runtime_checkable
++from typing import Any, TypeVar, Callable, Dict, List, Literal, Mapping, Optional, Protocol, Tuple, runtime_checkable
+ 
+ from pydantic import BaseModel, Field
+ 
+@@ -45,6 +45,34 @@ class UnapprovedToolExecutionError(PermissionError):
+     """Raised when code attempts to execute a tool without a verified approval stamp (ADR-010)."""
+ 
+ 
++class AuthorizationAlreadyClaimedError(UnapprovedToolExecutionError):
++    """An execution winner exists; its outcome must not be replaced."""
++
++
++ModelT = TypeVar("ModelT", bound=BaseModel)
++
++
++def copy_model(model: ModelT, **updates: Any) -> ModelT:
++    """Preserve the repository's Pydantic 1/2 compatibility for immutable updates."""
++    if hasattr(model, "model_copy"):
++        return model.model_copy(update=updates)
++    return model.copy(update=updates)
++
++
++class ToolActionContext(BaseModel):
++    """Identity supplied by the runtime, never accepted from a model or HTTP body."""
++    if PYDANTIC_V2:
++        model_config = ConfigDict(frozen=True, extra="forbid")
++    else:
++        class Config:
++            allow_mutation = False
++            extra = "forbid"
++    task_id: str = Field(..., min_length=1)
++    session_id: str = Field(..., min_length=1)
++    node_id: str = Field(..., min_length=1)
++    agent_role: AgentRole
++
++
+ class PermissionCheckResult(BaseModel):
+     """Official decision stamp returned by the Permission Gate (ADR-010 / NFR-08)."""
+ 
+@@ -71,6 +99,10 @@ class PermissionCheckResult(BaseModel):
+         description="True when the orchestrator must pause in AWAITING_APPROVAL and ask the user",
+     )
+     reason: str = Field(..., min_length=1, description="Audit explanation for this decision")
++    context: Optional[ToolActionContext] = None
++    action_digest: Optional[str] = None
++    authorization_id: Optional[str] = None
++    expires_at: Optional[float] = None
+ 
+     @property
+     def is_approved(self) -> bool:
+@@ -133,6 +165,7 @@ class PermissionGatePort(Protocol):
+     def evaluate_tool_proposal(
+         self,
+         proposal: ToolCallProposal,
++        *, context: Optional[ToolActionContext] = None,
+     ) -> PermissionCheckResult:
+         """Evaluate whether `proposal` is auto-approved, denied, or requires user confirmation."""
+ 
+@@ -141,6 +174,7 @@ class PermissionGatePort(Protocol):
+         proposal_id: str,
+         approved: bool,
+         reason: str = "User interactive decision",
++        *, proposal: Optional[ToolCallProposal] = None, context: Optional[ToolActionContext] = None,
+     ) -> None:
+         """Record the human user's Approve/Deny click for a paused `proposal_id`."""
+ 
+@@ -153,6 +187,8 @@ class ToolExecutorPort(Protocol):
+         self,
+         proposal: ToolCallProposal,
+         permission_stamp: PermissionCheckResult,
++        *, context: Optional[ToolActionContext] = None,
++        on_started: Optional[Callable[[], None]] = None,
+     ) -> ToolExecutionResult:
+         """Execute `proposal` ONLY after verifying `permission_stamp.is_approved` is True."""
+ 
+@@ -184,6 +220,7 @@ class DefaultPolicyPermissionGate:
+         proposal_id: str,
+         approved: bool,
+         reason: str = "User interactive decision",
++        *, proposal: Optional[ToolCallProposal] = None, context: Optional[ToolActionContext] = None,
+     ) -> None:
+         """Store a human Approve (`True`) or Deny (`False`) decision for `proposal_id`."""
+         self._user_decisions[proposal_id] = (approved, reason)
+@@ -191,6 +228,7 @@ class DefaultPolicyPermissionGate:
+     def evaluate_tool_proposal(
+         self,
+         proposal: ToolCallProposal,
++        *, context: Optional[ToolActionContext] = None,
+     ) -> PermissionCheckResult:
+         """Evaluate a ToolCallProposal against ADR-008 scope and ADR-010 sensitivity rules."""
+         spec = get_agent_spec(proposal.agent_role)
+@@ -293,6 +331,12 @@ def verify_approval_stamp(
+         raise UnapprovedToolExecutionError(
+             "ADR-010 violation: Missing PermissionCheckResult stamp."
+         )
++    if permission_stamp.agent_role != proposal.agent_role:
++        raise UnapprovedToolExecutionError("Approval agent identity mismatch.")
++    if permission_stamp.context is not None:
++        from nova.core.permissions.authorization import action_digest
++        if action_digest(proposal, permission_stamp.context) != permission_stamp.action_digest:
++            raise UnapprovedToolExecutionError("Approval arguments/context mismatch.")
+     if permission_stamp.proposal_id != proposal.proposal_id:
+         raise UnapprovedToolExecutionError(
+             f"ADR-010 violation: Permission stamp proposal_id {permission_stamp.proposal_id!r} "
+@@ -332,6 +376,8 @@ class InMemoryMockToolExecutor:
+         self,
+         proposal: ToolCallProposal,
+         permission_stamp: PermissionCheckResult,
++        *, context: Optional[ToolActionContext] = None,
++        on_started: Optional[Callable[[], None]] = None,
+     ) -> ToolExecutionResult:
+         """Verify the approval stamp and run the registered handler."""
+         verify_approval_stamp(proposal, permission_stamp)
+@@ -346,6 +392,8 @@ class InMemoryMockToolExecutor:
+                 sanitized_output=f"Tool '{proposal.tool_name}' is not registered in executor.",
+             )
+ 
++        if on_started is not None:
++            on_started()
+         try:
+             raw_output = handler(dict(proposal.arguments))
+             return ToolExecutionResult(
+@@ -360,4 +408,4 @@ class InMemoryMockToolExecutor:
+                 tool_name=proposal.tool_name,
+                 status="error",
+                 sanitized_output=f"Tool execution error: {exc}",
+-            )
+\ No newline at end of file
++            )
+diff --git a/services/backend/src/nova/core/orchestration/state.py b/services/backend/src/nova/core/orchestration/state.py
+index b2f1f6c..bd59d50 100644
+--- a/services/backend/src/nova/core/orchestration/state.py
++++ b/services/backend/src/nova/core/orchestration/state.py
+@@ -113,6 +113,8 @@ class NodeExecutionRecord(BaseModel):
+     react_state: ReActNodeState = Field(
+         ..., description="Bounded Thought-Action-Observation notepad for this node"
+     )
++    direct_action: bool = False
++    approval_expires_at: Optional[float] = None
+     pending_tool_proposal: Optional[ToolCallProposal] = Field(
+         default=None,
+         description="ToolCallProposal currently paused awaiting Reflection or Human Approval",
+@@ -170,6 +172,7 @@ class TaskExecutionState(BaseModel):
+     updated_at_utc: str = Field(
+         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+     )
++    approval_attempt_id: Optional[str] = Field(default=None)
+     failure_reason: Optional[str] = Field(default=None)
+ 
+     def __init__(self, **data: object) -> None:
+@@ -354,5 +357,6 @@ class TaskExecutionState(BaseModel):
+             max_graph_steps=self.max_graph_steps,
+             checkpoint_seq=self.checkpoint_seq + 1,
+             updated_at_utc=datetime.now(timezone.utc).isoformat(),
++            approval_attempt_id=self.approval_attempt_id,
+             failure_reason=failure_reason,
+         )
+\ No newline at end of file
+diff --git a/services/backend/src/nova/core/permissions/sandbox_and_audit.py b/services/backend/src/nova/core/permissions/sandbox_and_audit.py
+index 98060f8..3d785e0 100644
+--- a/services/backend/src/nova/core/permissions/sandbox_and_audit.py
++++ b/services/backend/src/nova/core/permissions/sandbox_and_audit.py
+@@ -31,6 +31,8 @@ import re
+ import shlex
+ import sqlite3
+ import uuid
++import threading
++from functools import wraps
+ from datetime import datetime, timedelta, timezone
+ from pathlib import Path
+ from typing import Any, Callable, Dict, List, Literal, Mapping, Optional, Sequence, Tuple
+@@ -57,12 +59,15 @@ from nova.core.domain.primitives import (
+ from nova.core.domain.proposals import ToolCallProposal
+ from nova.core.orchestration.ports import (
+     PermissionCheckResult,
++    ToolActionContext,
++    UnapprovedToolExecutionError,
+     ToolExecutionResult,
+     verify_approval_stamp,
+ )
+ from nova.core.platform.event_bus import EventPublisherPort
+ from nova.core.tools.registry import (
+     ToolContract,
++    ToolSchemaValidationError,
+     ToolRegistry,
+     build_default_tool_registry,
+ )
+@@ -238,6 +243,53 @@ class CommandSandbox:
+         return tokens, verified_cwd
+ 
+ 
++def _locked_policy(method):
++    @wraps(method)
++    def call(self, *args, **kwargs):
++        with self._lock:
++            if self._db_path is None:
++                return method(self, *args, **kwargs)
++            conn = sqlite3.connect(self._db_path)
++            try:
++                with conn:
++                    conn.execute("BEGIN IMMEDIATE")
++                    self._load(conn)
++                    result = method(self, *args, **kwargs)
++                    conn.execute("INSERT OR REPLACE INTO permission_policy VALUES (1, ?)",
++                                 (json.dumps(self._snapshot()),))
++                return result
++            finally:
++                conn.close()
++    return call
++
++
++def _current_policy(method):
++    @wraps(method)
++    def call(self, *args, **kwargs):
++        with self._lock:
++            if self._db_path is not None:
++                conn = sqlite3.connect(self._db_path)
++                try:
++                    self._load(conn)
++                finally:
++                    conn.close()
++            return method(self, *args, **kwargs)
++    return call
++
++
++def _audit_authorization_rejection(method):
++    @wraps(method)
++    def call(self, proposal, *args, **kwargs):
++        try:
++            return method(self, proposal, *args, **kwargs)
++        except (UnapprovedToolExecutionError, ValueError, TypeError) as exc:
++            gate = getattr(self, "_permission_gate", None) or self
++            gate.record_rejected_attempt(proposal if isinstance(proposal, ToolCallProposal) else kwargs.get("proposal"),
++                                         kwargs.get("context"), exc)
++            raise
++    return call
++
++
+ class UserPermissionPolicyStore:
+     """User-inspectable and revocable permission policy store (FR-15 / ADR-010 / Section 14).
+ 
+@@ -248,12 +300,44 @@ class UserPermissionPolicyStore:
+     - Exporting a full snapshot of active overrides for the UI Settings panel (`inspect_policies`).
+     """
+ 
+-    def __init__(self, registry: Optional[ToolRegistry] = None) -> None:
++    def __init__(self, registry: Optional[ToolRegistry] = None, *, db_path: Optional[Path] = None) -> None:
++        self._lock = threading.RLock()
+         self._registry = registry or build_default_tool_registry()
+         self._tightened_tiers: Dict[str, SensitivityTier] = {}
+         self._revoked_global_tools: set[str] = set()
+         self._revoked_agent_tools: Dict[AgentRole, set[str]] = {}
+-
++        self._db_path = db_path
++        if db_path is not None:
++            conn = sqlite3.connect(db_path)
++            try:
++                with conn:
++                    conn.execute("CREATE TABLE IF NOT EXISTS permission_policy (id INTEGER PRIMARY KEY, snapshot TEXT NOT NULL)")
++                    row = conn.execute("SELECT snapshot FROM permission_policy WHERE id=1").fetchone()
++                if row:
++                    snapshot = json.loads(row[0])
++                    self._tightened_tiers = {k: SensitivityTier(v) for k, v in snapshot["tightened_tiers"].items()}
++                    self._revoked_global_tools = set(snapshot["revoked_global_tools"])
++                    self._revoked_agent_tools = {AgentRole(k): set(v) for k, v in snapshot["revoked_agent_tools"].items()}
++            finally:
++                conn.close()
++
++
++    def _load(self, conn: sqlite3.Connection) -> None:
++        row = conn.execute("SELECT snapshot FROM permission_policy WHERE id=1").fetchone()
++        snapshot = json.loads(row[0]) if row else {
++            "tightened_tiers": {}, "revoked_global_tools": [], "revoked_agent_tools": {}}
++        self._tightened_tiers = {k: SensitivityTier(v) for k, v in snapshot["tightened_tiers"].items()}
++        self._revoked_global_tools = set(snapshot["revoked_global_tools"])
++        self._revoked_agent_tools = {AgentRole(k): set(v) for k, v in snapshot["revoked_agent_tools"].items()}
++
++    def transactional_snapshot(self, conn: sqlite3.Connection) -> UserPermissionPolicyStore:
++        if self._db_path is None:
++            return self
++        snapshot = UserPermissionPolicyStore(self._registry)
++        snapshot._load(conn)
++        return snapshot
++
++    @_locked_policy
+     def tighten_tool_sensitivity(
+         self,
+         tool_name: str,
+@@ -271,6 +355,7 @@ class UserPermissionPolicyStore:
+         self._tightened_tiers[tool_name] = new_tier
+         return new_tier
+ 
++    @_locked_policy
+     def revoke_tool(
+         self,
+         tool_name: str,
+@@ -284,6 +369,7 @@ class UserPermissionPolicyStore:
+         else:
+             self._revoked_agent_tools.setdefault(agent_role, set()).add(tool_name)
+ 
++    @_locked_policy
+     def restore_tool(
+         self,
+         tool_name: str,
+@@ -296,11 +382,13 @@ class UserPermissionPolicyStore:
+         elif agent_role in self._revoked_agent_tools:
+             self._revoked_agent_tools[agent_role].discard(tool_name)
+ 
++    @_current_policy
+     def is_tool_revoked(self, tool_name: str, agent_role: AgentRole) -> bool:
+         if tool_name in self._revoked_global_tools:
+             return True
+         return tool_name in self._revoked_agent_tools.get(agent_role, set())
+ 
++    @_current_policy
+     def get_effective_sensitivity(
+         self,
+         tool_name: str,
+@@ -317,7 +405,11 @@ class UserPermissionPolicyStore:
+         candidates = (baseline, user_tier, declared_sensitivity)
+         return max(candidates, key=lambda t: _SENSITIVITY_SEVERITY_RANK[t])
+ 
++    @_current_policy
+     def inspect_policies(self) -> Dict[str, Any]:
++        return self._snapshot()
++
++    def _snapshot(self) -> Dict[str, Any]:
+         """Return a human-inspectable snapshot of all user permission overrides (FR-15)."""
+         return {
+             "tightened_tiers": {k: v.value for k, v in sorted(self._tightened_tiers.items())},
+@@ -548,6 +640,9 @@ class SqliteToolAuditLog:
+             return int(cursor.rowcount or 0)
+ 
+ 
++from nova.core.permissions.authorization import AuthorizationLedger, action_digest
++
++
+ class CatalogBackedPermissionGate:
+     """Production Layer 3 Permission Gate uniting `ToolRegistry`, `UserPermissionPolicyStore`, and `SqliteToolAuditLog`."""
+ 
+@@ -560,6 +655,9 @@ class CatalogBackedPermissionGate:
+         auto_approve_reversible_local_writes: bool = False,
+         default_task_id: str = "task_default",
+         default_session_id: str = "sess_default",
++        authorization_db_path: str = ":memory:",
++        approval_ttl_seconds: int = 300,
++        require_runtime_context: bool = False,
+     ) -> None:
+         self._registry = registry
+         self._policy_store = policy_store
+@@ -568,21 +666,93 @@ class CatalogBackedPermissionGate:
+         self._auto_approve_local_writes = auto_approve_reversible_local_writes
+         self._default_task_id = default_task_id
+         self._default_session_id = default_session_id
+-        self._user_decisions: Dict[str, Tuple[bool, str]] = {}
+-
+-    def record_user_decision(
+-        self,
+-        proposal_id: str,
+-        approved: bool,
+-        reason: str = "User interactive decision",
+-    ) -> None:
+-        self._user_decisions[proposal_id] = (approved, reason)
++        self.ledger = AuthorizationLedger(authorization_db_path, ttl=approval_ttl_seconds)
++        self.require_runtime_context = require_runtime_context
++
++    def _context(self, proposal: ToolCallProposal, context: Optional[ToolActionContext]) -> ToolActionContext:
++        if context is None:
++            if self.require_runtime_context:
++                raise UnapprovedToolExecutionError("Trusted runtime context is required.")
++            context = ToolActionContext(task_id=self._default_task_id,
++                session_id=self._default_session_id, node_id=proposal.node_id,
++                agent_role=proposal.agent_role)
++        return context
++
++    def record_user_decision(self, proposal_id: str, approved: bool, reason: str = "User interactive decision",
++                             *, proposal: Optional[ToolCallProposal] = None,
++                             context: Optional[ToolActionContext] = None) -> None:
++        try:
++            return self._record_user_decision(proposal_id, approved, reason, proposal=proposal, context=context)
++        except (UnapprovedToolExecutionError, ValueError, TypeError) as exc:
++            self.record_rejected_attempt(proposal, context, exc, submitted={"proposal_id": proposal_id})
++            raise
+ 
+-    def evaluate_tool_proposal(
++    def _record_user_decision(self, proposal_id: str, approved: bool, reason: str = "User interactive decision",
++                             *, proposal: Optional[ToolCallProposal] = None,
++                             context: Optional[ToolActionContext] = None) -> None:
++        if proposal is None or proposal.proposal_id != proposal_id:
++            raise UnapprovedToolExecutionError("Exact pending proposal required for approval.")
++        context = self._context(proposal, context)
++        self.ledger.decide(proposal, context, approved, reason)
++
++    @_audit_authorization_rejection
++    def evaluate_tool_proposal(self, proposal: ToolCallProposal, *,
++                               context: Optional[ToolActionContext] = None) -> PermissionCheckResult:
++        context = self._context(proposal, context)
++        action_digest(proposal, context)  # Reject a model-supplied identity before policy/audit.
++        with self._policy_store._lock:
++            policy = self._evaluate_policy(proposal)
++            if not policy.is_denied:
++                try:
++                    self._registry.validate_tool_call(proposal.tool_name, proposal.arguments)
++                except (ValueError, TypeError, ToolSchemaValidationError) as exc:
++                    policy = PermissionCheckResult(
++                        proposal_id=proposal.proposal_id, tool_name=proposal.tool_name,
++                        agent_role=context.agent_role, effective_sensitivity=policy.effective_sensitivity,
++                        decision=PermissionDecisionKind.DENIED_BY_POLICY,
++                        requires_interactive_prompt=False, reason=f"Invalid tool arguments: {exc}")
++            result = self.ledger.issue(proposal, context, policy)
++            self._log_gate_decision(proposal, result)
++            return result
++
++    @_audit_authorization_rejection
++    def claim_authorization(self, proposal: ToolCallProposal, stamp: PermissionCheckResult, *,
++                            context: Optional[ToolActionContext] = None) -> None:
++        context = self._context(proposal, context)
++        def check_current(conn: sqlite3.Connection) -> None:
++            policy = self._policy_store.transactional_snapshot(conn)
++            current = self._evaluate_policy(proposal, policy_store=policy)
++            if current.is_denied or current.effective_sensitivity != stamp.effective_sensitivity:
++                raise UnapprovedToolExecutionError("Policy changed or permission revoked before execution.")
++        with self._policy_store._lock:
++            self.ledger.claim(proposal, stamp, context, policy_check=check_current)
++
++    def record_rejected_attempt(self, proposal: Optional[ToolCallProposal], context: Optional[ToolActionContext],
++                                error: Exception, *, submitted: Optional[Mapping[str, Any]] = None) -> None:
++        if getattr(error, "_nova_rejection_audited", False):
++            return
++        claims = dict(submitted or {})
++        if proposal is not None:
++            claims.update(proposal_id=proposal.proposal_id, tool_name=proposal.tool_name,
++                          agent_role=proposal.agent_role.value, node_id=proposal.node_id)
++        # Stable classifications from internal errors; the exception text is never persisted.
++        message = str(error).lower()
++        reason = next((code for word, code in (
++            ("expired", "expired"), ("revoked", "revoked"), ("replay", "replay"),
++            ("claimed", "replay"), ("mismatch", "identity_or_arguments_mismatch"),
++            ("identity", "identity_or_arguments_mismatch"), ("modified", "identity_or_arguments_mismatch"),
++            ("forged", "forged_or_stale"), ("not 'awaiting_approval'", "replay_or_not_pending"),
++            ("not awaiting", "replay_or_not_pending")) if word in message), "authorization_rejected")
++        self.ledger.record_rejection(context, claims, reason)
++        error._nova_rejection_audited = True
++
++    def _evaluate_policy(
+         self,
+         proposal: ToolCallProposal,
++        *, policy_store: Optional[UserPermissionPolicyStore] = None,
+     ) -> PermissionCheckResult:
+         """Evaluate `proposal` against ADR-008 badge scope, FR-15 user policy, and Section 14 tiers."""
++        policy_store = policy_store or self._policy_store
+         spec = get_agent_spec(proposal.agent_role)
+ 
+         # 1. Check ADR-008 specialized agent scope
+@@ -598,7 +768,6 @@ class CatalogBackedPermissionGate:
+                 requires_interactive_prompt=False,
+                 reason=str(exc),
+             )
+-            self._log_gate_decision(proposal, res)
+             return res
+ 
+         # 2. Check if tool is registered in ToolRegistry (fail-closed if unknown)
+@@ -614,16 +783,15 @@ class CatalogBackedPermissionGate:
+                 requires_interactive_prompt=False,
+                 reason=f"Unregistered tool denied fail-closed: {exc}",
+             )
+-            self._log_gate_decision(proposal, res)
+             return res
+ 
+-        effective_tier = self._policy_store.get_effective_sensitivity(
++        effective_tier = policy_store.get_effective_sensitivity(
+             proposal.tool_name,
+             proposal.declared_sensitivity,
+         )
+ 
+         # 3. Check if the user revoked this tool globally or for this agent (FR-15)
+-        if self._policy_store.is_tool_revoked(proposal.tool_name, proposal.agent_role):
++        if policy_store.is_tool_revoked(proposal.tool_name, proposal.agent_role):
+             res = PermissionCheckResult(
+                 proposal_id=proposal.proposal_id,
+                 tool_name=proposal.tool_name,
+@@ -633,26 +801,6 @@ class CatalogBackedPermissionGate:
+                 requires_interactive_prompt=False,
+                 reason=f"FR-15 policy: Tool {proposal.tool_name!r} has been revoked by the user.",
+             )
+-            self._log_gate_decision(proposal, res)
+-            return res
+-
+-        # 4. Check if the user already clicked Approve or Deny for this proposal_id
+-        if proposal.proposal_id in self._user_decisions:
+-            approved, user_reason = self._user_decisions[proposal.proposal_id]
+-            res = PermissionCheckResult(
+-                proposal_id=proposal.proposal_id,
+-                tool_name=proposal.tool_name,
+-                agent_role=proposal.agent_role,
+-                effective_sensitivity=effective_tier,
+-                decision=(
+-                    PermissionDecisionKind.USER_APPROVED
+-                    if approved
+-                    else PermissionDecisionKind.DENIED_BY_USER
+-                ),
+-                requires_interactive_prompt=False,
+-                reason=user_reason,
+-            )
+-            self._log_gate_decision(proposal, res)
+             return res
+ 
+         # 5. Auto-approve safe read_only tools (unless tightened by the user to a higher tier!)
+@@ -694,7 +842,6 @@ class CatalogBackedPermissionGate:
+                 requires_interactive_prompt=False,
+                 reason=f"Denied by policy ('deny') for sensitivity tier {effective_tier.value!r}.",
+             )
+-            self._log_gate_decision(proposal, res)
+             return res
+ 
+         return PermissionCheckResult(
+@@ -720,8 +867,8 @@ class CatalogBackedPermissionGate:
+         if result.is_denied:
+             self._audit_log.record_entry(
+                 ToolAuditEntry(
+-                    task_id=self._default_task_id,
+-                    session_id=self._default_session_id,
++                    task_id=result.context.task_id if result.context else self._default_task_id,
++                    session_id=result.context.session_id if result.context else self._default_session_id,
+                     node_id=proposal.node_id,
+                     proposal_id=proposal.proposal_id,
+                     agent_role=proposal.agent_role,
+@@ -760,7 +907,9 @@ class SandboxedMcpToolExecutor:
+         tool_handlers: Optional[Mapping[str, StructuredToolHandlerFn]] = None,
+         default_task_id: str = "task_default",
+         default_session_id: str = "sess_default",
++        permission_gate: Optional[CatalogBackedPermissionGate] = None,
+     ) -> None:
++        self._permission_gate = permission_gate
+         self._registry = registry
+         self._fs_sandbox = filesystem_sandbox
+         self._cmd_sandbox = command_sandbox or CommandSandbox(filesystem_sandbox)
+@@ -778,10 +927,13 @@ class SandboxedMcpToolExecutor:
+     ) -> None:
+         self._handlers[tool_name] = handler
+ 
++    @_audit_authorization_rejection
+     def execute_approved_tool(
+         self,
+         proposal: ToolCallProposal,
+         permission_stamp: PermissionCheckResult,
++        *, context: Optional[ToolActionContext] = None,
++        on_started: Optional[Callable[[], None]] = None,
+     ) -> ToolExecutionResult:
+         """Verify approval stamp, validate schema, enforce sandbox, run tool, and log audit entry."""
+         # 1. Non-bypassable approval stamp check (ADR-010)
+@@ -846,7 +998,20 @@ class SandboxedMcpToolExecutor:
+                 sanitized_output=err_msg,
+             )
+ 
+-        raw_result = handler(sanitized_args)
++        if self._permission_gate is None:
++            raise UnapprovedToolExecutionError("Executor requires its issuing permission gate.")
++        self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
++        if on_started is not None:
++            on_started()
++        try:
++            raw_result = handler(sanitized_args)
++        except Exception as exc:
++            summary = f"Tool failed; side effects may be partial: {type(exc).__name__}: {exc}"
++            self._record_audit_and_violation(proposal=proposal, stamp=permission_stamp,
++                execution_status="error", summary=summary, is_security_violation=False)
++            self._permission_gate.ledger.finish(proposal.proposal_id, "error")
++            return ToolExecutionResult(proposal_id=proposal.proposal_id,
++                tool_name=proposal.tool_name, status="error", sanitized_output=summary)
+         try:
+             contract.validate_output(raw_result)
+         except Exception as exc:
+@@ -865,8 +1030,8 @@ class SandboxedMcpToolExecutor:
+         if self._audit_log is not None:
+             self._audit_log.record_entry(
+                 ToolAuditEntry(
+-                    task_id=self._default_task_id,
+-                    session_id=self._default_session_id,
++                    task_id=permission_stamp.context.task_id if permission_stamp.context else self._default_task_id,
++                    session_id=permission_stamp.context.session_id if permission_stamp.context else self._default_session_id,
+                     node_id=proposal.node_id,
+                     proposal_id=proposal.proposal_id,
+                     agent_role=proposal.agent_role,
+@@ -880,6 +1045,7 @@ class SandboxedMcpToolExecutor:
+                 )
+             )
+ 
++        self._permission_gate.ledger.finish(proposal.proposal_id, "success")
+         return ToolExecutionResult(
+             proposal_id=proposal.proposal_id,
+             tool_name=proposal.tool_name,
+@@ -899,8 +1065,8 @@ class SandboxedMcpToolExecutor:
+         if self._audit_log is not None and stamp.decision is not None:
+             self._audit_log.record_entry(
+                 ToolAuditEntry(
+-                    task_id=self._default_task_id,
+-                    session_id=self._default_session_id,
++                    task_id=stamp.context.task_id if stamp.context else self._default_task_id,
++                    session_id=stamp.context.session_id if stamp.context else self._default_session_id,
+                     node_id=proposal.node_id,
+                     proposal_id=proposal.proposal_id,
+                     agent_role=proposal.agent_role,
+@@ -917,8 +1083,8 @@ class SandboxedMcpToolExecutor:
+             self._event_bus.publish(
+                 NovaEvent(
+                     event_type=EventType.SECURITY_VIOLATION,
+-                    task_id=self._default_task_id,
+-                    session_id=self._default_session_id,
++                    task_id=stamp.context.task_id if stamp.context else self._default_task_id,
++                    session_id=stamp.context.session_id if stamp.context else self._default_session_id,
+                     node_id=proposal.node_id,
+                     agent_role=proposal.agent_role,
+                     correlation_id=proposal.proposal_id,
+@@ -941,4 +1107,4 @@ __all__ = [
+     "SqliteToolAuditLog",
+     "ToolAuditEntry",
+     "UserPermissionPolicyStore",
+-]
+\ No newline at end of file
++]
+diff --git a/services/backend/src/nova/core/tools/personal_assistant_tools.py b/services/backend/src/nova/core/tools/personal_assistant_tools.py
+index acac9f5..0805838 100644
+--- a/services/backend/src/nova/core/tools/personal_assistant_tools.py
++++ b/services/backend/src/nova/core/tools/personal_assistant_tools.py
+@@ -46,6 +46,23 @@ if TYPE_CHECKING:
+     from nova.core.permissions.sandbox_and_audit import StructuredToolHandlerFn
+ 
+ 
++def validate_assistant_arguments(tool_name: str, args: Dict[str, Any]) -> None:
++    required = ("title", "body") if tool_name == "notes.create_note" else ("title", "start_iso", "end_iso")
++    for name in required:
++        if not isinstance(args.get(name), str) or not args[name].strip():
++            raise ValueError(f"{name} must be a non-empty string.")
++    if tool_name == "calendar.create_event":
++        try:
++            start = datetime.fromisoformat(args["start_iso"])
++            end = datetime.fromisoformat(args["end_iso"])
++            if start.tzinfo is not None or end.tzinfo is not None:
++                raise ValueError("Use local timestamps without an offset for this local calendar.")
++            if end <= start:
++                raise ValueError("Calendar end must be after start.")
++        except (TypeError, ValueError) as exc:
++            raise ValueError(f"Invalid calendar time range: {exc}") from exc
++
++
+ class CalendarEventRecord(BaseModel):
+     """Single calendar event stored in `nova_calendar.db`."""
+ 
+@@ -103,6 +120,9 @@ class LocalCalendarStore:
+         description: str = "",
+     ) -> Tuple[CalendarEventRecord, List[CalendarEventRecord]]:
+         """Insert a calendar event and return `(created_event, conflicting_events)`."""
++        validate_assistant_arguments("calendar.create_event", {"title": title, "start_iso": start_iso, "end_iso": end_iso})
++        start_iso = datetime.fromisoformat(start_iso).isoformat()
++        end_iso = datetime.fromisoformat(end_iso).isoformat()
+         if end_iso <= start_iso:
+             raise ValueError(
+                 f"Calendar event end_iso ({end_iso!r}) must be after start_iso ({start_iso!r})."
+@@ -203,17 +223,23 @@ class LocalNotesManager:
+         workspace_dir: Path,
+         rag_engine: Optional["HybridRetrievalEngine"] = None,
+     ) -> None:
+-        self.notes_dir = (Path(workspace_dir) / "notes").resolve()
++        self.workspace_dir = Path(workspace_dir).resolve()
++        self.notes_dir = (self.workspace_dir / "notes").resolve()
++        self.notes_dir.relative_to(self.workspace_dir)
+         self.notes_dir.mkdir(parents=True, exist_ok=True)
+         self.rag_engine = rag_engine
+ 
+     def create_note(self, *, title: str, body: str) -> Dict[str, Any]:
+         """Write a Markdown note to disk and automatically index it into Hybrid RAG."""
++        validate_assistant_arguments("notes.create_note", {"title": title, "body": body})
+         slug = _slugify_title(title)
+         note_id = f"note_{slug}"
+         note_path = self.notes_dir / f"{slug}.md"
+         markdown_text = f"# {title.strip()}\n\n{body.strip()}\n"
+-        note_path.write_text(markdown_text, encoding="utf-8")
++        # Recheck confinement and use exclusive creation: never overwrite an existing note/symlink.
++        note_path.resolve().relative_to(self.workspace_dir)
++        with note_path.open("x", encoding="utf-8") as handle:
++            handle.write(markdown_text)
+ 
+         chunks_indexed = 0
+         if self.rag_engine is not None:
+@@ -324,7 +350,7 @@ def build_personal_assistant_tool_handlers(
+             title=str(args["title"]),
+             body=str(args["body"]),
+         )
+-        return {"note_id": res["note_id"], "chunks_indexed": res["chunks_indexed"]}
++        return res
+ 
+     def _system_get_metrics(_args: Dict[str, Any]) -> Mapping[str, Any]:
+         return metrics_provider.get_metrics()
+diff --git a/services/backend/src/nova/core/tools/registry.py b/services/backend/src/nova/core/tools/registry.py
+index ef6fd29..93cd069 100644
+--- a/services/backend/src/nova/core/tools/registry.py
++++ b/services/backend/src/nova/core/tools/registry.py
+@@ -263,6 +263,10 @@ class ToolContract(BaseModel):
+             if value is not None:
+                 param_map[name].validate_value(value)
+ 
++        if self.tool_name in ("notes.create_note", "calendar.create_event"):
++            from nova.core.tools.personal_assistant_tools import validate_assistant_arguments
++            validate_assistant_arguments(self.tool_name, dict(arguments))
++
+     def validate_output(self, output: Mapping[str, Any]) -> None:
+         """Validate that the tool's returned output conforms to its declared output schema (Phase 7)."""
+         if not isinstance(output, Mapping):
+@@ -828,10 +832,10 @@ def build_default_mcp_catalog() -> Tuple[McpServerManifest, ...]:
+         # 9. Calendar MCP Server (Section 14, p. 51)
+         McpServerManifest(
+             server_id="calendar",
+-            display_name="Calendar Scheduling MCP Server",
++            display_name="Local Calendar Store",
+             purpose="List, create, and update calendar events for personal scheduling.",
+-            source_kind=ToolSourceKind.MCP,
+-            transport=McpTransportKind.STDIO,
++            source_kind=ToolSourceKind.NATIVE,
++            transport=McpTransportKind.IN_PROCESS,
+             package_sha256=_deterministic_sha256("calendar"),
+             tools=(
+                 ToolContract(
+@@ -839,7 +843,7 @@ def build_default_mcp_catalog() -> Tuple[McpServerManifest, ...]:
+                     server_id="calendar",
+                     description="List upcoming calendar events in a date window.",
+                     sensitivity_tier=T.READ_ONLY,
+-                    data_classification=D.USER_CONTENT_CONNECTED,
++                    data_classification=D.USER_CONTENT_LOCAL,
+                     parameters=(
+                         _param("start_iso", S.STRING, "Start timestamp ISO-8601"),
+                         _param("end_iso", S.STRING, "End timestamp ISO-8601"),
+@@ -851,7 +855,7 @@ def build_default_mcp_catalog() -> Tuple[McpServerManifest, ...]:
+                     server_id="calendar",
+                     description="Create a new calendar event.",
+                     sensitivity_tier=T.REVERSIBLE_WRITE,
+-                    data_classification=D.USER_CONTENT_CONNECTED,
++                    data_classification=D.USER_CONTENT_LOCAL,
+                     parameters=(
+                         _param("title", S.STRING, "Event title"),
+                         _param("start_iso", S.STRING, "Start timestamp ISO-8601"),
+@@ -864,7 +868,7 @@ def build_default_mcp_catalog() -> Tuple[McpServerManifest, ...]:
+                     server_id="calendar",
+                     description="Update an existing calendar event.",
+                     sensitivity_tier=T.REVERSIBLE_WRITE,
+-                    data_classification=D.USER_CONTENT_CONNECTED,
++                    data_classification=D.USER_CONTENT_LOCAL,
+                     parameters=(
+                         _param("event_id", S.STRING, "Event ID to modify"),
+                         _param("title", S.STRING, "Updated event title"),
+@@ -1155,6 +1159,18 @@ def build_default_tool_registry(*, allow_remote_mcp_globally: bool = False) -> T
+     registry = ToolRegistry(allow_remote_mcp_globally=allow_remote_mcp_globally)
+     for manifest in build_default_mcp_catalog():
+         registry.register_server(manifest)
++    registry.register_server(McpServerManifest(
++        server_id="notes", display_name="Local Notes", purpose="Create local workspace notes.",
++        source_kind=ToolSourceKind.NATIVE, transport=McpTransportKind.IN_PROCESS,
++        package_sha256=_deterministic_sha256("notes"),
++        tools=(ToolContract(tool_name="notes.create_note", server_id="notes",
++            description="Create a new local note without replacing existing files.",
++            sensitivity_tier=SensitivityTier.REVERSIBLE_WRITE,
++            data_classification=DataClassification.USER_CONTENT_LOCAL,
++            parameters=(_param("title", JsonSchemaPrimitiveType.STRING, "Note title"),
++                        _param("body", JsonSchemaPrimitiveType.STRING, "Note body")),
++            required_output_keys=("note_id", "title", "chunks_indexed")),),
++    ))
+     return registry
+ 
+ 
+diff --git a/services/backend/src/nova/main.py b/services/backend/src/nova/main.py
+index a73e1b8..b3580fe 100644
+--- a/services/backend/src/nova/main.py
++++ b/services/backend/src/nova/main.py
+@@ -82,6 +82,7 @@ from nova.core.permissions.sandbox_and_audit import (
+     UserPermissionPolicyStore,
+ )
+ from nova.core.platform.event_bus import InMemoryEventBus
++from nova.core.tools.personal_assistant_tools import build_personal_assistant_tool_handlers
+ from nova.core.tools.registry import ToolRegistry, build_default_tool_registry
+ 
+ _EMAIL_REGEX = re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+")
+@@ -404,7 +405,7 @@ class NovaRuntimeContainer:
+ 
+         # Layer 3: MCP Tool Registry, Permission Policy Store, Sandbox & Audit Log
+         self.tool_registry: ToolRegistry = build_default_tool_registry()
+-        self.policy_store = UserPermissionPolicyStore(registry=self.tool_registry)
++        self.policy_store = UserPermissionPolicyStore(registry=self.tool_registry, db_path=self.data_dir / "nova_audit.db")
+         self.audit_log = SqliteToolAuditLog(
+             self.data_dir / "nova_audit.db",
+             retention_days=self.settings.audit_log_retention_days,
+@@ -417,14 +418,21 @@ class NovaRuntimeContainer:
+             policy_store=self.policy_store,
+             audit_log=self.audit_log,
+             auto_approve_reversible_local_writes=auto_approve_reversible_local_writes,
++            sensitive_action_policy=self.settings.default_sensitive_action_policy,
++            authorization_db_path=str(self.data_dir / "nova_audit.db"),
++            approval_ttl_seconds=self.settings.approval_ttl_seconds,
++            require_runtime_context=True,
+         )
++        assistant_handlers, self.calendar_store, self.notes_manager, self.metrics_provider = build_personal_assistant_tool_handlers(
++            data_dir=self.data_dir, workspace_dir=self.workspace_dir, rag_engine=self.rag_engine)
+         self.tool_executor = SandboxedMcpToolExecutor(
+             registry=self.tool_registry,
+             filesystem_sandbox=self.filesystem_sandbox,
+             command_sandbox=self.command_sandbox,
+             audit_log=self.audit_log,
+             event_bus=self.event_bus,
+-            tool_handlers=build_live_tool_handlers(self.workspace_dir, self.rag_engine),
++            tool_handlers={**build_live_tool_handlers(self.workspace_dir, self.rag_engine), **assistant_handlers},
++            permission_gate=self.permission_gate,
+         )
+ 
+         # Layer 2: Model Serving Router with Rule-Guided Bootstrap Adapter
+@@ -464,6 +472,7 @@ class NovaRuntimeContainer:
+             policy_store=self.policy_store,
+             audit_log=self.audit_log,
+             settings=self.settings,
++            authorization_ledger=self.permission_gate.ledger,
+         )
+ 
+     def ingest_rag_document(self, request: RagIngestRequest) -> Dict[str, Any]:
+@@ -485,9 +494,11 @@ def build_nova_app(
+     *,
+     data_dir: Optional[Path] = None,
+     workspace_dir: Optional[Path] = None,
++    auto_approve_reversible_local_writes: bool = True,
+ ) -> Any:
+     """Create the production FastAPI ASGI app with CORS and `/rag/ingest` wired to `NovaRuntimeContainer`."""
+-    container = NovaRuntimeContainer(data_dir=data_dir, workspace_dir=workspace_dir)
++    container = NovaRuntimeContainer(data_dir=data_dir, workspace_dir=workspace_dir,
++        auto_approve_reversible_local_writes=auto_approve_reversible_local_writes)
+     fastapi_app = create_nova_fastapi_app(container.api_service)
+ 
+     if CORS_AVAILABLE and CORSMiddleware is not None:
+@@ -513,11 +524,19 @@ def build_nova_app(
+     return fastapi_app
+ 
+ 
+-# Default ASGI application instance for `uvicorn nova.main:app --reload`
+-try:
+-    app = build_nova_app()
+-except Exception:  # pragma: no cover
+-    app = None
++# Defer default storage initialization until the ASGI server starts handling lifespan.
++class DeferredAsgiApp:
++    def __init__(self, factory):
++        self.factory = factory
++        self.application = None
++
++    async def __call__(self, scope, receive, send):
++        if self.application is None:
++            self.application = self.factory()
++        await self.application(scope, receive, send)
++
++
++app = DeferredAsgiApp(build_nova_app)
+ 
+ 
+ __all__ = [
+diff --git a/tests/agents/test_phase6_browser_desktop_integration.py b/tests/agents/test_phase6_browser_desktop_integration.py
+index f2b2061..dead119 100644
+--- a/tests/agents/test_phase6_browser_desktop_integration.py
++++ b/tests/agents/test_phase6_browser_desktop_integration.py
+@@ -79,6 +79,7 @@ class TestPhase6BrowserAndDesktopOrchestratorIntegration:
+             )
+ 
+             executor = SandboxedMcpToolExecutor(
++                permission_gate=gate,
+                 registry=registry,
+                 filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
+                 audit_log=audit_log,
+@@ -257,6 +258,7 @@ class TestPhase6BrowserAndDesktopOrchestratorIntegration:
+                 audit_log=audit_log,
+             )
+             executor = SandboxedMcpToolExecutor(
++                permission_gate=gate,
+                 registry=registry,
+                 filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
+                 audit_log=audit_log,
+diff --git a/tests/api/test_api.py b/tests/api/test_api.py
+index 7d648fe..a6c8714 100644
+--- a/tests/api/test_api.py
++++ b/tests/api/test_api.py
+@@ -70,6 +70,7 @@ class TestNovaLocalApiServiceAndSse:
+             default_session_id="sess_api_01",
+         )
+         executor = SandboxedMcpToolExecutor(
++                permission_gate=gate,
+             registry=registry,
+             filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
+             audit_log=audit_log,
+diff --git a/tests/api/test_ui_dashboard.py b/tests/api/test_ui_dashboard.py
+index 7b5f869..0d76521 100644
+--- a/tests/api/test_ui_dashboard.py
++++ b/tests/api/test_ui_dashboard.py
+@@ -5,7 +5,7 @@ Verifies:
+    with all 4 interactive panels (Command Center, Audit Trail, Hybrid RAG Ingest, MCP Tool Catalog)
+    and client-side fetch wiring (`/tasks`, `/approve`, `/rag/ingest`, `/ui/overview`).
+ 2. `get_dashboard_overview_snapshot(container)` returns live telemetry (`offline_by_default=True`,
+-   `registered_tools_count == 42`, and real-time `recent_audit_logs` after a task runs).
++   `registered_tools_count == 43`, and real-time `recent_audit_logs` after a task runs).
+ 3. `get_dashboard_overview_snapshot` tracks multi-step paused email tasks (`AWAITING_APPROVAL`) and
+    subsequent user approval cleanly.
+ """
+@@ -61,9 +61,9 @@ class TestNovaMissionControlDashboard:
+             initial_snap = get_dashboard_overview_snapshot(container)
+             assert initial_snap["status"] == "ok"
+             assert initial_snap["offline_by_default"] is True
+-            assert initial_snap["registered_mcp_servers"] == 20
+-            assert initial_snap["registered_tools_count"] == 42
+-            assert len(initial_snap["tools"]) == 42
++            assert initial_snap["registered_mcp_servers"] == 21
++            assert initial_snap["registered_tools_count"] == 43
++            assert len(initial_snap["tools"]) == 43
+             assert initial_snap["recent_audit_logs"] == []
+ 
+             # Run a real task and confirm the dashboard snapshot includes the new audit log entry
+diff --git a/tests/e2e/test_nova_full_system_e2e.py b/tests/e2e/test_nova_full_system_e2e.py
+index 79e9d57..6fcbe92 100644
+--- a/tests/e2e/test_nova_full_system_e2e.py
++++ b/tests/e2e/test_nova_full_system_e2e.py
+@@ -280,6 +280,7 @@ class TestNovaFullSevenLayerSystemE2E:
+                 return {"bytes_written": len(text)}
+ 
+             executor = SandboxedMcpToolExecutor(
++                permission_gate=gate,
+                 registry=registry,
+                 filesystem_sandbox=fs_sandbox,
+                 audit_log=audit_log,
+diff --git a/tests/orchestration/test_phase2_crash_recovery.py b/tests/orchestration/test_phase2_crash_recovery.py
+index c580d0a..3f6d7ed 100644
+--- a/tests/orchestration/test_phase2_crash_recovery.py
++++ b/tests/orchestration/test_phase2_crash_recovery.py
+@@ -442,32 +442,21 @@ class TestPhase2CrashRecoveryAndGraphFlows(unittest.TestCase):
+                 event_bus=bus,
+             )
+ 
+-            orchestrator_1.start_task(
+-                task_id="task_mid_crash",
+-                session_id="sess_mid",
+-                user_goal="Run two steps",
+-            )
+-
+-            # Inspect checkpoint history in SQLite:
+-            # Checkpoint #0: QUEUED
+-            # Checkpoint #1: PLANNING
+-            # Checkpoint #2: RUNNING (plan attached)
+-            # Checkpoint #3: RUNNING (step_1 COMPLETED, step_2 still PENDING!)
+-            history = store.list_history("task_mid_crash")
+-            checkpoint_after_step_1 = next(
+-                env
+-                for env in history
+-                if "step_1" in env.state.completed_node_ids
+-                and env.state.status == TaskStatus.RUNNING
+-            )
+-            # Roll SQLite back to the exact checkpoint right after step_1 finished (before step_2 crashed)
+-            # by saving it as the latest recovery point
+-            recovered_state = checkpoint_after_step_1.state
++            # Interrupt immediately after a durable nonterminal checkpoint. A crash
++            # must not be simulated by overwriting an already failed task.
++            class ControlledCrash(BaseException):
++                pass
++            actual_save = store.save_checkpoint
++            def interrupt_after_step_one(state, *args, **kwargs):
++                saved = actual_save(state, *args, **kwargs)
++                if "step_1" in state.completed_node_ids and state.status == TaskStatus.RUNNING:
++                    raise ControlledCrash()
++                return saved
++            store.save_checkpoint = interrupt_after_step_one
++            with self.assertRaises(ControlledCrash):
++                orchestrator_1.start_task(task_id="task_mid_crash", session_id="sess_mid",
++                                          user_goal="Run two steps")
+             store_2 = SqliteCheckpointStore(db_path)
+-            store_2.save_checkpoint(
+-                recovered_state.transition_task_status(TaskStatus.RUNNING),
+-                node_id="step_1",
+-            )
+ 
+             # Now Process #2 starts up with ONLY step_2's scripted response!
+             research_model_resume = DeterministicMockModelAdapter(
+diff --git a/tests/permissions_security/test_phase4_mcp_security_integration.py b/tests/permissions_security/test_phase4_mcp_security_integration.py
+index 8bc63f1..a7fddd0 100644
+--- a/tests/permissions_security/test_phase4_mcp_security_integration.py
++++ b/tests/permissions_security/test_phase4_mcp_security_integration.py
+@@ -83,6 +83,7 @@ class TestPhase4McpSecurityDefenseInDepthIntegration:
+             )
+ 
+             executor = SandboxedMcpToolExecutor(
++                permission_gate=gate,
+                 registry=registry,
+                 filesystem_sandbox=fs_sandbox,
+                 command_sandbox=cmd_sandbox,
+@@ -243,6 +244,7 @@ class TestPhase4McpSecurityDefenseInDepthIntegration:
+                 default_session_id="sess_p4_inject",
+             )
+             executor = SandboxedMcpToolExecutor(
++                permission_gate=gate,
+                 registry=registry,
+                 filesystem_sandbox=fs_sandbox,
+                 audit_log=audit_log,
+@@ -313,13 +315,11 @@ class TestPhase4McpSecurityDefenseInDepthIntegration:
+             )
+ 
+             # Layer 4 Sandbox blocks the path traversal with SandboxViolationError before the tool handler runs!
+-            with pytest.raises(SandboxViolationError, match="escapes permitted roots"):
+-                orchestrator.start_task(
+-                    task_id="task_p4_inject",
+-                    session_id="sess_p4_inject",
+-                    user_goal="Summarize the webpage.",
+-                    untrusted_data=(malicious_webpage,),
+-                )
++            failed = orchestrator.start_task(
++                task_id="task_p4_inject", session_id="sess_p4_inject",
++                user_goal="Summarize the webpage.", untrusted_data=(malicious_webpage,))
++            assert failed.status == TaskStatus.FAILED
++            assert "escapes permitted roots" in failed.failure_reason
+ 
+             assert len(executor.executed_proposals) == 0
+ 
+@@ -352,6 +352,7 @@ class TestPhase4McpSecurityDefenseInDepthIntegration:
+                 default_session_id="sess_p4_revoke",
+             )
+             executor = SandboxedMcpToolExecutor(
++                permission_gate=gate,
+                 registry=registry,
+                 filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
+                 audit_log=audit_log,
+diff --git a/tests/permissions_security/test_sandbox_and_audit.py b/tests/permissions_security/test_sandbox_and_audit.py
+index fdb9360..3cd5436 100644
+--- a/tests/permissions_security/test_sandbox_and_audit.py
++++ b/tests/permissions_security/test_sandbox_and_audit.py
+@@ -176,6 +176,7 @@ class TestSandboxPolicyAndAuditLog:
+             )
+             bus = InMemoryEventBus()
+             executor = SandboxedMcpToolExecutor(
++                permission_gate=gate,
+                 registry=registry,
+                 filesystem_sandbox=FilesystemSandbox(allowed_roots=(workspace,)),
+                 audit_log=audit_log,

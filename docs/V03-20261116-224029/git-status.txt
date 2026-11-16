@@ -1,0 +1,35 @@
+## main...origin/main
+ M .vscode/settings.json
+ M services/backend/src/nova/api/app.py
+ M services/backend/src/nova/api/dashboard.py
+ M services/backend/src/nova/core/config/settings.py
+ M services/backend/src/nova/core/domain/agent_spec.py
+ M services/backend/src/nova/core/orchestration/checkpoint.py
+ M services/backend/src/nova/core/orchestration/engine.py
+ M services/backend/src/nova/core/orchestration/ports.py
+ M services/backend/src/nova/core/orchestration/state.py
+ M services/backend/src/nova/core/permissions/sandbox_and_audit.py
+ M services/backend/src/nova/core/tools/personal_assistant_tools.py
+ M services/backend/src/nova/core/tools/registry.py
+ M services/backend/src/nova/main.py
+ M tests/agents/test_phase6_browser_desktop_integration.py
+ M tests/api/test_api.py
+ M tests/api/test_ui_dashboard.py
+ M tests/e2e/test_nova_full_system_e2e.py
+ M tests/orchestration/test_phase2_crash_recovery.py
+ M tests/permissions_security/test_phase4_mcp_security_integration.py
+ M tests/permissions_security/test_sandbox_and_audit.py
+?? AGENTS.md
+?? NOVA_ADR.md.pdf
+?? docs/
+?? services/backend/src/nova/api/assistant_ui.py
+?? services/backend/src/nova/core/cognition/conversation_session.py
+?? services/backend/src/nova/core/permissions/authorization.py
+?? tests/api/test_assistant_ui.py
+?? tests/integration/c01_live_api.py
+?? tests/integration/c02_live_api.py
+?? tests/integration/r01_live_api.py
+?? tests/memory/test_conversation_session.py
+?? tests/permissions_security/test_c01_corrections.py
+?? tests/permissions_security/test_c02_lifecycle.py
+?? tests/permissions_security/test_r01_authorization.py

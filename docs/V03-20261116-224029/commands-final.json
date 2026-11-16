@@ -1,0 +1,108 @@
+[
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "--collect-only",
+      "-q"
+    ],
+    "exit_code": 0,
+    "seconds": 2.3590000000003783,
+    "output": "collection.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 0,
+    "seconds": 19.188000000000102,
+    "output": "regression.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c01_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 15.233999999999469,
+    "output": "c01-live.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c02_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 5.17200000000048,
+    "output": "c02-live.txt"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.07799999999951979,
+    "output": "diff-check.txt"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "docs\\V03-20261116-224029\\fresh_challenge.py"
+    ],
+    "exit_code": 0,
+    "output": "fresh-driver.txt",
+    "note": "driver completes and retains explicit FAIL verdicts"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "docs\\V03-20261116-224029\\component_challenge.py"
+    ],
+    "exit_code": 1,
+    "error": "Verification-driver error: InvalidStateTransitionError awaiting_approval to completed; original driver retained"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "docs\\V03-20261116-224029\\component_challenge_v2.py"
+    ],
+    "exit_code": 0,
+    "output": "component-driver-v2.txt",
+    "note": "corrected driver transition; product source unchanged; explicit owner-guard FAIL retained"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--short",
+      "--branch"
+    ],
+    "exit_code": 0,
+    "stdout": "## main...origin/main\n M .vscode/settings.json\n M services/backend/src/nova/api/app.py\n M services/backend/src/nova/api/dashboard.py\n M services/backend/src/nova/core/config/settings.py\n M services/backend/src/nova/core/domain/agent_spec.py\n M services/backend/src/nova/core/orchestration/checkpoint.py\n M services/backend/src/nova/core/orchestration/engine.py\n M services/backend/src/nova/core/orchestration/ports.py\n M services/backend/src/nova/core/orchestration/state.py\n M services/backend/src/nova/core/permissions/sandbox_and_audit.py\n M services/backend/src/nova/core/tools/personal_assistant_tools.py\n M services/backend/src/nova/core/tools/registry.py\n M services/backend/src/nova/main.py\n M tests/agents/test_phase6_browser_desktop_integration.py\n M tests/api/test_api.py\n M tests/api/test_ui_dashboard.py\n M tests/e2e/test_nova_full_system_e2e.py\n M tests/orchestration/test_phase2_crash_recovery.py\n M tests/permissions_security/test_phase4_mcp_security_integration.py\n M tests/permissions_security/test_sandbox_and_audit.py\n?? AGENTS.md\n?? NOVA_ADR.md.pdf\n?? docs/\n?? services/backend/src/nova/api/assistant_ui.py\n?? services/backend/src/nova/core/cognition/conversation_session.py\n?? services/backend/src/nova/core/permissions/authorization.py\n?? tests/api/test_assistant_ui.py\n?? tests/integration/c01_live_api.py\n?? tests/integration/c02_live_api.py\n?? tests/integration/r01_live_api.py\n?? tests/memory/test_conversation_session.py\n?? tests/permissions_security/test_c01_corrections.py\n?? tests/permissions_security/test_c02_lifecycle.py\n?? tests/permissions_security/test_r01_authorization.py\n",
+    "stderr": ""
+  }
+]
