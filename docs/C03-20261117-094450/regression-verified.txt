@@ -1,0 +1,184 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.0, pytest-8.4.2, pluggy-1.7.0
+rootdir: C:\NOVA
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, hypothesis-6.168.5, asyncio-0.26.0
+asyncio: mode=strict, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 203 items
+
+tests\agents\test_browser_and_desktop.py ....                            [  1%]
+tests\agents\test_phase6_browser_desktop_integration.py ..               [  2%]
+tests\api\test_api.py ....                                               [  4%]
+tests\api\test_assistant_ui.py ...                                       [  6%]
+tests\api\test_cli_and_doctor.py ...                                     [  7%]
+tests\api\test_main_runtime.py ..                                        [  8%]
+tests\api\test_phase15_mission_control_v2.py ...                         [ 10%]
+tests\api\test_ui_dashboard.py ...                                       [ 11%]
+tests\e2e\test_nova_full_system_e2e.py ..                                [ 12%]
+tests\evaluation\test_phase1_reasoning_harness.py ...                    [ 14%]
+tests\memory\test_conversation_session.py ....                           [ 16%]
+tests\memory\test_memory.py ....                                         [ 18%]
+tests\memory\test_phase3_memory_rag_integration.py ..                    [ 19%]
+tests\memory\test_retrieval.py ....                                      [ 21%]
+tests\model_serving\test_brain_switcher.py ....                          [ 23%]
+tests\model_serving\test_gguf_live.py ..                                 [ 24%]
+tests\model_serving\test_multimodal.py ...                               [ 25%]
+tests\model_serving\test_ollama_live.py ....                             [ 27%]
+tests\model_serving\test_phase5_model_serving_integration.py ..          [ 28%]
+tests\model_serving\test_router.py ....                                  [ 30%]
+tests\orchestration\test_engine.py ...                                   [ 32%]
+tests\orchestration\test_phase2_crash_recovery.py ...                    [ 33%]
+tests\orchestration\test_ports.py .....                                  [ 35%]
+tests\orchestration\test_state_and_checkpoint.py ......                  [ 38%]
+tests\permissions_security\test_c01_corrections.py ......FFF.......      [ 46%]
+tests\permissions_security\test_c02_lifecycle.py ......                  [ 49%]
+tests\permissions_security\test_c03_corrections.py ..................... [ 60%]
+.........                                                                [ 64%]
+tests\permissions_security\test_phase4_mcp_security_integration.py ...   [ 66%]
+tests\permissions_security\test_r01_authorization.py ..FFF..........     [ 73%]
+tests\permissions_security\test_sandbox_and_audit.py ....                [ 75%]
+tests\permissions_security\test_security_hardening.py ....               [ 77%]
+tests\tools_mcp\test_personal_assistant_tools.py ....                    [ 79%]
+tests\tools_mcp\test_registry.py ....                                    [ 81%]
+tests\unit\agents\test_base_agent_and_react.py .....                     [ 83%]
+tests\unit\cognition\test_plan_and_reflection.py ......                  [ 86%]
+tests\unit\config\test_settings.py ..........                            [ 91%]
+tests\unit\domain\test_primitives_events_context.py ........             [ 95%]
+tests\unit\domain\test_proposals_and_agent_spec.py .........             [100%]
+
+================================== FAILURES ===================================
+____ test_rejections_are_audited_once_without_arguments_or_tokens[task_id] ____
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:1036: in execute_approved_tool
+    self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:759: in claim_authorization
+    self.ledger.claim(proposal, stamp, context, policy_check=check_current)
+services\backend\src\nova\core\permissions\authorization.py:152: in claim
+    self._check(row, action_digest(proposal, context))
+services\backend\src\nova\core\permissions\authorization.py:93: in _check
+    raise UnapprovedToolExecutionError("Unknown or modified authorization context/arguments.")
+E   nova.core.orchestration.ports.UnapprovedToolExecutionError: Unknown or modified authorization context/arguments.
+
+The above exception was the direct cause of the following exception:
+tests\permissions_security\test_c01_corrections.py:97: in test_rejections_are_audited_once_without_arguments_or_tokens
+    c.tool_executor.execute_approved_tool(p, stamp, context=ctx)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:311: in call
+    raise ExecutionOutcomeUnavailable("post_claim_outcome_unconfirmed",
+E   nova.core.orchestration.ports.ExecutionOutcomeUnavailable: post_claim_outcome_unconfirmed
+__ test_rejections_are_audited_once_without_arguments_or_tokens[session_id] ___
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:1036: in execute_approved_tool
+    self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:759: in claim_authorization
+    self.ledger.claim(proposal, stamp, context, policy_check=check_current)
+services\backend\src\nova\core\permissions\authorization.py:152: in claim
+    self._check(row, action_digest(proposal, context))
+services\backend\src\nova\core\permissions\authorization.py:93: in _check
+    raise UnapprovedToolExecutionError("Unknown or modified authorization context/arguments.")
+E   nova.core.orchestration.ports.UnapprovedToolExecutionError: Unknown or modified authorization context/arguments.
+
+The above exception was the direct cause of the following exception:
+tests\permissions_security\test_c01_corrections.py:97: in test_rejections_are_audited_once_without_arguments_or_tokens
+    c.tool_executor.execute_approved_tool(p, stamp, context=ctx)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:311: in call
+    raise ExecutionOutcomeUnavailable("post_claim_outcome_unconfirmed",
+E   nova.core.orchestration.ports.ExecutionOutcomeUnavailable: post_claim_outcome_unconfirmed
+____ test_rejections_are_audited_once_without_arguments_or_tokens[node_id] ____
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:1036: in execute_approved_tool
+    self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:759: in claim_authorization
+    self.ledger.claim(proposal, stamp, context, policy_check=check_current)
+services\backend\src\nova\core\permissions\authorization.py:152: in claim
+    self._check(row, action_digest(proposal, context))
+services\backend\src\nova\core\permissions\authorization.py:40: in action_digest
+    raise UnapprovedToolExecutionError("Proposal does not match trusted runtime identity.")
+E   nova.core.orchestration.ports.UnapprovedToolExecutionError: Proposal does not match trusted runtime identity.
+
+The above exception was the direct cause of the following exception:
+tests\permissions_security\test_c01_corrections.py:97: in test_rejections_are_audited_once_without_arguments_or_tokens
+    c.tool_executor.execute_approved_tool(p, stamp, context=ctx)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:311: in call
+    raise ExecutionOutcomeUnavailable("post_claim_outcome_unconfirmed",
+E   nova.core.orchestration.ports.ExecutionOutcomeUnavailable: post_claim_outcome_unconfirmed
+__________________ test_exact_binding_rejects_forgery[task] ___________________
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:1036: in execute_approved_tool
+    self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:759: in claim_authorization
+    self.ledger.claim(proposal, stamp, context, policy_check=check_current)
+services\backend\src\nova\core\permissions\authorization.py:152: in claim
+    self._check(row, action_digest(proposal, context))
+services\backend\src\nova\core\permissions\authorization.py:93: in _check
+    raise UnapprovedToolExecutionError("Unknown or modified authorization context/arguments.")
+E   nova.core.orchestration.ports.UnapprovedToolExecutionError: Unknown or modified authorization context/arguments.
+
+The above exception was the direct cause of the following exception:
+tests\permissions_security\test_r01_authorization.py:52: in test_exact_binding_rejects_forgery
+    c.tool_executor.execute_approved_tool(p, stamp, context=ctx)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:311: in call
+    raise ExecutionOutcomeUnavailable("post_claim_outcome_unconfirmed",
+E   nova.core.orchestration.ports.ExecutionOutcomeUnavailable: post_claim_outcome_unconfirmed
+_________________ test_exact_binding_rejects_forgery[session] _________________
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:1036: in execute_approved_tool
+    self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:759: in claim_authorization
+    self.ledger.claim(proposal, stamp, context, policy_check=check_current)
+services\backend\src\nova\core\permissions\authorization.py:152: in claim
+    self._check(row, action_digest(proposal, context))
+services\backend\src\nova\core\permissions\authorization.py:93: in _check
+    raise UnapprovedToolExecutionError("Unknown or modified authorization context/arguments.")
+E   nova.core.orchestration.ports.UnapprovedToolExecutionError: Unknown or modified authorization context/arguments.
+
+The above exception was the direct cause of the following exception:
+tests\permissions_security\test_r01_authorization.py:52: in test_exact_binding_rejects_forgery
+    c.tool_executor.execute_approved_tool(p, stamp, context=ctx)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:311: in call
+    raise ExecutionOutcomeUnavailable("post_claim_outcome_unconfirmed",
+E   nova.core.orchestration.ports.ExecutionOutcomeUnavailable: post_claim_outcome_unconfirmed
+__________________ test_exact_binding_rejects_forgery[node] ___________________
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:1036: in execute_approved_tool
+    self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:290: in call
+    return method(self, proposal, *args, **kwargs)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:759: in claim_authorization
+    self.ledger.claim(proposal, stamp, context, policy_check=check_current)
+services\backend\src\nova\core\permissions\authorization.py:152: in claim
+    self._check(row, action_digest(proposal, context))
+services\backend\src\nova\core\permissions\authorization.py:40: in action_digest
+    raise UnapprovedToolExecutionError("Proposal does not match trusted runtime identity.")
+E   nova.core.orchestration.ports.UnapprovedToolExecutionError: Proposal does not match trusted runtime identity.
+
+The above exception was the direct cause of the following exception:
+tests\permissions_security\test_r01_authorization.py:52: in test_exact_binding_rejects_forgery
+    c.tool_executor.execute_approved_tool(p, stamp, context=ctx)
+services\backend\src\nova\core\permissions\sandbox_and_audit.py:311: in call
+    raise ExecutionOutcomeUnavailable("post_claim_outcome_unconfirmed",
+E   nova.core.orchestration.ports.ExecutionOutcomeUnavailable: post_claim_outcome_unconfirmed
+=========================== short test summary info ===========================
+FAILED tests/permissions_security/test_c01_corrections.py::test_rejections_are_audited_once_without_arguments_or_tokens[task_id]
+FAILED tests/permissions_security/test_c01_corrections.py::test_rejections_are_audited_once_without_arguments_or_tokens[session_id]
+FAILED tests/permissions_security/test_c01_corrections.py::test_rejections_are_audited_once_without_arguments_or_tokens[node_id]
+FAILED tests/permissions_security/test_r01_authorization.py::test_exact_binding_rejects_forgery[task]
+FAILED tests/permissions_security/test_r01_authorization.py::test_exact_binding_rejects_forgery[session]
+FAILED tests/permissions_security/test_r01_authorization.py::test_exact_binding_rejects_forgery[node]
+======================= 6 failed, 197 passed in 25.59s ========================

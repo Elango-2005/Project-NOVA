@@ -1,0 +1,8 @@
+{
+  "python": "3.10.0",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "pytest": "8.4.2",
+  "fastapi": "0.146.0",
+  "pydantic": "2.14.1",
+  "uvicorn": "0.54.0"
+}

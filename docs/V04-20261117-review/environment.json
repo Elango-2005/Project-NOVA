@@ -1,0 +1,12 @@
+{
+  "python": "3.10.0 (tags/v3.10.0:b494f59, Oct  4 2021, 19:00:18) [MSC v.1929 64 bit (AMD64)]",
+  "executable": "C:\\NOVA\\.venv\\Scripts\\python.exe",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "sqlite": "3.35.5",
+  "packages": {
+    "pytest": "8.4.2",
+    "pydantic": "2.14.1",
+    "fastapi": "0.146.0",
+    "uvicorn": "0.54.0"
+  }
+}

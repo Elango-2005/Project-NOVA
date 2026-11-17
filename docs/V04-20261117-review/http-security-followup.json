@@ -1,0 +1,199 @@
+{
+  "name": "v04-audit-inspect",
+  "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-v04-http-security-jhppclrk",
+  "http": [
+    {
+      "port": 9873,
+      "path": "/tasks/task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+      "request": null,
+      "status": 200,
+      "body": {
+        "task_id": "task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+        "session_id": "sess_personal_chat",
+        "user_goal": "notes.create_note",
+        "status": "failed",
+        "completed_nodes": [],
+        "pending_approvals": [],
+        "node_outputs": {},
+        "cited_sources": {},
+        "failure_reason": "V04 injected audit failure"
+      }
+    },
+    {
+      "port": 9873,
+      "path": "/tasks/task_assistant_6cd1eb346bfe4e4197696bddc45ddf16/events/sse",
+      "request": null,
+      "status": 200,
+      "body": "id: evt_185aa6a0459c4a929ab17f17b22fad97\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_99b0f8435eb74a7884ecf5007f645cb7\",\"event_id\":\"evt_185aa6a0459c4a929ab17f17b22fad97\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"V04 injected audit failure\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_6cd1eb346bfe4e4197696bddc45ddf16\",\"timestamp_utc\":\"2026-11-17T15:30:45.471626+00:00\"}\n\n"
+    },
+    {
+      "port": 9873,
+      "path": "/assistant/approve",
+      "request": {
+        "task_id": "task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+        "node_id": "assistant_action",
+        "proposal_id": "v04-forged",
+        "approved": true
+      },
+      "status": 500,
+      "body": "Internal Server Error"
+    },
+    {
+      "port": 9873,
+      "path": "/tasks/task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+      "request": null,
+      "status": 200,
+      "body": {
+        "task_id": "task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+        "session_id": "sess_personal_chat",
+        "user_goal": "notes.create_note",
+        "status": "failed",
+        "completed_nodes": [],
+        "pending_approvals": [],
+        "node_outputs": {},
+        "cited_sources": {},
+        "failure_reason": "V04 injected audit failure"
+      }
+    },
+    {
+      "port": 9873,
+      "path": "/tasks/task_assistant_6cd1eb346bfe4e4197696bddc45ddf16/events/sse",
+      "request": null,
+      "status": 200,
+      "body": "id: evt_185aa6a0459c4a929ab17f17b22fad97\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_99b0f8435eb74a7884ecf5007f645cb7\",\"event_id\":\"evt_185aa6a0459c4a929ab17f17b22fad97\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"V04 injected audit failure\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_6cd1eb346bfe4e4197696bddc45ddf16\",\"timestamp_utc\":\"2026-11-17T15:30:45.471626+00:00\"}\n\n"
+    }
+  ],
+  "processes": [
+    {
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+        "serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-v04-http-security-jhppclrk",
+        "9873",
+        "normal"
+      ],
+      "pid": 9072,
+      "exit_code": 1
+    }
+  ],
+  "snapshots": [
+    {
+      "task": {
+        "task_id": "task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+        "session_id": "sess_personal_chat",
+        "user_goal": "notes.create_note",
+        "status": "failed",
+        "completed_nodes": [],
+        "pending_approvals": [],
+        "node_outputs": {},
+        "cited_sources": {},
+        "failure_reason": "V04 injected audit failure"
+      },
+      "events": [
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_99b0f8435eb74a7884ecf5007f645cb7",
+          "event_id": "evt_185aa6a0459c4a929ab17f17b22fad97",
+          "event_type": "task.failed",
+          "node_id": "assistant_action",
+          "payload": {
+            "reason": "V04 injected audit failure"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+          "timestamp_utc": "2026-11-17T15:30:45.471626+00:00"
+        }
+      ],
+      "markdown": {},
+      "calendar": [],
+      "authorizations": [
+        [
+          "prop_99b0f8435eb74a7884ecf5007f645cb7",
+          "approved"
+        ]
+      ],
+      "attempts": [
+        [
+          "rejected",
+          "forged_or_stale",
+          null
+        ],
+        [
+          "rejected",
+          "forged_or_stale",
+          null
+        ],
+        [
+          "rejected",
+          "forged_or_stale",
+          "{\"task_id\":\"task_assistant_6cd1eb346bfe4e4197696bddc45ddf16\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+        ],
+        [
+          "rejected",
+          "invalid_approval_payload",
+          null
+        ]
+      ]
+    },
+    {
+      "task": {
+        "task_id": "task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+        "session_id": "sess_personal_chat",
+        "user_goal": "notes.create_note",
+        "status": "failed",
+        "completed_nodes": [],
+        "pending_approvals": [],
+        "node_outputs": {},
+        "cited_sources": {},
+        "failure_reason": "V04 injected audit failure"
+      },
+      "events": [
+        {
+          "agent_role": "coding",
+          "correlation_id": "prop_99b0f8435eb74a7884ecf5007f645cb7",
+          "event_id": "evt_185aa6a0459c4a929ab17f17b22fad97",
+          "event_type": "task.failed",
+          "node_id": "assistant_action",
+          "payload": {
+            "reason": "V04 injected audit failure"
+          },
+          "session_id": "sess_personal_chat",
+          "task_id": "task_assistant_6cd1eb346bfe4e4197696bddc45ddf16",
+          "timestamp_utc": "2026-11-17T15:30:45.471626+00:00"
+        }
+      ],
+      "markdown": {},
+      "calendar": [],
+      "authorizations": [
+        [
+          "prop_99b0f8435eb74a7884ecf5007f645cb7",
+          "approved"
+        ]
+      ],
+      "attempts": [
+        [
+          "rejected",
+          "forged_or_stale",
+          null
+        ],
+        [
+          "rejected",
+          "forged_or_stale",
+          null
+        ],
+        [
+          "rejected",
+          "forged_or_stale",
+          "{\"task_id\":\"task_assistant_6cd1eb346bfe4e4197696bddc45ddf16\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+        ],
+        [
+          "rejected",
+          "invalid_approval_payload",
+          null
+        ]
+      ]
+    }
+  ]
+}

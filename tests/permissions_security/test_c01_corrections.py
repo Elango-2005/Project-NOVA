@@ -12,7 +12,7 @@ from nova.api.assistant_ui import get_friendly_assistant_state
 from nova.core.cognition.conversation_session import PersonalAssistantChatSession
 from nova.core.domain.primitives import AgentRole, TaskStatus
 from nova.core.domain.proposals import ToolCallProposal
-from nova.core.orchestration.ports import ToolActionContext, UnapprovedToolExecutionError
+from nova.core.orchestration.ports import ToolActionContext, UnapprovedToolExecutionError, ExecutionOutcomeUnavailable
 from nova.core.orchestration.state import TaskExecutionState
 from nova.core.orchestration.engine import OrchestrationExecutionError
 
@@ -215,12 +215,12 @@ def test_post_write_audit_failure_stays_uncertain(tmp_path):
     c = runtime(tmp_path, auto=True)
     with sqlite3.connect(c.data_dir / "nova_audit.db") as conn:
         conn.execute("CREATE TRIGGER fail_outcome BEFORE INSERT ON tool_audit_log BEGIN SELECT RAISE(ABORT, 'Injected outcome audit failure'); END")
-    reply = PersonalAssistantChatSession(c).submit_action("notes.create_note", {"title": "Written", "body": "Real write"})
-    assert reply.action_category == "action_failed"
+    with pytest.raises(ExecutionOutcomeUnavailable):
+        PersonalAssistantChatSession(c).submit_action("notes.create_note", {"title": "Written", "body": "Real write"})
     assert (c.notes_manager.notes_dir / "written.md").exists()
     assert get_friendly_assistant_state(c)["recent_activity"][0]["status"] == "Uncertain"
     with sqlite3.connect(c.data_dir / "nova_audit.db") as conn:
         assert conn.execute("SELECT status FROM tool_authorizations").fetchone()[0] == "claimed"
     names = [e.event_type.value for e in c.event_bus.published_events]
     assert "tool.completed" not in names and "task.completed" not in names
-    assert names[-2:] == ["tool.failed", "task.failed"]
+    assert "tool.failed" not in names and "task.failed" not in names

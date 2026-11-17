@@ -1,0 +1,23 @@
+## main...origin/main
+ M services/backend/src/nova/api/app.py
+ M services/backend/src/nova/api/assistant_ui.py
+ M services/backend/src/nova/core/orchestration/checkpoint.py
+ M services/backend/src/nova/core/orchestration/engine.py
+ M services/backend/src/nova/core/orchestration/ports.py
+ M services/backend/src/nova/core/orchestration/state.py
+ M services/backend/src/nova/core/permissions/authorization.py
+ M services/backend/src/nova/core/permissions/sandbox_and_audit.py
+ M tests/permissions_security/test_c01_corrections.py
+ M tests/permissions_security/test_c02_lifecycle.py
+?? docs/C01-live-nova-c01-live-8ilb_s65.json
+?? docs/C01-live-nova-c01-live-_conqhln.json
+?? docs/C01-live-nova-c01-live-njj6ukjz.json
+?? docs/C02-live-nova-c02-http-0fllnrjs.json
+?? docs/C02-live-nova-c02-http-4p4u0rbf.json
+?? docs/C02-live-nova-c02-http-7lnn3l3f.json
+?? docs/C03-20261117-094450/
+?? docs/C03-live-1794889348824505700/
+?? docs/C03-live-1794889648391165800/
+?? docs/C03-live-1794890017536426600/
+?? tests/integration/c03_live_api.py
+?? tests/permissions_security/test_c03_corrections.py

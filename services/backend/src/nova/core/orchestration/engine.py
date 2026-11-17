@@ -30,6 +30,8 @@ Now, `NovaGraphOrchestrator` runs the entire office automatically:
 from __future__ import annotations
 
 import logging
+import sqlite3
+from nova.core.orchestration.ports import ExecutionPhase, ExecutionProgress, ExecutionOutcomeUnavailable
 from nova.core.orchestration.ports import AuthorizationAlreadyClaimedError
 
 import uuid
@@ -138,7 +140,11 @@ class NovaGraphOrchestrator:
         self._settings = settings if settings is not None else load_settings(environ={})
 
     def _save_checkpoint(self, state: TaskExecutionState, node_id: Optional[str] = None,
-                         *, expected_seq: Optional[int] = None) -> CheckpointEnvelope:
+                         *, expected_seq: Optional[int] = None, owner_transition: str = "retain") -> CheckpointEnvelope:
+        origin = state._checkpoint_origin
+        expected_owner = origin[1] if origin else None
+        if expected_seq is None and origin is not None:
+            expected_seq = origin[0]
         event = None
         if state.status in (TaskStatus.COMPLETED, TaskStatus.FAILED):
             rec = state.node_records.get(node_id)
@@ -151,16 +157,15 @@ class NovaGraphOrchestrator:
                          else {"reason": state.failure_reason}))
         try:
             saved = self._checkpoint_store.save_checkpoint(state, node_id=node_id, protect_terminal=True,
-                                                           expected_seq=expected_seq, terminal_event=event)
+                                                           expected_seq=expected_seq, expected_owner=expected_owner,
+                                                           owner_transition=owner_transition, terminal_event=event)
         except ValueError as exc:
-            if expected_seq is not None:
-                raise
             raise OrchestrationExecutionError("Task has a terminal outcome or another execution owner; stale execution stopped.") from exc
         if saved.state != state:
             raise OrchestrationExecutionError("Task already has a terminal outcome; stale execution stopped.")
         if event and any(e.event_id == event.event_id for e in self._checkpoint_store.terminal_events(state.task_id)):
             try:
-                self._event_bus.publish(event)
+                self._publish_notification(event)
             except Exception:
                 logging.getLogger(__name__).exception("Terminal event persisted; live publication failed")
         return saved
@@ -202,22 +207,28 @@ class NovaGraphOrchestrator:
         return self.run_until_blocked_or_complete(task_id)
 
     def _execute_authorized(self, state: TaskExecutionState, proposal: ToolCallProposal,
-                            stamp: PermissionCheckResult) -> ToolExecutionResult:
+                            stamp: PermissionCheckResult,
+                            progress: Optional[ExecutionProgress] = None) -> ToolExecutionResult:
         context = self._action_context(state, proposal.node_id)
+        progress = progress or ExecutionProgress()
         try:
-            result = self._tool_executor.execute_approved_tool(proposal, stamp, context=context,
+            result = self._tool_executor.execute_approved_tool(proposal, stamp, context=context, progress=progress,
                 on_started=lambda: self._emit(state, EventType.TOOL_STARTED,
                     {"tool_name": proposal.tool_name}, proposal.node_id, context.agent_role, proposal.proposal_id))
-        except UnapprovedToolExecutionError:
+        except (UnapprovedToolExecutionError, ExecutionOutcomeUnavailable):
             # Rejected attempts are not new task outcomes and cannot overwrite the winner.
             raise
         except Exception:
             self._emit(state, EventType.TOOL_FAILED, {"tool_name": proposal.tool_name},
                        proposal.node_id, context.agent_role, proposal.proposal_id)
             raise
-        self._emit(state, EventType.TOOL_COMPLETED if result.status == "success" else EventType.TOOL_FAILED,
-                   {"tool_name": proposal.tool_name, "status": result.status},
-                   proposal.node_id, context.agent_role, proposal.proposal_id)
+        try:
+            self._emit(state, EventType.TOOL_COMPLETED if result.status == "success" else EventType.TOOL_FAILED,
+                       {"tool_name": proposal.tool_name, "status": result.status},
+                       proposal.node_id, context.agent_role, proposal.proposal_id)
+        except Exception as exc:
+            raise ExecutionOutcomeUnavailable("event_reservation_failed", task_id=state.task_id,
+                persisted_outcome=progress.persisted_outcome) from exc
         return result
 
     def _complete_direct_action(self, state: TaskExecutionState, rec: NodeExecutionRecord,
@@ -418,16 +429,25 @@ class NovaGraphOrchestrator:
         owned = copy_model(state.transition_task_status(TaskStatus.RUNNING),
                            approval_attempt_id=uuid.uuid4().hex)
         try:
-            self._save_checkpoint(owned, node_id=node_id, expected_seq=envelope.checkpoint_seq)
-        except ValueError:
+            self._save_checkpoint(owned, node_id=node_id, expected_seq=envelope.checkpoint_seq, owner_transition="acquire")
+        except (ValueError, OrchestrationExecutionError):
             raise OrchestrationExecutionError("Approval is already being resolved; reload task status.")
+        progress = ExecutionProgress()
         try:
             return self._resolve_owned_approval(owned, node_id, proposal_id, approved, reason,
-                                                untrusted_data, require_citations)
+                                                untrusted_data, require_citations, progress)
         except AuthorizationAlreadyClaimedError:
             # Legacy or externally claimed action: outcome may be uncertain. Never replay.
             raise
         except UnapprovedToolExecutionError as exc:
+            ledger = getattr(self._permission_gate, "ledger", None)
+            try:
+                outcome = ledger.execution_outcome(pending_proposal, self._action_context(owned, node_id)) if ledger else None
+            except Exception as lookup_error:
+                raise ExecutionOutcomeUnavailable("authorization_outcome_unavailable", task_id=task_id) from lookup_error
+            if progress.phase != ExecutionPhase.PRECLAIM or outcome in ("claimed", "success", "error"):
+                raise ExecutionOutcomeUnavailable("post_claim_outcome_unconfirmed", task_id=task_id,
+                                                  persisted_outcome=outcome) from exc
             failed_rec = copy_model(rec, status=PlanNodeStatus.FAILED, pending_tool_proposal=None,
                                     last_error="Authorization rejected before execution.")
             failed = owned.update_node_record(failed_rec, new_task_status=TaskStatus.FAILED,
@@ -437,21 +457,26 @@ class NovaGraphOrchestrator:
                 correlation_id=proposal_id, payload={"reason": "authorization_rejected", "execution_started": False})
             try:
                 saved = self._checkpoint_store.save_checkpoint(failed, node_id=node_id, protect_terminal=True,
-                    expected_seq=owned.checkpoint_seq, terminal_event=event)
+                    expected_seq=owned.checkpoint_seq, expected_owner=owned.approval_attempt_id, terminal_event=event)
             except ValueError:
                 saved = self._checkpoint_store.load_latest(owned.task_id)
+            except sqlite3.Error as storage_error:
+                raise ExecutionOutcomeUnavailable("rejection_finalization_failed", task_id=task_id) from storage_error
             if saved.state == failed:
                 try:
-                    self._event_bus.publish(event)
+                    self._publish_notification(event)
                 except Exception:
                     logging.getLogger(__name__).exception("Rejection event persisted; live publication failed")
             exc.task_status = saved.state.status.value
             exc.task_id = saved.state.task_id
             raise
+        except (sqlite3.Error, OrchestrationExecutionError) as exc:
+            raise ExecutionOutcomeUnavailable("required_persistence_or_finalization_failed", task_id=task_id,
+                persisted_outcome=progress.persisted_outcome) from exc
 
     def _resolve_owned_approval(self, state: TaskExecutionState, node_id: str, proposal_id: str,
                                 approved: bool, reason: str, untrusted_data: Sequence[UntrustedDataItem],
-                                require_citations: bool) -> TaskExecutionState:
+                                require_citations: bool, progress: ExecutionProgress) -> TaskExecutionState:
         task_id = state.task_id
         rec = state.node_records[node_id]
         pending_proposal = rec.pending_tool_proposal
@@ -518,8 +543,8 @@ class NovaGraphOrchestrator:
 
         # Resume task to RUNNING and execute the approved tool
         try:
-            tool_result = self._execute_authorized(state, pending_proposal, stamp)
-        except UnapprovedToolExecutionError:
+            tool_result = self._execute_authorized(state, pending_proposal, stamp, progress)
+        except (UnapprovedToolExecutionError, ExecutionOutcomeUnavailable):
             raise
         except Exception as exc:
             node = next(n for n in state.plan_graph.nodes if n.node_id == node_id)
@@ -546,7 +571,7 @@ class NovaGraphOrchestrator:
         )
         expected_seq = state.checkpoint_seq
         state = copy_model(state.update_node_record(resumed_rec, new_task_status=TaskStatus.RUNNING), approval_attempt_id=None)
-        self._save_checkpoint(state, node_id=node_id, expected_seq=expected_seq)
+        self._save_checkpoint(state, node_id=node_id, expected_seq=expected_seq, owner_transition="release")
 
         # Continue running the node (and any downstream nodes)
         return self.run_until_blocked_or_complete(
@@ -718,7 +743,7 @@ class NovaGraphOrchestrator:
                 try:
                     stamp = self._permission_gate.evaluate_tool_proposal(proposal,
                         context=self._action_context(state, node.node_id))
-                except UnapprovedToolExecutionError:
+                except (UnapprovedToolExecutionError, ExecutionOutcomeUnavailable):
                     raise
                 except Exception as exc:
                     return self._fail_node(state, node, rec, str(exc))
@@ -794,7 +819,7 @@ class NovaGraphOrchestrator:
                 self._save_checkpoint(state, node_id=node.node_id)
                 try:
                     tool_result = self._execute_authorized(state, proposal, stamp)
-                except UnapprovedToolExecutionError:
+                except (UnapprovedToolExecutionError, ExecutionOutcomeUnavailable):
                     raise
                 except Exception as exc:
                     return self._fail_node(state, node, rec, str(exc))
@@ -939,6 +964,15 @@ class NovaGraphOrchestrator:
         )
         return state
 
+    def _publish_notification(self, event: NovaEvent) -> None:
+        try:
+            self._event_bus.publish(event)
+        except Exception as exc:
+            logging.getLogger(__name__).warning(
+                "event_publication_failed event_id=%s type=%s task=%s correlation=%s exception=%s",
+                event.event_id, event.event_type.value, event.task_id, event.correlation_id,
+                type(exc).__name__)
+
     def _emit(
         self,
         state: TaskExecutionState,
@@ -960,7 +994,7 @@ class NovaGraphOrchestrator:
                     return
             if not self._checkpoint_store.claim_terminal_event(state.task_id, key):
                 return
-        self._event_bus.publish(
+        self._publish_notification(
             NovaEvent(
                 event_type=event_type,
                 task_id=state.task_id,

@@ -1,0 +1,137 @@
+[
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c03_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 41.3119999999999,
+    "output": "live-c03-complete.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c01_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 15.452999999999975,
+    "output": "live-c01-complete.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c02_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 5.280999999999949,
+    "output": "live-c02-complete.txt"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.06300000000010186,
+    "output": "diff-check-complete.txt"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 0,
+    "output": "regression-complete.txt",
+    "result": "203 passed in 21.11 seconds"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "tests/permissions_security/test_c03_corrections.py",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 0,
+    "output": "targeted-verified.txt",
+    "result": "30 passed"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 1,
+    "output": "regression-first.txt",
+    "stage": "intermediate; retained"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 0,
+    "output": "regression-second.txt",
+    "stage": "intermediate; retained"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 1,
+    "output": "regression-release.txt",
+    "stage": "intermediate; retained"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 1,
+    "output": "regression-verified.txt",
+    "stage": "intermediate; retained"
+  },
+  {
+    "command": [
+      ".venv/Scripts/python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "tests/permissions_security/test_c03_corrections.py",
+      "tests/permissions_security/test_c01_corrections.py",
+      "tests/permissions_security/test_c02_lifecycle.py",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 1,
+    "output": "targeted.txt",
+    "stage": "intermediate; retained"
+  }
+]

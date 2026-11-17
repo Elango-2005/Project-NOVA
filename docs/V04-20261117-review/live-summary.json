@@ -1,0 +1,440 @@
+[
+  {
+    "name": "concurrent_processes",
+    "verdict": "PASS",
+    "http": [
+      409,
+      200,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "completed",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_6058b0af156b4c57b2037226e690b6ea",
+            "success"
+          ]
+        ],
+        "terminal": [
+          "task.completed"
+        ]
+      },
+      {
+        "task": "completed",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_6058b0af156b4c57b2037226e690b6ea",
+            "success"
+          ]
+        ],
+        "terminal": [
+          "task.completed"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "failed_winner",
+    "verdict": "PASS",
+    "http": [
+      200,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "failed",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_4bb7a217a7684eba8f00da6eae68f3cf",
+            "denied"
+          ]
+        ],
+        "terminal": [
+          "task.failed"
+        ]
+      },
+      {
+        "task": "failed",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_4bb7a217a7684eba8f00da6eae68f3cf",
+            "denied"
+          ]
+        ],
+        "terminal": [
+          "task.failed"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "publication_failure",
+    "verdict": "PASS",
+    "http": [
+      200,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "failed",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_330d0b7df7cb40e0b7b035a843a81ba0",
+            "denied"
+          ]
+        ],
+        "terminal": [
+          "task.failed"
+        ]
+      },
+      {
+        "task": "failed",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_330d0b7df7cb40e0b7b035a843a81ba0",
+            "denied"
+          ]
+        ],
+        "terminal": [
+          "task.failed"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "event_storage_failure",
+    "verdict": "PASS",
+    "http": [
+      503
+    ],
+    "snapshots": [
+      {
+        "task": "running",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_27e93007ad774eeeade7e022c4da3a1f",
+            "denied"
+          ]
+        ],
+        "terminal": []
+      }
+    ]
+  },
+  {
+    "name": "crash_owned",
+    "verdict": "PASS",
+    "http": [
+      0,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "running",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_c43a7c22f274477facdd3e6a118aac0a",
+            "pending"
+          ]
+        ],
+        "terminal": []
+      },
+      {
+        "task": "running",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_c43a7c22f274477facdd3e6a118aac0a",
+            "pending"
+          ]
+        ],
+        "terminal": []
+      }
+    ]
+  },
+  {
+    "name": "crash_claim",
+    "verdict": "PASS",
+    "http": [
+      0,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "running",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_a59f790109aa4983808f25c1aa37f2a8",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      },
+      {
+        "task": "running",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_a59f790109aa4983808f25c1aa37f2a8",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      }
+    ]
+  },
+  {
+    "name": "post_write_permission_exception",
+    "verdict": "PASS",
+    "http": [
+      200
+    ],
+    "snapshots": [
+      {
+        "task": "completed",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_83e415bcbac949678c25c92032f35411",
+            "success"
+          ]
+        ],
+        "terminal": [
+          "task.completed"
+        ]
+      },
+      {
+        "task": "completed",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_83e415bcbac949678c25c92032f35411",
+            "success"
+          ]
+        ],
+        "terminal": [
+          "task.completed"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ledger_storage_failure",
+    "verdict": "PASS",
+    "http": [
+      503,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "running",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_174b7f2e005b46a5a1b3d90191782b91",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      },
+      {
+        "task": "running",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_174b7f2e005b46a5a1b3d90191782b91",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      }
+    ]
+  },
+  {
+    "name": "post_write_audit_failure",
+    "verdict": "PASS",
+    "http": [
+      503,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "running",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_baa64281f1cf45b7888b45331cfa242a",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      },
+      {
+        "task": "running",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_baa64281f1cf45b7888b45331cfa242a",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      }
+    ]
+  },
+  {
+    "name": "claim_commit_return_failure",
+    "verdict": "PASS",
+    "http": [
+      503,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "running",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_62621805fae740179d809491d5463314",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      },
+      {
+        "task": "running",
+        "files": 0,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_62621805fae740179d809491d5463314",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      }
+    ]
+  },
+  {
+    "name": "crash_after_write",
+    "verdict": "PASS",
+    "http": [
+      0,
+      409
+    ],
+    "snapshots": [
+      {
+        "task": "running",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_58efa93ca801431f9f2d99f0f931050e",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      },
+      {
+        "task": "running",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_58efa93ca801431f9f2d99f0f931050e",
+            "claimed"
+          ]
+        ],
+        "terminal": []
+      }
+    ]
+  },
+  {
+    "name": "owner_takeover",
+    "verdict": "PASS",
+    "http": [
+      409,
+      200
+    ],
+    "snapshots": [
+      {
+        "task": "completed",
+        "files": 1,
+        "calendar": 0,
+        "ledger": [
+          [
+            "prop_a99f036220094981a23990eae5495693",
+            "success"
+          ]
+        ],
+        "terminal": [
+          "task.completed"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "post_write_calendar_permission_exception",
+    "verdict": "PASS",
+    "http": [
+      200
+    ],
+    "snapshots": [
+      {
+        "task": "completed",
+        "files": 0,
+        "calendar": 1,
+        "ledger": [
+          [
+            "prop_2043b6ee4c2a422ca4df3f81a00aaa9d",
+            "success"
+          ]
+        ],
+        "terminal": [
+          "task.completed"
+        ]
+      },
+      {
+        "task": "completed",
+        "files": 0,
+        "calendar": 1,
+        "ledger": [
+          [
+            "prop_2043b6ee4c2a422ca4df3f81a00aaa9d",
+            "success"
+          ]
+        ],
+        "terminal": [
+          "task.completed"
+        ]
+      }
+    ]
+  }
+]

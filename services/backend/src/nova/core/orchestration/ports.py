@@ -20,6 +20,9 @@ directly. Instead, the Manager uses two walkie-talkies:
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from enum import Enum
+
 from typing import Any, TypeVar, Callable, Dict, List, Literal, Mapping, Optional, Protocol, Tuple, runtime_checkable
 
 from pydantic import BaseModel, Field
@@ -47,6 +50,35 @@ class UnapprovedToolExecutionError(PermissionError):
 
 class AuthorizationAlreadyClaimedError(UnapprovedToolExecutionError):
     """An execution winner exists; its outcome must not be replaced."""
+
+
+class AuthorizationOutcomeMismatch(ValueError):
+    """A ledger read proved this request does not match the stored action binding."""
+
+
+class ExecutionPhase(str, Enum):
+    PRECLAIM = "preclaim"
+    CLAIM_PENDING = "claim_pending"
+    CLAIM_COMMITTED = "claim_committed"
+    HANDLER_RETURNED = "handler_returned"
+    OUTCOME_CONFIRMED = "outcome_confirmed"
+
+
+@dataclass
+class ExecutionProgress:
+    """Per-invocation trusted runtime metadata; never deserialized from user input."""
+    phase: ExecutionPhase = ExecutionPhase.PRECLAIM
+    persisted_outcome: Optional[str] = None
+
+
+class ExecutionOutcomeUnavailable(RuntimeError):
+    """Execution/finalization could not be confirmed; never replay automatically."""
+    def __init__(self, reason_code: str, *, task_id: Optional[str] = None,
+                 persisted_outcome: Optional[str] = None) -> None:
+        super().__init__(reason_code)
+        self.reason_code = reason_code
+        self.task_id = task_id
+        self.persisted_outcome = persisted_outcome
 
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -189,6 +221,7 @@ class ToolExecutorPort(Protocol):
         permission_stamp: PermissionCheckResult,
         *, context: Optional[ToolActionContext] = None,
         on_started: Optional[Callable[[], None]] = None,
+        progress: Optional[ExecutionProgress] = None,
     ) -> ToolExecutionResult:
         """Execute `proposal` ONLY after verifying `permission_stamp.is_approved` is True."""
 
@@ -378,6 +411,7 @@ class InMemoryMockToolExecutor:
         permission_stamp: PermissionCheckResult,
         *, context: Optional[ToolActionContext] = None,
         on_started: Optional[Callable[[], None]] = None,
+        progress: Optional[ExecutionProgress] = None,
     ) -> ToolExecutionResult:
         """Verify the approval stamp and run the registered handler."""
         verify_approval_stamp(proposal, permission_stamp)
@@ -392,10 +426,15 @@ class InMemoryMockToolExecutor:
                 sanitized_output=f"Tool '{proposal.tool_name}' is not registered in executor.",
             )
 
+        if progress is not None:
+            progress.phase = ExecutionPhase.CLAIM_COMMITTED
         if on_started is not None:
             on_started()
         try:
             raw_output = handler(dict(proposal.arguments))
+            if progress is not None:
+                progress.phase = ExecutionPhase.OUTCOME_CONFIRMED
+                progress.persisted_outcome = "success"
             return ToolExecutionResult(
                 proposal_id=proposal.proposal_id,
                 tool_name=proposal.tool_name,

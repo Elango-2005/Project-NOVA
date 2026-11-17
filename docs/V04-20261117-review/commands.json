@@ -1,0 +1,65 @@
+[
+  {
+    "name": "independent",
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "C:\\NOVA\\docs\\V04-20261117-review\\challenge.py"
+    ],
+    "exit_code": 0,
+    "seconds": 8.76600000000326
+  },
+  {
+    "name": "pytest",
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 0,
+    "seconds": 25.375
+  },
+  {
+    "name": "c01",
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c01_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 14.06199999999808
+  },
+  {
+    "name": "c02",
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c02_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 5.171999999998661
+  },
+  {
+    "name": "c03",
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c03_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 36.5
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.07800000000133878
+  }
+]

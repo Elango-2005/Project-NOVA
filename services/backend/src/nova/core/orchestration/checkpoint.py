@@ -24,7 +24,7 @@ import json
 import sqlite3
 import threading
 from pathlib import Path
-from typing import Dict, List, Optional, Protocol, Tuple, runtime_checkable
+from typing import Literal, Dict, List, Optional, Protocol, Tuple, runtime_checkable
 
 from pydantic import BaseModel, Field
 
@@ -36,6 +36,60 @@ except ImportError:  # pragma: no cover
     PYDANTIC_V2 = False
 
 from nova.core.orchestration.state import TaskExecutionState
+
+
+_OWNER_UNSET = object()
+
+OwnerTransition = Literal["retain", "acquire", "release"]
+
+
+class CheckpointConflict(ValueError):
+    """The observed checkpoint revision or requested owner transition is invalid."""
+
+
+def _validate_write(latest: Optional["CheckpointEnvelope"], state: TaskExecutionState,
+                    expected_seq: Optional[int], expected_owner: object,
+                    owner_transition: OwnerTransition) -> bool:
+    """Validate under the store's write lock. True means an exact idempotent save."""
+    origin = state._checkpoint_origin
+    if origin is not None and expected_seq is not None and expected_seq != origin[0]:
+        raise CheckpointConflict("Explicit sequence differs from the observed source revision")
+    if origin is not None and expected_owner is not _OWNER_UNSET and expected_owner != origin[1]:
+        raise CheckpointConflict("Explicit owner differs from the observed source revision")
+    if expected_seq is None and origin is not None:
+        expected_seq = origin[0]
+    if expected_owner is _OWNER_UNSET:
+        expected_owner = origin[1] if origin else None
+    if latest is None:
+        if expected_seq is not None or state.approval_attempt_id is not None or owner_transition != "retain":
+            raise CheckpointConflict("Initial checkpoint must be unowned and expect no existing revision")
+        return False
+    current = latest.state
+    if expected_seq != latest.checkpoint_seq or expected_owner != current.approval_attempt_id:
+        raise CheckpointConflict("Stale checkpoint sequence or owner; terminal outcome cannot be overwritten")
+    if _serialize_state_json(current) == _serialize_state_json(state) and owner_transition == "retain":
+        return True
+    if current.status.value in ("completed", "failed", "cancelled"):
+        raise CheckpointConflict("Task already has a terminal outcome")
+    if state.checkpoint_seq <= latest.checkpoint_seq:
+        raise CheckpointConflict("Checkpoint sequence must advance without replacing history")
+    old_owner, new_owner = current.approval_attempt_id, state.approval_attempt_id
+    if owner_transition == "retain":
+        if old_owner != new_owner:
+            raise CheckpointConflict("Ownership replacement requires an explicit legitimate transition")
+    elif owner_transition == "acquire":
+        pending = {k: r.pending_tool_proposal for k, r in current.node_records.items() if r.pending_tool_proposal}
+        if (old_owner is not None or new_owner is None or current.status.value != "awaiting_approval"
+                or state.status.value != "running" or not pending
+                or any(state.node_records.get(k) != current.node_records[k] for k in pending)):
+            raise CheckpointConflict("Invalid approval ownership acquisition")
+    elif owner_transition == "release":
+        if (old_owner is None or new_owner is not None or state.status.value != "running"
+                or any(r.pending_tool_proposal is not None for r in state.node_records.values())):
+            raise CheckpointConflict("Invalid approval ownership release")
+    else:
+        raise CheckpointConflict("Unknown ownership transition")
+    return False
 
 
 class CheckpointCorruptionError(RuntimeError):
@@ -93,6 +147,7 @@ class CheckpointStorePort(Protocol):
         node_id: Optional[str] = None,
         *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
         terminal_event: Optional[NovaEvent] = None,
+        expected_owner: object = _OWNER_UNSET, owner_transition: OwnerTransition = "retain",
     ) -> CheckpointEnvelope:
         """Persist a task state snapshot and return its verified CheckpointEnvelope."""
 
@@ -136,14 +191,11 @@ class InMemoryCheckpointStore:
         node_id: Optional[str] = None,
         *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
         terminal_event: Optional[NovaEvent] = None,
+        expected_owner: object = _OWNER_UNSET, owner_transition: OwnerTransition = "retain",
     ) -> CheckpointEnvelope:
         with self._event_lock:
             latest = self.load_latest(state.task_id)
-            if protect_terminal and latest and latest.state.approval_attempt_id and latest.state.approval_attempt_id != state.approval_attempt_id and expected_seq is None:
-                raise ValueError("Checkpoint belongs to another approval attempt")
-            if expected_seq is not None and (latest is None or latest.checkpoint_seq != expected_seq):
-                raise ValueError("Stale checkpoint transition")
-            if protect_terminal and latest and latest.state.status.value in ("completed", "failed", "cancelled"):
+            if _validate_write(latest, state, expected_seq, expected_owner, owner_transition):
                 return latest
             payload_json = _serialize_state_json(state)
             checksum = _compute_sha256(payload_json)
@@ -151,11 +203,10 @@ class InMemoryCheckpointStore:
             created_at = state.updated_at_utc
 
             bucket = self._history.setdefault(state.task_id, [])
-            # Replace if same sequence number exists, otherwise append
-            bucket = [row for row in bucket if row[0] != seq]
             bucket.append((seq, node_id, checksum, created_at, payload_json))
             bucket.sort(key=lambda r: r[0])
             self._history[state.task_id] = bucket
+            state._checkpoint_origin = (seq, state.approval_attempt_id)
             if terminal_event is not None:
                 self._terminal_events.add((state.task_id, terminal_event.event_type.value))
                 self._durable_events.setdefault(state.task_id, terminal_event)
@@ -201,6 +252,7 @@ class InMemoryCheckpointStore:
         try:
             raw_dict = json.loads(payload_json)
             state = TaskExecutionState(**raw_dict)
+            state._checkpoint_origin = (seq, state.approval_attempt_id)
         except Exception as exc:
             raise CheckpointCorruptionError(
                 f"NFR-09 schema violation: Failed to deserialize checkpoint {task_id}#{seq}: {exc}"
@@ -282,6 +334,7 @@ class SqliteCheckpointStore:
         node_id: Optional[str] = None,
         *, protect_terminal: bool = False, expected_seq: Optional[int] = None,
         terminal_event: Optional[NovaEvent] = None,
+        expected_owner: object = _OWNER_UNSET, owner_transition: OwnerTransition = "retain",
     ) -> CheckpointEnvelope:
         """Atomically persist a checkpoint snapshot to SQLite."""
         payload_json = _serialize_state_json(state)
@@ -292,22 +345,18 @@ class SqliteCheckpointStore:
         with closing(self._connect()) as conn, conn:
             conn.execute("BEGIN IMMEDIATE")
             latest = conn.execute("SELECT checkpoint_seq, node_id, sha256_checksum, created_at_utc, state_json, task_status FROM task_checkpoints WHERE task_id=? ORDER BY checkpoint_seq DESC LIMIT 1", (state.task_id,)).fetchone()
-            owner = json.loads(latest[4]).get("approval_attempt_id") if latest else None
-            if protect_terminal and owner and owner != state.approval_attempt_id and expected_seq is None:
-                raise ValueError("Checkpoint belongs to another approval attempt")
-            if expected_seq is not None and (latest is None or latest[0] != expected_seq):
-                raise ValueError("Stale checkpoint transition")
-            if protect_terminal and latest and latest[5] in ("completed", "failed", "cancelled"):
-                return InMemoryCheckpointStore._verify_and_hydrate(
-                    task_id=state.task_id, seq=latest[0], node_id=latest[1], checksum=latest[2],
-                    created_at=latest[3], payload_json=latest[4])
+            envelope = None if latest is None else InMemoryCheckpointStore._verify_and_hydrate(
+                task_id=state.task_id, seq=latest[0], node_id=latest[1], checksum=latest[2],
+                created_at=latest[3], payload_json=latest[4])
+            if _validate_write(envelope, state, expected_seq, expected_owner, owner_transition):
+                return envelope
             if terminal_event is not None:
                 raw = terminal_event.model_dump_json() if hasattr(terminal_event, "model_dump_json") else terminal_event.json()
                 conn.execute("INSERT INTO task_terminal_events VALUES (?, ?)", (state.task_id, raw))
                 conn.execute("INSERT OR IGNORE INTO terminal_event_claims VALUES (?, ?)", (state.task_id, terminal_event.event_type.value))
             conn.execute(
                 """
-                INSERT OR REPLACE INTO task_checkpoints (
+                INSERT INTO task_checkpoints (
                     task_id,
                     checkpoint_seq,
                     node_id,
@@ -328,6 +377,7 @@ class SqliteCheckpointStore:
                 ),
             )
 
+        state._checkpoint_origin = (seq, state.approval_attempt_id)
         return CheckpointEnvelope(
             task_id=state.task_id,
             checkpoint_seq=seq,

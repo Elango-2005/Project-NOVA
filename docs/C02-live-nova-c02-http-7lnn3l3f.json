@@ -1,0 +1,214 @@
+{
+  "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c02-http-7lnn3l3f",
+  "http": [
+    {
+      "port": 18283,
+      "path": "/health",
+      "status": 200,
+      "body": {
+        "app_name": "NOVA",
+        "version": "0.1.0",
+        "offline_by_default": true,
+        "allow_cloud_inference": false,
+        "registered_mcp_servers": 21,
+        "registered_tools": 43
+      }
+    },
+    {
+      "port": 18287,
+      "path": "/health",
+      "status": 200,
+      "body": {
+        "app_name": "NOVA",
+        "version": "0.1.0",
+        "offline_by_default": true,
+        "allow_cloud_inference": false,
+        "registered_mcp_servers": 21,
+        "registered_tools": 43
+      }
+    },
+    {
+      "port": 18283,
+      "path": "/assistant/quick-note",
+      "status": 200,
+      "body": {
+        "reply_text": "Please review the exact action and click Approve or Deny.",
+        "action_category": "awaiting_approval",
+        "pending_approval": {
+          "task_id": "task_assistant_69f36a25642249bd801664491a14b974",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_c82403c216e94f00924039edd5126ca1",
+          "tool_name": "notes.create_note",
+          "agent_role": "coding",
+          "arguments": {
+            "body": "Synthetic",
+            "title": "Revoked C02"
+          },
+          "expires_at": 1794890060.5010033,
+          "summary_label": "notes.create_note",
+          "recipient": "",
+          "subject": "",
+          "body": "Synthetic"
+        }
+      }
+    },
+    {
+      "port": 18287,
+      "path": "/permissions/revoke",
+      "status": 200,
+      "body": {
+        "tightened_tiers": {},
+        "revoked_global_tools": [
+          "notes.create_note"
+        ],
+        "revoked_agent_tools": {}
+      }
+    },
+    {
+      "port": 18283,
+      "path": "/assistant/approve",
+      "status": 409,
+      "body": {
+        "detail": "Policy changed or permission revoked before execution.",
+        "task_id": "task_assistant_69f36a25642249bd801664491a14b974",
+        "task_status": "failed"
+      }
+    },
+    {
+      "port": 18287,
+      "path": "/tasks/task_assistant_69f36a25642249bd801664491a14b974",
+      "status": 200,
+      "body": {
+        "task_id": "task_assistant_69f36a25642249bd801664491a14b974",
+        "session_id": "sess_personal_chat",
+        "user_goal": "notes.create_note",
+        "status": "failed",
+        "completed_nodes": [],
+        "pending_approvals": [],
+        "node_outputs": {},
+        "cited_sources": {},
+        "failure_reason": "Authorization rejected before execution."
+      }
+    },
+    {
+      "port": 18287,
+      "path": "/tasks/task_assistant_69f36a25642249bd801664491a14b974",
+      "status": 200,
+      "body": {
+        "task_id": "task_assistant_69f36a25642249bd801664491a14b974",
+        "session_id": "sess_personal_chat",
+        "user_goal": "notes.create_note",
+        "status": "failed",
+        "completed_nodes": [],
+        "pending_approvals": [],
+        "node_outputs": {},
+        "cited_sources": {},
+        "failure_reason": "Authorization rejected before execution."
+      }
+    },
+    {
+      "port": 18283,
+      "path": "/tasks/task_assistant_69f36a25642249bd801664491a14b974/events/sse",
+      "status": 200,
+      "body": "id: evt_0a66cb1997e74829aacac4a152b1a1c1\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_c82403c216e94f00924039edd5126ca1\",\"event_id\":\"evt_0a66cb1997e74829aacac4a152b1a1c1\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"Synthetic\",\"title\":\"Revoked C02\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_c82403c216e94f00924039edd5126ca1\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_69f36a25642249bd801664491a14b974\",\"timestamp_utc\":\"2026-11-17T04:29:20.513401+00:00\"}\n\nid: evt_e9cc88cc0cfc4349b617907d8716d4f1\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_c82403c216e94f00924039edd5126ca1\",\"event_id\":\"evt_e9cc88cc0cfc4349b617907d8716d4f1\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_69f36a25642249bd801664491a14b974\",\"timestamp_utc\":\"2026-11-17T04:29:20.578233+00:00\"}\n\nid: evt_d52519cd7126444f9aa8fdf4da94be12\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_c82403c216e94f00924039edd5126ca1\",\"event_id\":\"evt_d52519cd7126444f9aa8fdf4da94be12\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"execution_started\":false,\"reason\":\"authorization_rejected\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_69f36a25642249bd801664491a14b974\",\"timestamp_utc\":\"2026-11-17T04:29:20.644211+00:00\"}\n\n"
+    },
+    {
+      "port": 18287,
+      "path": "/assistant/approve",
+      "status": 409,
+      "body": {
+        "detail": "Task 'task_assistant_69f36a25642249bd801664491a14b974' is in status 'failed', not 'awaiting_approval'."
+      }
+    },
+    {
+      "port": 18299,
+      "path": "/health",
+      "status": 200,
+      "body": {
+        "app_name": "NOVA",
+        "version": "0.1.0",
+        "offline_by_default": true,
+        "allow_cloud_inference": false,
+        "registered_mcp_servers": 21,
+        "registered_tools": 43
+      }
+    },
+    {
+      "port": 18299,
+      "path": "/tasks/task_assistant_69f36a25642249bd801664491a14b974",
+      "status": 200,
+      "body": {
+        "task_id": "task_assistant_69f36a25642249bd801664491a14b974",
+        "session_id": "sess_personal_chat",
+        "user_goal": "notes.create_note",
+        "status": "failed",
+        "completed_nodes": [],
+        "pending_approvals": [],
+        "node_outputs": {},
+        "cited_sources": {},
+        "failure_reason": "Authorization rejected before execution."
+      }
+    },
+    {
+      "port": 18299,
+      "path": "/tasks/task_assistant_69f36a25642249bd801664491a14b974/events/sse",
+      "status": 200,
+      "body": "id: evt_d52519cd7126444f9aa8fdf4da94be12\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_c82403c216e94f00924039edd5126ca1\",\"event_id\":\"evt_d52519cd7126444f9aa8fdf4da94be12\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"execution_started\":false,\"reason\":\"authorization_rejected\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_69f36a25642249bd801664491a14b974\",\"timestamp_utc\":\"2026-11-17T04:29:20.644211+00:00\"}\n\n"
+    }
+  ],
+  "processes": [
+    {
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c02_live_api.py",
+        "serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c02-http-7lnn3l3f",
+        "18283",
+        "1"
+      ],
+      "pid": 7932,
+      "exit_code": 1
+    },
+    {
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c02_live_api.py",
+        "serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c02-http-7lnn3l3f",
+        "18287",
+        "0"
+      ],
+      "pid": 18604,
+      "exit_code": 1
+    },
+    {
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c02_live_api.py",
+        "serve",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c02-http-7lnn3l3f",
+        "18299",
+        "0"
+      ],
+      "pid": 19732,
+      "exit_code": 1
+    }
+  ],
+  "authorization_attempts": [
+    [
+      "rejected",
+      "revoked",
+      "{\"task_id\":\"task_assistant_69f36a25642249bd801664491a14b974\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+    ],
+    [
+      "rejected",
+      "replay_or_not_pending",
+      "{\"task_id\":\"task_assistant_69f36a25642249bd801664491a14b974\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+    ]
+  ],
+  "files": [],
+  "result": "PASS"
+}

@@ -1,0 +1,3674 @@
+[
+  {
+    "name": "concurrent_processes",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-concurrent_processes-_vql76lc",
+    "http": [
+      {
+        "port": 46785,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889949.593482,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 52035,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_ac674a116286446eaacd3468950a9c99' is in status 'running', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 46785,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+          "approved": true
+        },
+        "status": 200,
+        "body": {
+          "reply": {
+            "message_id": "msg_4acf89634f",
+            "role": "assistant",
+            "text": "I've saved your note 'C03 synthetic'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_ac674a116286446eaacd3468950a9c99",
+              "Status: Completed"
+            ]
+          },
+          "workspace": {
+            "assistant_name": "NOVA Personal Assistant",
+            "privacy_mode": "100% Offline & Private on Your Laptop",
+            "active_brain_mode": "bootstrap",
+            "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+            "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+            "security_log_verified": true,
+            "messages": [
+              {
+                "message_id": "msg_5fe676ea02",
+                "role": "assistant",
+                "text": "Please review the exact action and click Approve or Deny.",
+                "action_category": "awaiting_approval",
+                "highlights": [
+                  "Task: task_assistant_ac674a116286446eaacd3468950a9c99"
+                ],
+                "pending_approval": {
+                  "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+                  "node_id": "assistant_action",
+                  "proposal_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+                  "tool_name": "notes.create_note",
+                  "agent_role": "coding",
+                  "arguments": {
+                    "body": "C03 synthetic body",
+                    "title": "C03 synthetic"
+                  },
+                  "expires_at": 1794889949.593482,
+                  "summary_label": "notes.create_note",
+                  "recipient": "",
+                  "subject": "",
+                  "body": "C03 synthetic body"
+                },
+                "timestamp_utc": "2026-11-17T04:27:29.602048+00:00"
+              },
+              {
+                "message_id": "msg_4acf89634f",
+                "role": "assistant",
+                "text": "I've saved your note 'C03 synthetic'. Indexed chunks: 1.",
+                "action_category": "note_saved",
+                "highlights": [
+                  "Task: task_assistant_ac674a116286446eaacd3468950a9c99",
+                  "Status: Completed"
+                ],
+                "pending_approval": null,
+                "timestamp_utc": "2026-11-17T04:27:30.875195+00:00"
+              }
+            ],
+            "calendar_events": [],
+            "notes": [
+              {
+                "note_id": "note_c03_synthetic",
+                "title": "C03 synthetic",
+                "preview": "# C03 synthetic\n\nC03 synthetic body"
+              }
+            ],
+            "system_summary": {
+              "disk_free_gb": 148.93,
+              "workspace_files_count": 1,
+              "notes_count": 1,
+              "upcoming_events_count": 0
+            },
+            "recent_activity": [
+              {
+                "what_happened": "Saved a personal note",
+                "permission_note": "Approved by you",
+                "status": "Success"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "port": 52035,
+        "path": "/tasks/task_assistant_ac674a116286446eaacd3468950a9c99",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-concurrent_processes-_vql76lc\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 52035,
+        "path": "/tasks/task_assistant_ac674a116286446eaacd3468950a9c99/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_0d183083388c430fa11930b4873211c7\nevent: task.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_67d32e96c32145b5aee4fd9481e50425\",\"event_id\":\"evt_0d183083388c430fa11930b4873211c7\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"timestamp_utc\":\"2026-11-17T04:27:30.866517+00:00\"}\n\n"
+      },
+      {
+        "port": 52035,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_ac674a116286446eaacd3468950a9c99' is in status 'completed', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 46785,
+        "path": "/tasks/task_assistant_ac674a116286446eaacd3468950a9c99",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-concurrent_processes-_vql76lc\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 46785,
+        "path": "/tasks/task_assistant_ac674a116286446eaacd3468950a9c99/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_2c4262a783094126bf58fdd6f96e2202\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_67d32e96c32145b5aee4fd9481e50425\",\"event_id\":\"evt_2c4262a783094126bf58fdd6f96e2202\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_67d32e96c32145b5aee4fd9481e50425\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"timestamp_utc\":\"2026-11-17T04:27:29.602048+00:00\"}\n\nid: evt_962b7fdc22d145758f389de3ca02a311\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_67d32e96c32145b5aee4fd9481e50425\",\"event_id\":\"evt_962b7fdc22d145758f389de3ca02a311\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"timestamp_utc\":\"2026-11-17T04:27:30.796757+00:00\"}\n\nid: evt_219f7a25fe304556a6e35d94f1f0a0ab\nevent: tool.started\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_67d32e96c32145b5aee4fd9481e50425\",\"event_id\":\"evt_219f7a25fe304556a6e35d94f1f0a0ab\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"timestamp_utc\":\"2026-11-17T04:27:30.841265+00:00\"}\n\nid: evt_fbddbf60f49545268cee3217ae1dc458\nevent: tool.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_67d32e96c32145b5aee4fd9481e50425\",\"event_id\":\"evt_fbddbf60f49545268cee3217ae1dc458\",\"event_type\":\"tool.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"status\":\"success\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"timestamp_utc\":\"2026-11-17T04:27:30.862887+00:00\"}\n\nid: evt_0d183083388c430fa11930b4873211c7\nevent: task.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_67d32e96c32145b5aee4fd9481e50425\",\"event_id\":\"evt_0d183083388c430fa11930b4873211c7\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"timestamp_utc\":\"2026-11-17T04:27:30.866517+00:00\"}\n\n"
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-concurrent_processes-_vql76lc",
+          "46785",
+          "normal"
+        ],
+        "pid": 27832,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-concurrent_processes-_vql76lc",
+          "52035",
+          "normal"
+        ],
+        "pid": 8,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-concurrent_processes-_vql76lc\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+            "event_id": "evt_0d183083388c430fa11930b4873211c7",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+            "timestamp_utc": "2026-11-17T04:27:30.866517+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_67d32e96c32145b5aee4fd9481e50425",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-concurrent_processes-_vql76lc\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+            "event_id": "evt_2c4262a783094126bf58fdd6f96e2202",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+            "timestamp_utc": "2026-11-17T04:27:29.602048+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+            "event_id": "evt_962b7fdc22d145758f389de3ca02a311",
+            "event_type": "permission.approved",
+            "node_id": "assistant_action",
+            "payload": {
+              "decision": "user_approved",
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+            "timestamp_utc": "2026-11-17T04:27:30.796757+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+            "event_id": "evt_219f7a25fe304556a6e35d94f1f0a0ab",
+            "event_type": "tool.started",
+            "node_id": "assistant_action",
+            "payload": {
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+            "timestamp_utc": "2026-11-17T04:27:30.841265+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+            "event_id": "evt_fbddbf60f49545268cee3217ae1dc458",
+            "event_type": "tool.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "status": "success",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+            "timestamp_utc": "2026-11-17T04:27:30.862887+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_67d32e96c32145b5aee4fd9481e50425",
+            "event_id": "evt_0d183083388c430fa11930b4873211c7",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_ac674a116286446eaacd3468950a9c99",
+            "timestamp_utc": "2026-11-17T04:27:30.866517+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_67d32e96c32145b5aee4fd9481e50425",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_ac674a116286446eaacd3468950a9c99\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "failed_winner",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-failed_winner-_j3euywd",
+    "http": [
+      {
+        "port": 52047,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889952.1299767,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 52047,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+          "approved": false
+        },
+        "status": 200,
+        "body": {
+          "reply": {
+            "message_id": "msg_d8045c4710",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e"
+            ]
+          },
+          "workspace": {
+            "assistant_name": "NOVA Personal Assistant",
+            "privacy_mode": "100% Offline & Private on Your Laptop",
+            "active_brain_mode": "bootstrap",
+            "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+            "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+            "security_log_verified": true,
+            "messages": [
+              {
+                "message_id": "msg_976cafa69a",
+                "role": "assistant",
+                "text": "Please review the exact action and click Approve or Deny.",
+                "action_category": "awaiting_approval",
+                "highlights": [
+                  "Task: task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e"
+                ],
+                "pending_approval": {
+                  "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+                  "node_id": "assistant_action",
+                  "proposal_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+                  "tool_name": "notes.create_note",
+                  "agent_role": "coding",
+                  "arguments": {
+                    "body": "C03 synthetic body",
+                    "title": "C03 synthetic"
+                  },
+                  "expires_at": 1794889952.1299767,
+                  "summary_label": "notes.create_note",
+                  "recipient": "",
+                  "subject": "",
+                  "body": "C03 synthetic body"
+                },
+                "timestamp_utc": "2026-11-17T04:27:32.138715+00:00"
+              },
+              {
+                "message_id": "msg_d8045c4710",
+                "role": "assistant",
+                "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+                "action_category": "action_failed",
+                "highlights": [
+                  "Task: task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e"
+                ],
+                "pending_approval": null,
+                "timestamp_utc": "2026-11-17T04:27:32.193313+00:00"
+              }
+            ],
+            "calendar_events": [],
+            "notes": [],
+            "system_summary": {
+              "disk_free_gb": 148.93,
+              "workspace_files_count": 0,
+              "notes_count": 0,
+              "upcoming_events_count": 0
+            },
+            "recent_activity": [
+              {
+                "what_happened": "Note creation denied; not executed",
+                "permission_note": "Denied by you",
+                "status": "not_executed"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "port": 52047,
+        "path": "/tasks/task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "failed",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+        }
+      },
+      {
+        "port": 52047,
+        "path": "/tasks/task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_23b072f17b3442c79569db2794258460\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_5eed98fa4b7c4857ab6528bd2d7dd7e9\",\"event_id\":\"evt_23b072f17b3442c79569db2794258460\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_5eed98fa4b7c4857ab6528bd2d7dd7e9\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e\",\"timestamp_utc\":\"2026-11-17T04:27:32.138715+00:00\"}\n\nid: evt_4e419b10de0f42bb9a15741881418131\nevent: permission.denied\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_5eed98fa4b7c4857ab6528bd2d7dd7e9\",\"event_id\":\"evt_4e419b10de0f42bb9a15741881418131\",\"event_type\":\"permission.denied\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e\",\"timestamp_utc\":\"2026-11-17T04:27:32.177548+00:00\"}\n\nid: evt_46d61c9bd3794e8480fa334ff3a3e2f4\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_5eed98fa4b7c4857ab6528bd2d7dd7e9\",\"event_id\":\"evt_46d61c9bd3794e8480fa334ff3a3e2f4\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"User denied tool 'notes.create_note': User decision from Personal Assistant Chat\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e\",\"timestamp_utc\":\"2026-11-17T04:27:32.179908+00:00\"}\n\n"
+      },
+      {
+        "port": 52056,
+        "path": "/tasks/task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "failed",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+        }
+      },
+      {
+        "port": 52056,
+        "path": "/tasks/task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_46d61c9bd3794e8480fa334ff3a3e2f4\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_5eed98fa4b7c4857ab6528bd2d7dd7e9\",\"event_id\":\"evt_46d61c9bd3794e8480fa334ff3a3e2f4\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"User denied tool 'notes.create_note': User decision from Personal Assistant Chat\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e\",\"timestamp_utc\":\"2026-11-17T04:27:32.179908+00:00\"}\n\n"
+      },
+      {
+        "port": 52056,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e' is in status 'failed', not 'awaiting_approval'."
+        }
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-failed_winner-_j3euywd",
+          "52047",
+          "normal"
+        ],
+        "pid": 26172,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-failed_winner-_j3euywd",
+          "52056",
+          "normal"
+        ],
+        "pid": 2016,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "failed",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+            "event_id": "evt_23b072f17b3442c79569db2794258460",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+            "timestamp_utc": "2026-11-17T04:27:32.138715+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+            "event_id": "evt_4e419b10de0f42bb9a15741881418131",
+            "event_type": "permission.denied",
+            "node_id": "assistant_action",
+            "payload": {
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+            "timestamp_utc": "2026-11-17T04:27:32.177548+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+            "event_id": "evt_46d61c9bd3794e8480fa334ff3a3e2f4",
+            "event_type": "task.failed",
+            "node_id": "assistant_action",
+            "payload": {
+              "reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+            "timestamp_utc": "2026-11-17T04:27:32.179908+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+            "denied"
+          ]
+        ],
+        "attempts": []
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "failed",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+            "event_id": "evt_46d61c9bd3794e8480fa334ff3a3e2f4",
+            "event_type": "task.failed",
+            "node_id": "assistant_action",
+            "payload": {
+              "reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_55beee1a35464d8f8f5dfe63d9f2e58e",
+            "timestamp_utc": "2026-11-17T04:27:32.179908+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_5eed98fa4b7c4857ab6528bd2d7dd7e9",
+            "denied"
+          ]
+        ],
+        "attempts": []
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "publication_failure",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-publication_failure-yg4t_89m",
+    "http": [
+      {
+        "port": 52065,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889954.6875005,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 52065,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+          "approved": false
+        },
+        "status": 200,
+        "body": {
+          "reply": {
+            "message_id": "msg_a85882976e",
+            "role": "assistant",
+            "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+            "action_category": "action_failed",
+            "highlights": [
+              "Task: task_assistant_bc22cfc889464a9491d9bf9ee286dd8b"
+            ]
+          },
+          "workspace": {
+            "assistant_name": "NOVA Personal Assistant",
+            "privacy_mode": "100% Offline & Private on Your Laptop",
+            "active_brain_mode": "bootstrap",
+            "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+            "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+            "security_log_verified": true,
+            "messages": [
+              {
+                "message_id": "msg_3fdfd431a1",
+                "role": "assistant",
+                "text": "Please review the exact action and click Approve or Deny.",
+                "action_category": "awaiting_approval",
+                "highlights": [
+                  "Task: task_assistant_bc22cfc889464a9491d9bf9ee286dd8b"
+                ],
+                "pending_approval": {
+                  "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+                  "node_id": "assistant_action",
+                  "proposal_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+                  "tool_name": "notes.create_note",
+                  "agent_role": "coding",
+                  "arguments": {
+                    "body": "C03 synthetic body",
+                    "title": "C03 synthetic"
+                  },
+                  "expires_at": 1794889954.6875005,
+                  "summary_label": "notes.create_note",
+                  "recipient": "",
+                  "subject": "",
+                  "body": "C03 synthetic body"
+                },
+                "timestamp_utc": "2026-11-17T04:27:34.696862+00:00"
+              },
+              {
+                "message_id": "msg_a85882976e",
+                "role": "assistant",
+                "text": "Action not completed: User denied tool 'notes.create_note': User decision from Personal Assistant Chat",
+                "action_category": "action_failed",
+                "highlights": [
+                  "Task: task_assistant_bc22cfc889464a9491d9bf9ee286dd8b"
+                ],
+                "pending_approval": null,
+                "timestamp_utc": "2026-11-17T04:27:34.746402+00:00"
+              }
+            ],
+            "calendar_events": [],
+            "notes": [],
+            "system_summary": {
+              "disk_free_gb": 148.93,
+              "workspace_files_count": 0,
+              "notes_count": 0,
+              "upcoming_events_count": 0
+            },
+            "recent_activity": [
+              {
+                "what_happened": "Note creation denied; not executed",
+                "permission_note": "Denied by you",
+                "status": "not_executed"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "port": 52065,
+        "path": "/tasks/task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "failed",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+        }
+      },
+      {
+        "port": 52065,
+        "path": "/tasks/task_assistant_bc22cfc889464a9491d9bf9ee286dd8b/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_044c0987c88b4adc9a3a9cac6190bfdf\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_aea73ae5d5b6440b9fc503438ed7c813\",\"event_id\":\"evt_044c0987c88b4adc9a3a9cac6190bfdf\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_aea73ae5d5b6440b9fc503438ed7c813\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_bc22cfc889464a9491d9bf9ee286dd8b\",\"timestamp_utc\":\"2026-11-17T04:27:34.696862+00:00\"}\n\nid: evt_b73cfe144ef84177bcc312b372288621\nevent: permission.denied\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_aea73ae5d5b6440b9fc503438ed7c813\",\"event_id\":\"evt_b73cfe144ef84177bcc312b372288621\",\"event_type\":\"permission.denied\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_bc22cfc889464a9491d9bf9ee286dd8b\",\"timestamp_utc\":\"2026-11-17T04:27:34.733628+00:00\"}\n\nid: evt_75042d620b624c8e8eb81d467577f0e7\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_aea73ae5d5b6440b9fc503438ed7c813\",\"event_id\":\"evt_75042d620b624c8e8eb81d467577f0e7\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"User denied tool 'notes.create_note': User decision from Personal Assistant Chat\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_bc22cfc889464a9491d9bf9ee286dd8b\",\"timestamp_utc\":\"2026-11-17T04:27:34.735984+00:00\"}\n\n"
+      },
+      {
+        "port": 52074,
+        "path": "/tasks/task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "failed",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+        }
+      },
+      {
+        "port": 52074,
+        "path": "/tasks/task_assistant_bc22cfc889464a9491d9bf9ee286dd8b/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_75042d620b624c8e8eb81d467577f0e7\nevent: task.failed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_aea73ae5d5b6440b9fc503438ed7c813\",\"event_id\":\"evt_75042d620b624c8e8eb81d467577f0e7\",\"event_type\":\"task.failed\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"User denied tool 'notes.create_note': User decision from Personal Assistant Chat\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_bc22cfc889464a9491d9bf9ee286dd8b\",\"timestamp_utc\":\"2026-11-17T04:27:34.735984+00:00\"}\n\n"
+      },
+      {
+        "port": 52074,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_bc22cfc889464a9491d9bf9ee286dd8b' is in status 'failed', not 'awaiting_approval'."
+        }
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-publication_failure-yg4t_89m",
+          "52065",
+          "publication_failure"
+        ],
+        "pid": 13548,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-publication_failure-yg4t_89m",
+          "52074",
+          "normal"
+        ],
+        "pid": 14288,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "failed",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+            "event_id": "evt_044c0987c88b4adc9a3a9cac6190bfdf",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+            "timestamp_utc": "2026-11-17T04:27:34.696862+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+            "event_id": "evt_b73cfe144ef84177bcc312b372288621",
+            "event_type": "permission.denied",
+            "node_id": "assistant_action",
+            "payload": {
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+            "timestamp_utc": "2026-11-17T04:27:34.733628+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+            "event_id": "evt_75042d620b624c8e8eb81d467577f0e7",
+            "event_type": "task.failed",
+            "node_id": "assistant_action",
+            "payload": {
+              "reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+            "timestamp_utc": "2026-11-17T04:27:34.735984+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_aea73ae5d5b6440b9fc503438ed7c813",
+            "denied"
+          ]
+        ],
+        "attempts": []
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "failed",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_aea73ae5d5b6440b9fc503438ed7c813",
+            "event_id": "evt_75042d620b624c8e8eb81d467577f0e7",
+            "event_type": "task.failed",
+            "node_id": "assistant_action",
+            "payload": {
+              "reason": "User denied tool 'notes.create_note': User decision from Personal Assistant Chat"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_bc22cfc889464a9491d9bf9ee286dd8b",
+            "timestamp_utc": "2026-11-17T04:27:34.735984+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_aea73ae5d5b6440b9fc503438ed7c813",
+            "denied"
+          ]
+        ],
+        "attempts": []
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "event_storage_failure",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-event_storage_failure-2bz2kh9d",
+    "http": [
+      {
+        "port": 21355,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_38497585b6d14201a0d4c9ac5bb1c49d",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_04524cf05e5741df8a3ad56613ebfdf4",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889957.267929,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 21355,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_38497585b6d14201a0d4c9ac5bb1c49d",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_04524cf05e5741df8a3ad56613ebfdf4",
+          "approved": false
+        },
+        "status": 503,
+        "body": {
+          "detail": "required_persistence_or_finalization_failed",
+          "task_id": "task_assistant_38497585b6d14201a0d4c9ac5bb1c49d",
+          "task_status": "running",
+          "execution_outcome": null,
+          "recovery_required": true
+        }
+      },
+      {
+        "port": 21355,
+        "path": "/tasks/task_assistant_38497585b6d14201a0d4c9ac5bb1c49d",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_38497585b6d14201a0d4c9ac5bb1c49d",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 21355,
+        "path": "/tasks/task_assistant_38497585b6d14201a0d4c9ac5bb1c49d/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_5b32fa1e8e374666bbd072804865e924\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_04524cf05e5741df8a3ad56613ebfdf4\",\"event_id\":\"evt_5b32fa1e8e374666bbd072804865e924\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_04524cf05e5741df8a3ad56613ebfdf4\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_38497585b6d14201a0d4c9ac5bb1c49d\",\"timestamp_utc\":\"2026-11-17T04:27:37.273598+00:00\"}\n\nid: evt_6374d9ea8fc84408a4704511d99259c2\nevent: permission.denied\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_04524cf05e5741df8a3ad56613ebfdf4\",\"event_id\":\"evt_6374d9ea8fc84408a4704511d99259c2\",\"event_type\":\"permission.denied\",\"node_id\":\"assistant_action\",\"payload\":{\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_38497585b6d14201a0d4c9ac5bb1c49d\",\"timestamp_utc\":\"2026-11-17T04:27:37.321008+00:00\"}\n\n"
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-event_storage_failure-2bz2kh9d",
+          "21355",
+          "event_storage_failure"
+        ],
+        "pid": 25008,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_38497585b6d14201a0d4c9ac5bb1c49d",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_04524cf05e5741df8a3ad56613ebfdf4",
+            "event_id": "evt_5b32fa1e8e374666bbd072804865e924",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_04524cf05e5741df8a3ad56613ebfdf4",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_38497585b6d14201a0d4c9ac5bb1c49d",
+            "timestamp_utc": "2026-11-17T04:27:37.273598+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_04524cf05e5741df8a3ad56613ebfdf4",
+            "event_id": "evt_6374d9ea8fc84408a4704511d99259c2",
+            "event_type": "permission.denied",
+            "node_id": "assistant_action",
+            "payload": {
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_38497585b6d14201a0d4c9ac5bb1c49d",
+            "timestamp_utc": "2026-11-17T04:27:37.321008+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_04524cf05e5741df8a3ad56613ebfdf4",
+            "denied"
+          ]
+        ],
+        "attempts": []
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "crash_owned",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_owned-lo4pe1s4",
+    "http": [
+      {
+        "port": 21364,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_1502bce69763483086f41d79b964a6c2",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_88461d96bd6346d99440233cb68a6f00",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889958.5478427,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 21364,
+        "path": "/assistant/approve",
+        "transport_error": "ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)"
+      },
+      {
+        "port": 21372,
+        "path": "/tasks/task_assistant_1502bce69763483086f41d79b964a6c2",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_1502bce69763483086f41d79b964a6c2",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 21372,
+        "path": "/tasks/task_assistant_1502bce69763483086f41d79b964a6c2/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      },
+      {
+        "port": 21372,
+        "path": "/__verification/recover/task_assistant_1502bce69763483086f41d79b964a6c2",
+        "request": {},
+        "status": 200,
+        "body": {
+          "status": "running"
+        }
+      },
+      {
+        "port": 21372,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_1502bce69763483086f41d79b964a6c2",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_88461d96bd6346d99440233cb68a6f00",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_1502bce69763483086f41d79b964a6c2' is in status 'running', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 21372,
+        "path": "/tasks/task_assistant_1502bce69763483086f41d79b964a6c2",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_1502bce69763483086f41d79b964a6c2",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 21372,
+        "path": "/tasks/task_assistant_1502bce69763483086f41d79b964a6c2/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_owned-lo4pe1s4",
+          "21364",
+          "crash_owned"
+        ],
+        "pid": 24456,
+        "exit_code": 81
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_owned-lo4pe1s4",
+          "21372",
+          "normal"
+        ],
+        "pid": 25620,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_1502bce69763483086f41d79b964a6c2",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_88461d96bd6346d99440233cb68a6f00",
+            "pending"
+          ]
+        ],
+        "attempts": []
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_1502bce69763483086f41d79b964a6c2",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_88461d96bd6346d99440233cb68a6f00",
+            "pending"
+          ]
+        ],
+        "attempts": [
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_1502bce69763483086f41d79b964a6c2\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "crash_claim",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_claim-35m26jji",
+    "http": [
+      {
+        "port": 35856,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_acc17763458c4383bc587b99de0f8d71",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889960.9801524,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 35856,
+        "path": "/assistant/approve",
+        "transport_error": "ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)"
+      },
+      {
+        "port": 35863,
+        "path": "/tasks/task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35863,
+        "path": "/tasks/task_assistant_697bf1e960b3426b816c69b8be1b4e6c/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      },
+      {
+        "port": 35863,
+        "path": "/__verification/recover/task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+        "request": {},
+        "status": 200,
+        "body": {
+          "status": "running"
+        }
+      },
+      {
+        "port": 35863,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_acc17763458c4383bc587b99de0f8d71",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_697bf1e960b3426b816c69b8be1b4e6c' is in status 'running', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 35863,
+        "path": "/tasks/task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35863,
+        "path": "/tasks/task_assistant_697bf1e960b3426b816c69b8be1b4e6c/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_claim-35m26jji",
+          "35856",
+          "crash_claim"
+        ],
+        "pid": 23096,
+        "exit_code": 82
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_claim-35m26jji",
+          "35863",
+          "normal"
+        ],
+        "pid": 7604,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_acc17763458c4383bc587b99de0f8d71",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_697bf1e960b3426b816c69b8be1b4e6c\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_697bf1e960b3426b816c69b8be1b4e6c",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_acc17763458c4383bc587b99de0f8d71",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_697bf1e960b3426b816c69b8be1b4e6c\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_697bf1e960b3426b816c69b8be1b4e6c\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "post_write_permission_exception",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_permission_exception-ax60p37_",
+    "http": [
+      {
+        "port": 35874,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_93a784d0ad304a00986675cef486d92f",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889963.503613,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 35874,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_93a784d0ad304a00986675cef486d92f",
+          "approved": true
+        },
+        "status": 200,
+        "body": {
+          "reply": {
+            "message_id": "msg_14438b4ffd",
+            "role": "assistant",
+            "text": "I've saved your note 'C03 synthetic'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+              "Status: Completed"
+            ]
+          },
+          "workspace": {
+            "assistant_name": "NOVA Personal Assistant",
+            "privacy_mode": "100% Offline & Private on Your Laptop",
+            "active_brain_mode": "bootstrap",
+            "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+            "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+            "security_log_verified": true,
+            "messages": [
+              {
+                "message_id": "msg_7fda4ceb42",
+                "role": "assistant",
+                "text": "Please review the exact action and click Approve or Deny.",
+                "action_category": "awaiting_approval",
+                "highlights": [
+                  "Task: task_assistant_5d363f4ab8994560bee5fdb36e9df65d"
+                ],
+                "pending_approval": {
+                  "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+                  "node_id": "assistant_action",
+                  "proposal_id": "prop_93a784d0ad304a00986675cef486d92f",
+                  "tool_name": "notes.create_note",
+                  "agent_role": "coding",
+                  "arguments": {
+                    "body": "C03 synthetic body",
+                    "title": "C03 synthetic"
+                  },
+                  "expires_at": 1794889963.503613,
+                  "summary_label": "notes.create_note",
+                  "recipient": "",
+                  "subject": "",
+                  "body": "C03 synthetic body"
+                },
+                "timestamp_utc": "2026-11-17T04:27:43.513249+00:00"
+              },
+              {
+                "message_id": "msg_14438b4ffd",
+                "role": "assistant",
+                "text": "I've saved your note 'C03 synthetic'. Indexed chunks: 1.",
+                "action_category": "note_saved",
+                "highlights": [
+                  "Task: task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+                  "Status: Completed"
+                ],
+                "pending_approval": null,
+                "timestamp_utc": "2026-11-17T04:27:43.588797+00:00"
+              }
+            ],
+            "calendar_events": [],
+            "notes": [
+              {
+                "note_id": "note_c03_synthetic",
+                "title": "C03 synthetic",
+                "preview": "# C03 synthetic\n\nC03 synthetic body"
+              }
+            ],
+            "system_summary": {
+              "disk_free_gb": 148.93,
+              "workspace_files_count": 1,
+              "notes_count": 1,
+              "upcoming_events_count": 0
+            },
+            "recent_activity": [
+              {
+                "what_happened": "Saved a personal note",
+                "permission_note": "Approved by you",
+                "status": "Success"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "port": 35874,
+        "path": "/tasks/task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-post_write_permission_exception-ax60p37_\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35874,
+        "path": "/tasks/task_assistant_5d363f4ab8994560bee5fdb36e9df65d/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_6f3e0f722cd247f6a541645a2e71efb0\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_93a784d0ad304a00986675cef486d92f\",\"event_id\":\"evt_6f3e0f722cd247f6a541645a2e71efb0\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_93a784d0ad304a00986675cef486d92f\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_5d363f4ab8994560bee5fdb36e9df65d\",\"timestamp_utc\":\"2026-11-17T04:27:43.511782+00:00\"}\n\nid: evt_4d73ab4ade244153b195ac75a7e09b45\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_93a784d0ad304a00986675cef486d92f\",\"event_id\":\"evt_4d73ab4ade244153b195ac75a7e09b45\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_5d363f4ab8994560bee5fdb36e9df65d\",\"timestamp_utc\":\"2026-11-17T04:27:43.545480+00:00\"}\n\nid: evt_a928a145de7c426fb746948319207d52\nevent: tool.started\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_93a784d0ad304a00986675cef486d92f\",\"event_id\":\"evt_a928a145de7c426fb746948319207d52\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_5d363f4ab8994560bee5fdb36e9df65d\",\"timestamp_utc\":\"2026-11-17T04:27:43.552133+00:00\"}\n\nid: evt_4f4b2ceb11724d40b23a905ef11ffca6\nevent: task.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_93a784d0ad304a00986675cef486d92f\",\"event_id\":\"evt_4f4b2ceb11724d40b23a905ef11ffca6\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_5d363f4ab8994560bee5fdb36e9df65d\",\"timestamp_utc\":\"2026-11-17T04:27:43.579888+00:00\"}\n\n"
+      },
+      {
+        "port": 35883,
+        "path": "/tasks/task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-post_write_permission_exception-ax60p37_\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35883,
+        "path": "/tasks/task_assistant_5d363f4ab8994560bee5fdb36e9df65d/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_4f4b2ceb11724d40b23a905ef11ffca6\nevent: task.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_93a784d0ad304a00986675cef486d92f\",\"event_id\":\"evt_4f4b2ceb11724d40b23a905ef11ffca6\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_5d363f4ab8994560bee5fdb36e9df65d\",\"timestamp_utc\":\"2026-11-17T04:27:43.579888+00:00\"}\n\n"
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_permission_exception-ax60p37_",
+          "35874",
+          "post_write_permission_exception"
+        ],
+        "pid": 25420,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_permission_exception-ax60p37_",
+          "35883",
+          "normal"
+        ],
+        "pid": 23832,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-post_write_permission_exception-ax60p37_\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_93a784d0ad304a00986675cef486d92f",
+            "event_id": "evt_6f3e0f722cd247f6a541645a2e71efb0",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_93a784d0ad304a00986675cef486d92f",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+            "timestamp_utc": "2026-11-17T04:27:43.511782+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_93a784d0ad304a00986675cef486d92f",
+            "event_id": "evt_4d73ab4ade244153b195ac75a7e09b45",
+            "event_type": "permission.approved",
+            "node_id": "assistant_action",
+            "payload": {
+              "decision": "user_approved",
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+            "timestamp_utc": "2026-11-17T04:27:43.545480+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_93a784d0ad304a00986675cef486d92f",
+            "event_id": "evt_a928a145de7c426fb746948319207d52",
+            "event_type": "tool.started",
+            "node_id": "assistant_action",
+            "payload": {
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+            "timestamp_utc": "2026-11-17T04:27:43.552133+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_93a784d0ad304a00986675cef486d92f",
+            "event_id": "evt_4f4b2ceb11724d40b23a905ef11ffca6",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+            "timestamp_utc": "2026-11-17T04:27:43.579888+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_93a784d0ad304a00986675cef486d92f",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_5d363f4ab8994560bee5fdb36e9df65d\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-post_write_permission_exception-ax60p37_\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_93a784d0ad304a00986675cef486d92f",
+            "event_id": "evt_4f4b2ceb11724d40b23a905ef11ffca6",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_5d363f4ab8994560bee5fdb36e9df65d",
+            "timestamp_utc": "2026-11-17T04:27:43.579888+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_93a784d0ad304a00986675cef486d92f",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_5d363f4ab8994560bee5fdb36e9df65d\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "ledger_storage_failure",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-ledger_storage_failure-9255ph5v",
+    "http": [
+      {
+        "port": 35890,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889966.0427601,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 35890,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+          "approved": true
+        },
+        "status": 503,
+        "body": {
+          "detail": "post_claim_outcome_unconfirmed",
+          "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+          "task_status": "running",
+          "execution_outcome": "claimed",
+          "recovery_required": true
+        }
+      },
+      {
+        "port": 35890,
+        "path": "/tasks/task_assistant_e2b03b78228f403e8692328ad42967a3",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35890,
+        "path": "/tasks/task_assistant_e2b03b78228f403e8692328ad42967a3/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_4816f262b5784aa290b8e0c90820f0f1\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_27eb2f8a08094c6092aeaf4325ad0ec4\",\"event_id\":\"evt_4816f262b5784aa290b8e0c90820f0f1\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_27eb2f8a08094c6092aeaf4325ad0ec4\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_e2b03b78228f403e8692328ad42967a3\",\"timestamp_utc\":\"2026-11-17T04:27:46.049776+00:00\"}\n\nid: evt_b52b1d602af74c1ca329925f65f15f95\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_27eb2f8a08094c6092aeaf4325ad0ec4\",\"event_id\":\"evt_b52b1d602af74c1ca329925f65f15f95\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_e2b03b78228f403e8692328ad42967a3\",\"timestamp_utc\":\"2026-11-17T04:27:46.100773+00:00\"}\n\nid: evt_2817892444ba47d4a0fbd55ecba295d4\nevent: tool.started\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_27eb2f8a08094c6092aeaf4325ad0ec4\",\"event_id\":\"evt_2817892444ba47d4a0fbd55ecba295d4\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_e2b03b78228f403e8692328ad42967a3\",\"timestamp_utc\":\"2026-11-17T04:27:46.112752+00:00\"}\n\n"
+      },
+      {
+        "port": 35899,
+        "path": "/__verification/recover/task_assistant_e2b03b78228f403e8692328ad42967a3",
+        "request": {},
+        "status": 200,
+        "body": {
+          "status": "running"
+        }
+      },
+      {
+        "port": 35899,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_e2b03b78228f403e8692328ad42967a3' is in status 'running', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 35899,
+        "path": "/tasks/task_assistant_e2b03b78228f403e8692328ad42967a3",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35899,
+        "path": "/tasks/task_assistant_e2b03b78228f403e8692328ad42967a3/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-ledger_storage_failure-9255ph5v",
+          "35890",
+          "ledger_storage_failure"
+        ],
+        "pid": 2860,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-ledger_storage_failure-9255ph5v",
+          "35899",
+          "normal"
+        ],
+        "pid": 27136,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+            "event_id": "evt_4816f262b5784aa290b8e0c90820f0f1",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+            "timestamp_utc": "2026-11-17T04:27:46.049776+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+            "event_id": "evt_b52b1d602af74c1ca329925f65f15f95",
+            "event_type": "permission.approved",
+            "node_id": "assistant_action",
+            "payload": {
+              "decision": "user_approved",
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+            "timestamp_utc": "2026-11-17T04:27:46.100773+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+            "event_id": "evt_2817892444ba47d4a0fbd55ecba295d4",
+            "event_type": "tool.started",
+            "node_id": "assistant_action",
+            "payload": {
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+            "timestamp_utc": "2026-11-17T04:27:46.112752+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_e2b03b78228f403e8692328ad42967a3\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_e2b03b78228f403e8692328ad42967a3",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_27eb2f8a08094c6092aeaf4325ad0ec4",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_e2b03b78228f403e8692328ad42967a3\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_e2b03b78228f403e8692328ad42967a3\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "post_write_audit_failure",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_audit_failure-4714xaoh",
+    "http": [
+      {
+        "port": 35908,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_014e50d1a33641138890174688330598",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889968.6840775,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 35908,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_014e50d1a33641138890174688330598",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+          "approved": true
+        },
+        "status": 503,
+        "body": {
+          "detail": "post_claim_outcome_unconfirmed",
+          "task_id": "task_assistant_014e50d1a33641138890174688330598",
+          "task_status": "running",
+          "execution_outcome": "claimed",
+          "recovery_required": true
+        }
+      },
+      {
+        "port": 35908,
+        "path": "/tasks/task_assistant_014e50d1a33641138890174688330598",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_014e50d1a33641138890174688330598",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35908,
+        "path": "/tasks/task_assistant_014e50d1a33641138890174688330598/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_82acf802af97439dad1a5b0fa9ce7e5e\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_2dfedc7fb9f44e4f99bfccea839cda0d\",\"event_id\":\"evt_82acf802af97439dad1a5b0fa9ce7e5e\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_2dfedc7fb9f44e4f99bfccea839cda0d\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_014e50d1a33641138890174688330598\",\"timestamp_utc\":\"2026-11-17T04:27:48.691035+00:00\"}\n\nid: evt_19633357a32543f28df8b2b32568b1be\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_2dfedc7fb9f44e4f99bfccea839cda0d\",\"event_id\":\"evt_19633357a32543f28df8b2b32568b1be\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_014e50d1a33641138890174688330598\",\"timestamp_utc\":\"2026-11-17T04:27:48.755772+00:00\"}\n\nid: evt_c417f60deab64849a27559da08b6a490\nevent: tool.started\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_2dfedc7fb9f44e4f99bfccea839cda0d\",\"event_id\":\"evt_c417f60deab64849a27559da08b6a490\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_014e50d1a33641138890174688330598\",\"timestamp_utc\":\"2026-11-17T04:27:48.761067+00:00\"}\n\n"
+      },
+      {
+        "port": 35917,
+        "path": "/__verification/recover/task_assistant_014e50d1a33641138890174688330598",
+        "request": {},
+        "status": 200,
+        "body": {
+          "status": "running"
+        }
+      },
+      {
+        "port": 35917,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_014e50d1a33641138890174688330598",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_014e50d1a33641138890174688330598' is in status 'running', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 35917,
+        "path": "/tasks/task_assistant_014e50d1a33641138890174688330598",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_014e50d1a33641138890174688330598",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35917,
+        "path": "/tasks/task_assistant_014e50d1a33641138890174688330598/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_audit_failure-4714xaoh",
+          "35908",
+          "post_write_audit_failure"
+        ],
+        "pid": 28260,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_audit_failure-4714xaoh",
+          "35917",
+          "normal"
+        ],
+        "pid": 7756,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_014e50d1a33641138890174688330598",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+            "event_id": "evt_82acf802af97439dad1a5b0fa9ce7e5e",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_014e50d1a33641138890174688330598",
+            "timestamp_utc": "2026-11-17T04:27:48.691035+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+            "event_id": "evt_19633357a32543f28df8b2b32568b1be",
+            "event_type": "permission.approved",
+            "node_id": "assistant_action",
+            "payload": {
+              "decision": "user_approved",
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_014e50d1a33641138890174688330598",
+            "timestamp_utc": "2026-11-17T04:27:48.755772+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+            "event_id": "evt_c417f60deab64849a27559da08b6a490",
+            "event_type": "tool.started",
+            "node_id": "assistant_action",
+            "payload": {
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_014e50d1a33641138890174688330598",
+            "timestamp_utc": "2026-11-17T04:27:48.761067+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_014e50d1a33641138890174688330598\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_014e50d1a33641138890174688330598",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_2dfedc7fb9f44e4f99bfccea839cda0d",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_014e50d1a33641138890174688330598\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_014e50d1a33641138890174688330598\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "claim_commit_return_failure",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-claim_commit_return_failure-7gwtfpph",
+    "http": [
+      {
+        "port": 35926,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_37d24fa51b4f42bbb07f903eb6021622",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889971.3274379,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 35926,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_37d24fa51b4f42bbb07f903eb6021622",
+          "approved": true
+        },
+        "status": 503,
+        "body": {
+          "detail": "post_claim_outcome_unconfirmed",
+          "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+          "task_status": "running",
+          "execution_outcome": "claimed",
+          "recovery_required": true
+        }
+      },
+      {
+        "port": 35926,
+        "path": "/tasks/task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 35926,
+        "path": "/tasks/task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_53115754aac94baeb236ba0dd86d9e5c\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_37d24fa51b4f42bbb07f903eb6021622\",\"event_id\":\"evt_53115754aac94baeb236ba0dd86d9e5c\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_37d24fa51b4f42bbb07f903eb6021622\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53\",\"timestamp_utc\":\"2026-11-17T04:27:51.336336+00:00\"}\n\nid: evt_75f998ec86274331a9a70b3c03c74049\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_37d24fa51b4f42bbb07f903eb6021622\",\"event_id\":\"evt_75f998ec86274331a9a70b3c03c74049\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53\",\"timestamp_utc\":\"2026-11-17T04:27:51.377857+00:00\"}\n\n"
+      },
+      {
+        "port": 14361,
+        "path": "/__verification/recover/task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+        "request": {},
+        "status": 200,
+        "body": {
+          "status": "running"
+        }
+      },
+      {
+        "port": 14361,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_37d24fa51b4f42bbb07f903eb6021622",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53' is in status 'running', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 14361,
+        "path": "/tasks/task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 14361,
+        "path": "/tasks/task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-claim_commit_return_failure-7gwtfpph",
+          "35926",
+          "claim_commit_return_failure"
+        ],
+        "pid": 10684,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-claim_commit_return_failure-7gwtfpph",
+          "14361",
+          "normal"
+        ],
+        "pid": 13452,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_37d24fa51b4f42bbb07f903eb6021622",
+            "event_id": "evt_53115754aac94baeb236ba0dd86d9e5c",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_37d24fa51b4f42bbb07f903eb6021622",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+            "timestamp_utc": "2026-11-17T04:27:51.336336+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_37d24fa51b4f42bbb07f903eb6021622",
+            "event_id": "evt_75f998ec86274331a9a70b3c03c74049",
+            "event_type": "permission.approved",
+            "node_id": "assistant_action",
+            "payload": {
+              "decision": "user_approved",
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+            "timestamp_utc": "2026-11-17T04:27:51.377857+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_37d24fa51b4f42bbb07f903eb6021622",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {},
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_37d24fa51b4f42bbb07f903eb6021622",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_14b7b0c99b6a44a8ba95dfbed53d3a53\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "crash_after_write",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_after_write-w1szknvv",
+    "http": [
+      {
+        "port": 14371,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_2a417fb79b2e4b8682c0ee017b2fc5c2",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889973.8721073,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 14371,
+        "path": "/assistant/approve",
+        "transport_error": "ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)"
+      },
+      {
+        "port": 14378,
+        "path": "/tasks/task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 14378,
+        "path": "/tasks/task_assistant_e47a096434af41fda13e9e6e4eaeecc6/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      },
+      {
+        "port": 14378,
+        "path": "/__verification/recover/task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+        "request": {},
+        "status": 200,
+        "body": {
+          "status": "running"
+        }
+      },
+      {
+        "port": 14378,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_2a417fb79b2e4b8682c0ee017b2fc5c2",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_e47a096434af41fda13e9e6e4eaeecc6' is in status 'running', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 14378,
+        "path": "/tasks/task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 14378,
+        "path": "/tasks/task_assistant_e47a096434af41fda13e9e6e4eaeecc6/events/sse",
+        "request": null,
+        "status": 200,
+        "body": ""
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_after_write-w1szknvv",
+          "14371",
+          "crash_after_write"
+        ],
+        "pid": 12860,
+        "exit_code": 83
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-crash_after_write-w1szknvv",
+          "14378",
+          "normal"
+        ],
+        "pid": 28368,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_2a417fb79b2e4b8682c0ee017b2fc5c2",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_e47a096434af41fda13e9e6e4eaeecc6\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_e47a096434af41fda13e9e6e4eaeecc6",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "running",
+          "completed_nodes": [],
+          "pending_approvals": [],
+          "node_outputs": {},
+          "cited_sources": {},
+          "failure_reason": null
+        },
+        "events": [],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_2a417fb79b2e4b8682c0ee017b2fc5c2",
+            "claimed"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_e47a096434af41fda13e9e6e4eaeecc6\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_e47a096434af41fda13e9e6e4eaeecc6\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "owner_takeover",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-owner_takeover-h8e9tq_4",
+    "http": [
+      {
+        "port": 14389,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "C03 synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_d7db07c4f12741e994d0b85fdbd2bbfc",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889976.460902,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 14395,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_d7db07c4f12741e994d0b85fdbd2bbfc",
+          "approved": true
+        },
+        "status": 409,
+        "body": {
+          "detail": "Task 'task_assistant_f012d1a3467a4822ac61291bf60a3dfd' is in status 'running', not 'awaiting_approval'."
+        }
+      },
+      {
+        "port": 14395,
+        "path": "/permissions/revoke",
+        "request": {
+          "tool_name": "notes.create_note"
+        },
+        "status": 200,
+        "body": {
+          "tightened_tiers": {},
+          "revoked_global_tools": [
+            "notes.create_note"
+          ],
+          "revoked_agent_tools": {}
+        }
+      },
+      {
+        "port": 14389,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_d7db07c4f12741e994d0b85fdbd2bbfc",
+          "approved": true
+        },
+        "status": 200,
+        "body": {
+          "reply": {
+            "message_id": "msg_9d193fabcf",
+            "role": "assistant",
+            "text": "I've saved your note 'C03 synthetic'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+              "Status: Completed"
+            ]
+          },
+          "workspace": {
+            "assistant_name": "NOVA Personal Assistant",
+            "privacy_mode": "100% Offline & Private on Your Laptop",
+            "active_brain_mode": "bootstrap",
+            "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+            "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+            "security_log_verified": true,
+            "messages": [
+              {
+                "message_id": "msg_ccdbf2830e",
+                "role": "assistant",
+                "text": "Please review the exact action and click Approve or Deny.",
+                "action_category": "awaiting_approval",
+                "highlights": [
+                  "Task: task_assistant_f012d1a3467a4822ac61291bf60a3dfd"
+                ],
+                "pending_approval": {
+                  "task_id": "task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+                  "node_id": "assistant_action",
+                  "proposal_id": "prop_d7db07c4f12741e994d0b85fdbd2bbfc",
+                  "tool_name": "notes.create_note",
+                  "agent_role": "coding",
+                  "arguments": {
+                    "body": "C03 synthetic body",
+                    "title": "C03 synthetic"
+                  },
+                  "expires_at": 1794889976.460902,
+                  "summary_label": "notes.create_note",
+                  "recipient": "",
+                  "subject": "",
+                  "body": "C03 synthetic body"
+                },
+                "timestamp_utc": "2026-11-17T04:27:56.471149+00:00"
+              },
+              {
+                "message_id": "msg_9d193fabcf",
+                "role": "assistant",
+                "text": "I've saved your note 'C03 synthetic'. Indexed chunks: 1.",
+                "action_category": "note_saved",
+                "highlights": [
+                  "Task: task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+                  "Status: Completed"
+                ],
+                "pending_approval": null,
+                "timestamp_utc": "2026-11-17T04:27:58.213848+00:00"
+              }
+            ],
+            "calendar_events": [],
+            "notes": [
+              {
+                "note_id": "note_c03_synthetic",
+                "title": "C03 synthetic",
+                "preview": "# C03 synthetic\n\nC03 synthetic body"
+              }
+            ],
+            "system_summary": {
+              "disk_free_gb": 148.93,
+              "workspace_files_count": 1,
+              "notes_count": 1,
+              "upcoming_events_count": 0
+            },
+            "recent_activity": [
+              {
+                "what_happened": "Saved a personal note",
+                "permission_note": "Approved by you",
+                "status": "Success"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "port": 14395,
+        "path": "/tasks/task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-owner_takeover-h8e9tq_4\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 14395,
+        "path": "/tasks/task_assistant_f012d1a3467a4822ac61291bf60a3dfd/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_dca339a457504f7d92e11d2c36d8aeab\nevent: task.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_d7db07c4f12741e994d0b85fdbd2bbfc\",\"event_id\":\"evt_dca339a457504f7d92e11d2c36d8aeab\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_f012d1a3467a4822ac61291bf60a3dfd\",\"timestamp_utc\":\"2026-11-17T04:27:58.202969+00:00\"}\n\n"
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-owner_takeover-h8e9tq_4",
+          "14389",
+          "claim_pause"
+        ],
+        "pid": 22880,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-owner_takeover-h8e9tq_4",
+          "14395",
+          "normal"
+        ],
+        "pid": 4296,
+        "exit_code": 1
+      }
+    ],
+    "owner_probe": {
+      "command": [
+        "C:\\NOVA\\.venv\\Scripts\\python.exe",
+        "-B",
+        "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+        "probe",
+        "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-owner_takeover-h8e9tq_4",
+        "task_assistant_f012d1a3467a4822ac61291bf60a3dfd"
+      ],
+      "exit_code": 0,
+      "output": "PASS: Ownership replacement requires an explicit legitimate transition\n",
+      "stderr": ""
+    },
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-owner_takeover-h8e9tq_4\\\\workspace\\\\notes\\\\c03_synthetic.md\", \"note_id\": \"note_c03_synthetic\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_d7db07c4f12741e994d0b85fdbd2bbfc",
+            "event_id": "evt_dca339a457504f7d92e11d2c36d8aeab",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_f012d1a3467a4822ac61291bf60a3dfd",
+            "timestamp_utc": "2026-11-17T04:27:58.202969+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\c03_synthetic.md": "# C03 synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_d7db07c4f12741e994d0b85fdbd2bbfc",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_f012d1a3467a4822ac61291bf60a3dfd\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ],
+          [
+            "rejected",
+            "replay_or_not_pending",
+            "{\"task_id\":\"task_assistant_f012d1a3467a4822ac61291bf60a3dfd\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "post_write_calendar_permission_exception",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_calendar_permission_exception-_hg7yphh",
+    "http": [
+      {
+        "port": 14405,
+        "path": "/assistant/quick-event",
+        "request": {
+          "title": "C03 synthetic",
+          "start_iso": "2026-12-01T10:00:00",
+          "end_iso": "2026-12-01T11:00:00"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_8033be844c6148b3a710c6f133e5f520",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "arguments": {
+              "end_iso": "2026-12-01T11:00:00",
+              "start_iso": "2026-12-01T10:00:00",
+              "title": "C03 synthetic"
+            },
+            "expires_at": 1794889979.4802098,
+            "summary_label": "calendar.create_event",
+            "recipient": "",
+            "subject": "",
+            "body": ""
+          }
+        }
+      },
+      {
+        "port": 14405,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_8033be844c6148b3a710c6f133e5f520",
+          "approved": true
+        },
+        "status": 200,
+        "body": {
+          "reply": {
+            "message_id": "msg_36f5f48cb4",
+            "role": "assistant",
+            "text": "I've scheduled 'C03 synthetic': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+              "Status: Completed"
+            ]
+          },
+          "workspace": {
+            "assistant_name": "NOVA Personal Assistant",
+            "privacy_mode": "100% Offline & Private on Your Laptop",
+            "active_brain_mode": "bootstrap",
+            "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+            "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+            "security_log_verified": true,
+            "messages": [
+              {
+                "message_id": "msg_a901d85fd3",
+                "role": "assistant",
+                "text": "Please review the exact action and click Approve or Deny.",
+                "action_category": "awaiting_approval",
+                "highlights": [
+                  "Task: task_assistant_8154d8c2b9d3442fa6a14542cb671e1e"
+                ],
+                "pending_approval": {
+                  "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+                  "node_id": "assistant_action",
+                  "proposal_id": "prop_8033be844c6148b3a710c6f133e5f520",
+                  "tool_name": "calendar.create_event",
+                  "agent_role": "comms",
+                  "arguments": {
+                    "end_iso": "2026-12-01T11:00:00",
+                    "start_iso": "2026-12-01T10:00:00",
+                    "title": "C03 synthetic"
+                  },
+                  "expires_at": 1794889979.4802098,
+                  "summary_label": "calendar.create_event",
+                  "recipient": "",
+                  "subject": "",
+                  "body": ""
+                },
+                "timestamp_utc": "2026-11-17T04:27:59.485750+00:00"
+              },
+              {
+                "message_id": "msg_36f5f48cb4",
+                "role": "assistant",
+                "text": "I've scheduled 'C03 synthetic': no schedule conflicts.",
+                "action_category": "event_scheduled",
+                "highlights": [
+                  "Task: task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+                  "Status: Completed"
+                ],
+                "pending_approval": null,
+                "timestamp_utc": "2026-11-17T04:27:59.564657+00:00"
+              }
+            ],
+            "calendar_events": [
+              {
+                "event_id": "evt_05d8cff7c7",
+                "title": "C03 synthetic",
+                "start_iso": "2026-12-01T10:00:00",
+                "end_iso": "2026-12-01T11:00:00",
+                "description": ""
+              }
+            ],
+            "notes": [],
+            "system_summary": {
+              "disk_free_gb": 148.93,
+              "workspace_files_count": 0,
+              "notes_count": 0,
+              "upcoming_events_count": 1
+            },
+            "recent_activity": [
+              {
+                "what_happened": "Scheduled a calendar event",
+                "permission_note": "Approved by you",
+                "status": "Success"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "port": 14405,
+        "path": "/tasks/task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+          "session_id": "sess_personal_chat",
+          "user_goal": "calendar.create_event",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"conflicting_titles\": [], \"conflicts_detected\": 0, \"event_id\": \"evt_05d8cff7c7\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 14405,
+        "path": "/tasks/task_assistant_8154d8c2b9d3442fa6a14542cb671e1e/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_c2c80d5cc36341348e4f858bc7e529e2\nevent: permission.requested\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_8033be844c6148b3a710c6f133e5f520\",\"event_id\":\"evt_c2c80d5cc36341348e4f858bc7e529e2\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"end_iso\":\"2026-12-01T11:00:00\",\"start_iso\":\"2026-12-01T10:00:00\",\"title\":\"C03 synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_8033be844c6148b3a710c6f133e5f520\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"calendar.create_event\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_8154d8c2b9d3442fa6a14542cb671e1e\",\"timestamp_utc\":\"2026-11-17T04:27:59.485750+00:00\"}\n\nid: evt_bb14417cb2424e7b86fa90ade9c3139b\nevent: permission.approved\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_8033be844c6148b3a710c6f133e5f520\",\"event_id\":\"evt_bb14417cb2424e7b86fa90ade9c3139b\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"calendar.create_event\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_8154d8c2b9d3442fa6a14542cb671e1e\",\"timestamp_utc\":\"2026-11-17T04:27:59.521012+00:00\"}\n\nid: evt_623a7db293b54e4c8f9112b204de188b\nevent: tool.started\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_8033be844c6148b3a710c6f133e5f520\",\"event_id\":\"evt_623a7db293b54e4c8f9112b204de188b\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"calendar.create_event\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_8154d8c2b9d3442fa6a14542cb671e1e\",\"timestamp_utc\":\"2026-11-17T04:27:59.528894+00:00\"}\n\nid: evt_2d184f2b3e414fc8abd22c9d5d42f3a4\nevent: task.completed\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_8033be844c6148b3a710c6f133e5f520\",\"event_id\":\"evt_2d184f2b3e414fc8abd22c9d5d42f3a4\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_8154d8c2b9d3442fa6a14542cb671e1e\",\"timestamp_utc\":\"2026-11-17T04:27:59.553690+00:00\"}\n\n"
+      },
+      {
+        "port": 14414,
+        "path": "/tasks/task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+          "session_id": "sess_personal_chat",
+          "user_goal": "calendar.create_event",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"conflicting_titles\": [], \"conflicts_detected\": 0, \"event_id\": \"evt_05d8cff7c7\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 14414,
+        "path": "/tasks/task_assistant_8154d8c2b9d3442fa6a14542cb671e1e/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_2d184f2b3e414fc8abd22c9d5d42f3a4\nevent: task.completed\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_8033be844c6148b3a710c6f133e5f520\",\"event_id\":\"evt_2d184f2b3e414fc8abd22c9d5d42f3a4\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_8154d8c2b9d3442fa6a14542cb671e1e\",\"timestamp_utc\":\"2026-11-17T04:27:59.553690+00:00\"}\n\n"
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_calendar_permission_exception-_hg7yphh",
+          "14405",
+          "post_write_calendar_permission_exception"
+        ],
+        "pid": 20964,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-post_write_calendar_permission_exception-_hg7yphh",
+          "14414",
+          "normal"
+        ],
+        "pid": 15328,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+          "session_id": "sess_personal_chat",
+          "user_goal": "calendar.create_event",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"conflicting_titles\": [], \"conflicts_detected\": 0, \"event_id\": \"evt_05d8cff7c7\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_8033be844c6148b3a710c6f133e5f520",
+            "event_id": "evt_c2c80d5cc36341348e4f858bc7e529e2",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "end_iso": "2026-12-01T11:00:00",
+                "start_iso": "2026-12-01T10:00:00",
+                "title": "C03 synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_8033be844c6148b3a710c6f133e5f520",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "calendar.create_event"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+            "timestamp_utc": "2026-11-17T04:27:59.485750+00:00"
+          },
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_8033be844c6148b3a710c6f133e5f520",
+            "event_id": "evt_bb14417cb2424e7b86fa90ade9c3139b",
+            "event_type": "permission.approved",
+            "node_id": "assistant_action",
+            "payload": {
+              "decision": "user_approved",
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "calendar.create_event"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+            "timestamp_utc": "2026-11-17T04:27:59.521012+00:00"
+          },
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_8033be844c6148b3a710c6f133e5f520",
+            "event_id": "evt_623a7db293b54e4c8f9112b204de188b",
+            "event_type": "tool.started",
+            "node_id": "assistant_action",
+            "payload": {
+              "tool_name": "calendar.create_event"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+            "timestamp_utc": "2026-11-17T04:27:59.528894+00:00"
+          },
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_8033be844c6148b3a710c6f133e5f520",
+            "event_id": "evt_2d184f2b3e414fc8abd22c9d5d42f3a4",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+            "timestamp_utc": "2026-11-17T04:27:59.553690+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [
+          [
+            "C03 synthetic",
+            "2026-12-01T10:00:00",
+            "2026-12-01T11:00:00"
+          ]
+        ],
+        "authorizations": [
+          [
+            "prop_8033be844c6148b3a710c6f133e5f520",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_8154d8c2b9d3442fa6a14542cb671e1e\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"comms\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+          "session_id": "sess_personal_chat",
+          "user_goal": "calendar.create_event",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"conflicting_titles\": [], \"conflicts_detected\": 0, \"event_id\": \"evt_05d8cff7c7\", \"title\": \"C03 synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_8033be844c6148b3a710c6f133e5f520",
+            "event_id": "evt_2d184f2b3e414fc8abd22c9d5d42f3a4",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_8154d8c2b9d3442fa6a14542cb671e1e",
+            "timestamp_utc": "2026-11-17T04:27:59.553690+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [
+          [
+            "C03 synthetic",
+            "2026-12-01T10:00:00",
+            "2026-12-01T11:00:00"
+          ]
+        ],
+        "authorizations": [
+          [
+            "prop_8033be844c6148b3a710c6f133e5f520",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_8154d8c2b9d3442fa6a14542cb671e1e\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"comms\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  }
+]

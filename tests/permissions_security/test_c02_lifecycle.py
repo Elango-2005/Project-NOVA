@@ -5,7 +5,7 @@ import pytest
 from nova.main import NovaRuntimeContainer
 from nova.core.domain.events import EventType
 from nova.core.domain.primitives import TaskStatus
-from nova.core.orchestration.ports import copy_model
+from nova.core.orchestration.ports import copy_model, ExecutionOutcomeUnavailable
 
 
 def runtime(root):
@@ -72,7 +72,8 @@ def test_event_storage_failure_rolls_back_terminal_checkpoint(tmp_path):
     with sqlite3.connect(a.checkpoint_store.db_path) as conn:
         conn.execute("CREATE TRIGGER fail_event BEFORE INSERT ON task_terminal_events BEGIN SELECT RAISE(ABORT, 'injected'); END")
     card['approved']=False
-    with pytest.raises(sqlite3.DatabaseError):a.orchestrator.submit_user_approval(**card)
+    with pytest.raises(ExecutionOutcomeUnavailable) as failure:a.orchestrator.submit_user_approval(**card)
+    assert isinstance(failure.value.__cause__, sqlite3.DatabaseError)
     assert a.api_service.get_task_status(state.task_id).status==TaskStatus.RUNNING
     assert not list(a.notes_manager.notes_dir.glob('*.md'))
     assert not a.checkpoint_store.terminal_events(state.task_id)

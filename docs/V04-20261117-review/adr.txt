@@ -1,0 +1,3403 @@
+NOVA — Architecture Decision Record
+Offline-First Agentic AI Operating System
+Field
+Value
+Document Type
+Architecture Decision Record (ADR) — Master Document
+Project
+NOVA
+Version
+1.0.0
+Status
+Approved for Phase 0 Implementation
+Classification
+Internal Engineering Documentation
+Owners
+AI Architecture Group
+Last Updated
+2026-07-27
+Review Cycle
+Quarterly, or upon major architectural change
+Related
+Documents
+NOVA Threat Model, NOVA API Contracts, NOVA Data Governance Policy
+(referenced, not included)
+Document Control
+This document is the canonical architectural reference for NOVA. It follows the standard
+ADR convention used across large engineering organizations (an ADR log embedded
+inside a broader architecture narrative), extended with phase-based research chapters so
+that engineering, research, and product functions share one source of truth. Any deviation
+from a decision recorded here requires a superseding ADR, not a silent implementation
+change. Superseded decisions are retained (struck through, not deleted) so the historical
+reasoning remains auditable.
+Table of Contents
+1. Purpose
+2. Vision
+3. Design Philosophy
+4. Engineering Principles
+5. Scope
+6. Non-Goals
+7. Architectural Constraints
+8. Functional Requirements
+9. Non-Functional Requirements
+
+10. System Overview & Layered Architecture
+11. Architecture Decisions (ADR-001 – ADR-010)
+12. Technology Evaluation & Stack
+13. Phase 0 – Phase 16 Research Chapters
+14. MCP Server Catalog
+15. Future Roadmap
+16. Risk Register & Data Governance
+17. Appendix: Glossary & Consolidated Reading List
+1. Purpose
+This document defines the target architecture for NOVA, an offline-first, privacy-
+preserving, modular agentic AI operating system. It exists to answer three questions that
+every contributor, from a first-week engineer to an external auditor, will eventually ask:
+1. What is NOVA supposed to be, precisely enough that two teams building different
+modules will not diverge in their assumptions?
+2. Why does the architecture look the way it does, so that future engineers do not re-
+litigate settled trade-offs without new evidence?
+3. What is explicitly out of scope, so that ambition does not silently turn into scope
+creep that collapses the timeline?
+An ADR-style document is used rather than a roadmap or a pitch deck because roadmaps
+describe when, and pitch decks describe why it matters to a buyer. Neither captures why we
+built it this way. Six months after a decision is made, the person maintaining the code needs
+the reasoning, not the marketing.
+2. Vision
+NOVA is a local-first agentic operating layer that sits between the user, their data, and a
+coordinated set of specialized AI agents. It reasons, plans, executes tools, remembers
+context across sessions, understands images and speech, automates workflows, and
+operates browsers, desktop applications, databases, and IoT devices — all while defaulting
+to on-device execution and treating network calls (including calls to a cloud LLM) as an
+explicit, auditable exception rather than the default path.
+The long-term vision is a Jarvis-class assistant: not a single monolithic model, but an
+orchestration layer that routes intent to the right specialized agent, gives that agent the
+minimum tools and context it needs, and gives the user full visibility and control over what
+the system did and why. NOVA is deliberately architected so that the underlying LLM can
+be swapped, upgraded, or run in a hybrid local/cloud configuration without rewriting the
+agents, tools, or memory systems around it.
+NOVA succeeds if, three years from now, a user can say "NOVA, reconcile this month's
+invoices, email the discrepancies to accounting, and update the shared tracker" — and the
+system does it correctly, asks for permission on anything sensitive, keeps a full audit trail,
+
+and does all of it without a single byte of the user's financial data leaving their machine
+unless the user explicitly opted into a cloud-assisted step.
+3. Design Philosophy
+NOVA's design philosophy is expressed as a small number of tensions the architecture
+deliberately resolves in a specific direction. These are not platitudes; each one rules
+something out.
+Tension
+NOVA's Resolution
+What This Rules Out
+Capability vs. Privacy
+Privacy wins by default;
+capability is opt-in per data
+class
+Always-on cloud inference, silent
+telemetry, default cloud RAG over
+personal files
+Single smart agent vs.
+many specialized agents
+Many specialized agents
+behind an orchestrator
+A single mega-prompt agent with
+200 tools bolted on
+LLM as brain vs. LLM as
+reasoning component
+LLM is a reasoning component
+invoked by deterministic
+orchestration code
+LLM-as-while-loop architectures
+where the model calls itself in an
+unbounded loop
+Flexibility vs. safety
+Every tool call passes through a
+permission and sandbox layer
+"Just let the agent run shell
+commands"
+Build fast vs. build
+modular
+Modular, replaceable
+components with typed
+interfaces from day one
+A tightly coupled prototype that
+becomes unmaintainable at scale
+Synchronous
+request/response vs.
+streaming
+Streaming-first, event-driven
+internals
+Long blocking calls that make the
+UI feel frozen during multi-minute
+agentic tasks
+Three phrases summarize the philosophy and recur throughout this document:
+"Offline by default, online by consent." Every feature must specify what happens
+with zero network connectivity before it specifies what the cloud-enhanced version
+looks like.
+"The LLM proposes, the runtime disposes." Language models are treated as fallible
+reasoning components, not trusted controllers. All side-effecting actions pass through
+deterministic, testable orchestration and policy code.
+"No silent capability creep." A tool, a permission, or a data access path is either
+explicitly declared and auditable, or it does not exist.
+4. Engineering Principles
+1. Composition over inheritance, interfaces over implementations. Every subsystem
+(memory, tool registry, planner, model router) is defined by a typed contract first,
+
+implementation second, so any component can be replaced without touching its
+neighbors.
+2. Determinism at the edges, probabilism in the middle. Orchestration, scheduling,
+retries, and permission checks are deterministic code. Only the reasoning step inside
+a bounded agent invocation is allowed to be probabilistic.
+3. Everything is observable. Every agent step, tool call, memory read/write, and model
+invocation emits a structured event. If it isn't logged, it didn't happen, for audit
+purposes.
+4. Fail closed, not open. Ambiguous permission states, unrecognized tool signatures, or
+unverifiable inputs default to "deny and ask," never "allow and hope."
+5. Local-first data ownership. The user's raw data (documents, screen content,
+conversation history) lives on-device by default; embeddings, indexes, and caches are
+similarly local unless a specific cloud feature is opted into.
+6. Small, replaceable agents beat one large agent. Each specialized agent has a narrow
+mandate, a small tool surface, and a bounded context — this is both a reliability and a
+security boundary.
+7. Everything that can be versioned, is. Tool schemas, agent prompts, memory schema,
+and MCP server manifests are versioned artifacts with compatibility contracts, not
+free-floating strings.
+8. Backwards-compatible evolution. Breaking a downstream agent or tool integration
+requires a major version bump and a migration path, never a silent behavior change.
+9. Test the orchestration, evaluate the model. Deterministic code gets unit and
+integration tests; model-driven reasoning gets offline evaluation suites (golden tasks,
+regression sets) because traditional unit tests cannot capture probabilistic behavior.
+10. Design for degraded mode. Every subsystem must define what "good enough" looks
+like when its ideal dependency (network, GPU, cloud model) is unavailable.
+5. Scope
+NOVA's initial and mid-term scope covers:
+A local-first orchestration runtime capable of routing user intent to specialized agents.
+A graph-based agent execution engine (planning, execution, reflection, retries).
+A tool-calling layer built primarily on the Model Context Protocol (MCP), with a
+native tool fallback.
+A dual-tier memory system (short-term working memory + long-term persistent
+memory with semantic, episodic, and procedural partitions).
+Multi-modal understanding: text, vision (screen/image/document), and voice
+(streaming STT/TTS).
+Automation surfaces: browser automation, desktop automation
+(keyboard/mouse/accessibility APIs), and structured integrations (databases,
+calendars, communication tools) via MCP servers.
+A security and permission model governing every tool invocation and data access.
+
+A deployment model spanning desktop-first (Linux/Windows/macOS) with an
+explicit path to optional hybrid cloud offload.
+6. Non-Goals
+Explicitly out of scope for the architecture described in this document (subject to revision
+by a superseding ADR):
+NOVA is not a hosted multi-tenant SaaS product. The initial architecture assumes
+single-user, single-device (or single-user, multi-device sync) operation, not a multi-
+tenant cloud backend serving thousands of organizations.
+NOVA does not train or fine-tune foundation models as part of its core runtime. It
+consumes existing open-weight or API-based models; training infrastructure is a
+separate, later-phase concern.
+NOVA is not a general-purpose robotics control system. IoT and device control are
+scoped to home/office automation protocols (e.g., Matter, MQTT-based devices), not
+real-time robotic actuation with hard real-time guarantees.
+NOVA does not attempt full autonomy without human checkpoints in its initial
+phases. Fully unsupervised, indefinite-horizon autonomous operation is a long-term
+roadmap item, not a v1 requirement.
+NOVA is not building its own foundation model, tokenizer, or training stack. It is a
+consumer and orchestrator of models, not a model-training lab.
+NOVA does not guarantee real-time (sub-100ms) response for arbitrary agentic
+tasks. Streaming responsiveness is a UX goal for perceived latency, not a hard real-
+time systems guarantee.
+
+7. Architectural Constraints
+Constraint
+Description
+Rationale
+Offline capability
+floor
+Core reasoning, tool execution, and
+memory must function with zero network
+access, using local models
+Privacy commitment and
+resilience
+Hardware
+heterogeneity
+Must run on consumer laptops (CPU-only),
+prosumer desktops (single consumer
+GPU), and workstation-class hardware
+Target users are not
+exclusively datacenter-
+equipped
+No always-on
+background telemetry
+Any diagnostic data leaving the device
+requires explicit, revocable opt-in
+Privacy-first philosophy
+Tool execution
+sandboxing
+All shell, filesystem, browser, and desktop
+automation actions execute inside a
+permission-checked, sandboxable
+boundary
+Prevent prompt injection
+from becoming arbitrary
+code execution
+Language/runtime
+constraint
+Core orchestration in a memory-safe,
+strongly-typed environment; native
+performance-critical paths may use lower-
+level languages behind stable interfaces
+Long-term maintainability
+at scale
+Model
+interchangeability
+No component may hard-code
+assumptions specific to a single model
+provider's API shape
+Avoid vendor lock-in;
+enables local/cloud hybrid
+routing
+Data residency
+User content, embeddings, and memory
+stores default to local disk; cloud sync (if
+enabled) must be end-to-end encrypted
+Privacy-first philosophy,
+regulatory alignment
+(GDPR-style data
+minimization)
+
+8. Functional Requirements
+ID
+Requirement
+Priority
+FR-
+01
+System shall accept natural language input (text and voice) and produce a task
+plan
+Must
+FR-
+02
+System shall decompose complex tasks into subtasks routed to specialized
+agents
+Must
+FR-
+03
+System shall execute tool calls via MCP-compliant servers and a native tool
+fallback
+Must
+FR-
+04
+System shall persist short-term (session) and long-term (cross-session) memory
+Must
+FR-
+05
+System shall support retrieval-augmented generation over local documents
+Must
+FR-
+06
+System shall support streaming responses for text and voice output
+Must
+FR-
+07
+System shall request explicit user permission before executing sensitive or
+irreversible actions
+Must
+FR-
+08
+System shall support vision understanding (OCR, screen understanding, image
+captioning)
+Should
+FR-
+09
+System shall support browser automation for web-based tasks
+Should
+FR-
+10
+System shall support desktop automation (keyboard, mouse,
+window/accessibility APIs)
+Should
+FR-11
+System shall support pluggable/swappable LLM backends (local and cloud)
+Must
+FR-12
+System shall maintain a complete, queryable audit log of agent actions
+Must
+FR-
+13
+System shall support IoT/device control via standard protocols
+Could
+FR-
+14
+System shall support multi-agent collaboration on a single task
+Should
+FR-15
+System shall allow users to inspect, edit, and revoke tool permissions per agent
+Must
+
+9. Non-Functional Requirements
+ID
+Category
+Requirement
+Target
+NFR-
+01
+Latency
+Perceived first-token latency
+for streaming responses
+< 800ms local, < 400ms cloud-
+assisted
+NFR-
+02
+Reliability
+Orchestrator uptime within a
+session
+99.9% (crash-free sessions)
+NFR-
+03
+Security
+All tool executions pass
+through permission + sandbox
+checks
+100% coverage, no bypass path
+NFR-
+04
+Privacy
+Data leaving device without
+explicit consent
+0 instances
+NFR-
+05
+Portability
+Supported OS targets at GA
+Windows 10/11, macOS 13+, major
+Linux distros
+NFR-
+06
+Resource
+efficiency
+Idle memory footprint
+(orchestrator + minimal
+agents)
+< 500MB RAM
+NFR-
+07
+Extensibility
+Time to add a new MCP tool
+integration
+< 1 day for a conformant MCP server
+NFR-
+08
+Observability
+Agent actions traceable end-
+to-end
+100% of tool calls logged with
+input/output/permission decision
+NFR-
+09
+Recoverability
+Mid-task crash recovery via
+checkpointing
+Resume from last checkpoint, no
+silent data loss
+NFR-
+10
+Auditability
+Retention of decision logs
+Configurable, local by default,
+minimum 30 days
+NFR-
+11
+Scalability
+(local)
+Concurrent agent executions
+on a single device
+Up to hardware-bounded parallelism
+(config-driven cap)
+NFR-
+12
+Accessibility
+Voice and text parity for core
+workflows
+Full feature parity between modalities
+10. System Overview & Layered Architecture
+NOVA is organized into seven horizontal layers. Each layer exposes a typed interface to the
+layer above it and depends only on interfaces (never concrete implementations) of the layer
+below it. This is what makes ADR-006 (Modular Replaceable Components) enforceable
+rather than aspirational.
+
+Layer responsibilities at a glance:
+Layer
+Responsibility
+Owns
+Does NOT Own
+7 — Experience
+Renders UI, captures voice/text
+input, displays streaming output
+Presentation state
+Business logic, tool
+execution
+6 —
+Orchestration
+Routes intent, builds and
+executes the agent graph,
+manages retries/checkpoints
+Execution graph,
+scheduling
+Domain reasoning
+(delegated to
+agents)
+5 — Agents
+Specialized reasoning for a
+narrow domain (browser,
+desktop, code, research, voice)
+Domain-specific
+prompts, tool
+selection within their
+scope
+Direct hardware
+access,
+unrestricted tool
+calls
+4 — Cognition
+Services
+Memory, retrieval, planning,
+reflection — shared services
+agents call into
+Memory schema,
+retrieval index, plan
+graphs
+Model weights, raw
+tool execution
+3 — Tool &
+Protocol
+MCP client/server bridge, native
+tool registry, permission gate
+Tool contracts,
+sandboxing,
+permission decisions
+Reasoning about
+whether to call a
+tool
+2 — Model
+Serving
+Abstracts local vs. cloud
+inference behind one interface
+Model routing,
+batching, streaming
+Application logic
+1 — Platform
+Event bus, storage engines,
+secrets management
+Durability, security
+primitives
+Domain semantics
+Layer 1 — Platform
+Layer 2 — Model Serving
+Layer 3 — Tool & Protocol
+Layer 4 — Cognition Services
+Layer 5 — Agents
+Layer 6 — Orchestration
+Layer 7 — Experience
+Desktop / Voice / CLI UI
+Orchestrator / Graph
+Executor
+Intent Router
+Planner Agent
+Research Agent
+Browser Agent
+Desktop Agent
+Coding Agent
+Voice Agent
+Memory Manager
+Retrieval Engine
+Planning Engine
+Reflection / Self-Eval
+MCP Client/Server Bridge
+Native Tool Registry
+Permission & Sandbox Gate
+Model Router
+Local Inference: llama.cpp /
+vLLM
+Cloud Inference: API-based
+Event Bus
+Local Storage / Vector DB /
+SQL
+Secrets & Key Management
+
+Request Lifecycle (Sequence View)
+This lifecycle illustrates three non-negotiable properties: (1) the model is invoked as a
+bounded subroutine, never as the loop controller itself; (2) every side-effecting action
+passes through the permission gate before reaching a tool; (3) memory is read at the start
+and written at the end of a task, keeping state transitions explicit and auditable.
+11. Architecture Decisions
+Each ADR below follows a fixed structure so decisions can be scanned, diffed, and
+superseded consistently. Status for all ADRs in this revision is Accepted.
+ADR-001: Offline-First Architecture
+Problem. A Jarvis-class assistant with access to personal files, screen content, browsing
+history, and desktop control is one of the most privacy-sensitive categories of software that
+can exist on a device. A cloud-dependent architecture forces every feature decision
+through the lens of "what are we willing to send to a server," which either kills features or
+kills trust. Additionally, cloud dependency means the assistant is unusable on a plane, in a
+low-connectivity environment, or during a provider outage — unacceptable for something
+meant to function like an operating system layer.
+Decision. NOVA runs its core reasoning, tool execution, memory, and retrieval loop entirely
+on-device by default, using local model inference (via llama.cpp/vLLM-class runtimes) and
+local storage (SQLite + local vector store). Cloud models and cloud services are integrated
+as an opt-in routing target per task, per data class, never as a silent default.
+Alternatives Considered.
+Cloud-first, offline-degraded: Build against a cloud API first, add offline mode later.
+Rejected — offline support retrofitted onto a cloud-first design is historically shallow
+(cache-only, feature-poor) rather than architecturally equal.
+Model Router
+Tool (via MCP)
+Permission Gate
+Memory Manager
+Specialized Agent
+Orchestrator (Graph)
+Intent Router
+User
+Model Router
+Tool (via MCP)
+Permission Gate
+Memory Manager
+Specialized Agent
+Orchestrator (Graph)
+Intent Router
+User
+"Summarize this PDF and email it to Sam"
+classify + build execution graph
+fetch relevant short/long-term context
+context bundle
+dispatch subtask 1 (Research Agent: summarize)
+reasoning call (summarization)
+draft summary
+read_file(pdf) via MCP filesystem server
+file content
+subtask 1 complete
+dispatch subtask 2 (Comms Agent: send email)
+request permission (send_email, recipient=Sam)
+confirm action?
+approve
+authorized
+send_email via MCP Gmail server
+sent (message id)
+subtask 2 complete
+write episodic memory (task completed)
+stream final confirmation
+
+Cloud-only: Simplifies engineering substantially, but violates the core privacy
+commitment and creates a hard dependency on network availability and a specific
+vendor's uptime.
+Hybrid from day one with no clear default: Considered, but "no clear default" produces
+inconsistent behavior across features; a default must be chosen even if overridable.
+Pros. Strong privacy guarantees; works without connectivity; no per-token cost floor for
+basic usage; resilient to vendor outages; forces disciplined, minimal cloud API surface.
+Cons. Local models lag frontier cloud models in raw capability; requires investment in
+quantization, model routing, and hardware-aware serving; harder to deliver frontier-level
+reasoning on low-end hardware.
+Consequences. Every subsystem (Phase 10, LLM Serving in particular) must budget for a
+"good enough locally, better with cloud opt-in" capability curve. Product messaging must
+clearly communicate the local/cloud boundary to preserve trust. Engineering must
+maintain two inference code paths behind one interface (ADR-006).
+Future Improvements. Investigate on-device fine-tuning/distillation of frontier model
+behavior into smaller local models; explore federated or encrypted cloud-assist patterns
+(e.g., confidential computing enclaves) that preserve the privacy guarantee while
+unlocking heavier cloud compute for consenting users.
+ADR-002: Event-Driven Architecture
+Problem. An agentic system performs many concurrent, long-running, and partially-
+ordered operations: streaming model tokens, tool calls with unpredictable latency,
+background memory consolidation, voice input arriving mid-task. A synchronous
+request/response architecture cannot express this without either blocking the UI or hand-
+rolling ad hoc concurrency in every module.
+Decision. NOVA's internal components communicate primarily through an event bus
+(publish/subscribe), with typed event schemas per domain (agent lifecycle events, tool
+events, memory events, model streaming events). Direct synchronous calls remain for
+narrow, latency-critical request/response pairs (e.g., permission checks), but cross-module
+coordination is event-driven.
+Alternatives Considered.
+Pure synchronous RPC between modules: Simple to reason about locally, but
+produces tight coupling and blocks the UI during multi-step agent execution.
+Actor model (e.g., full actor framework) for everything: Powerful, but adds a steep
+learning curve and operational complexity disproportionate to NOVA's single-process,
+single-device deployment target at this stage.
+Ad hoc callbacks/promises per subsystem: Fast to prototype, but produces
+inconsistent event semantics across modules and is difficult to observe/debug at scale.
+Pros. Natural fit for streaming UX; decouples producers and consumers (a new subscriber,
+e.g., a logging/observability module, can be added without touching existing code);
+supports replay/debugging via event logs; scales naturally to multi-agent concurrency.
+
+Cons. Debugging distributed causality ("why did this happen") is harder than a linear call
+stack; requires disciplined schema versioning to avoid silent breakage; risk of event storms
+if not rate-limited/backpressured.
+Consequences. All modules must publish structured events (this directly satisfies NFR-08,
+Observability). The event bus becomes a load-bearing piece of platform infrastructure
+(Layer 1) and must itself be tested for backpressure and delivery guarantees.
+Future Improvements. Introduce event replay for deterministic debugging/regression
+testing of agent behavior; evaluate CQRS/event sourcing (Phase 8) for the memory
+subsystem specifically, where an auditable history of state changes is itself a product
+requirement.
+ADR-003: Graph-Based Agent Orchestration
+Problem. Real tasks are rarely linear. They involve conditional branches ("if the file doesn't
+exist, ask the user"), parallel subtasks ("summarize each of these 5 documents
+concurrently"), retries, and loops back to earlier steps after a failure or new information.
+Modeling this as a flat script or a simple sequential chain breaks down quickly.
+Decision. NOVA models task execution as a directed graph of nodes (agent invocations,
+tool calls, conditionals, human-in-the-loop checkpoints) and edges (control flow, data flow),
+executed by a graph runtime that supports branching, parallel fan-out/fan-in, cycles
+(bounded, for reflection/retry loops), and checkpointing at node boundaries.
+Alternatives Considered.
+Linear chains (prompt A → prompt B → prompt C): Simple and easy to debug, but
+cannot express conditional logic or parallelism without becoming a tangle of special
+cases.
+Free-form ReAct loop with no explicit graph: Maximizes flexibility, but sacrifices
+predictability, checkpointing, and the ability to statically analyze what a task could do
+before running it (important for permission pre-checks).
+Fully declarative workflow engine (e.g., Airflow-style DAG, no cycles): Good for
+batch/ETL-style determinism, but DAGs-only cannot express reflection loops (agent
+evaluates its own output and retries) without workarounds.
+Pros. Expresses branching, parallelism, and bounded loops naturally; supports
+checkpointing (NFR-09) at well-defined node boundaries; enables static pre-analysis of a
+plan for permission pre-flighting; visualizable for debugging and for showing the user
+"what NOVA is about to do."
+Cons. More upfront complexity than a linear chain; requires a graph execution engine
+(build or adopt — see Phase 2/4 evaluation); cycles must be bounded to avoid runaway
+loops burning compute or violating NFR-01 latency targets.
+Consequences. The Planning Engine (Layer 4) must be able to emit graphs, not just plans-
+as-text. The orchestrator (Layer 6) owns graph execution; agents (Layer 5) own what
+happens inside a node, not the graph topology around them — this boundary is what keeps
+ADR-004 enforceable.
+
+Future Improvements. Support dynamic graph rewriting mid-execution (an agent's
+output changes the remaining plan) with safe re-validation of permissions for the new
+subgraph; explore visual graph editing so advanced users can inspect/modify a proposed
+plan before execution.
+ADR-004: LLM Is the Reasoning Engine, Not the Orchestrator
+Problem. A common but fragile pattern is to let the LLM itself decide, turn by turn, what
+function to call next in an unbounded loop ("agent-as-while-loop"). This makes control
+flow, retries, permissions, and cost bounds all subject to model whim, and makes the
+system's behavior fundamentally untestable — the same input can produce structurally
+different execution paths with no deterministic floor.
+Decision. The LLM is invoked as a bounded reasoning function: given a well-defined
+context and a well-defined output schema (a plan, a decision, a tool-call proposal, a
+critique), it returns a structured result. Deterministic orchestration code (the graph
+executor from ADR-003) decides what happens with that result — whether to execute the
+proposed tool call, route to another agent, retry, or halt for human approval.
+Alternatives Considered.
+Full agentic loop where the model controls its own next action indefinitely: Maximizes
+apparent autonomy, but removes the deterministic policy layer needed for ADR-010's
+security model and NFR-03's 100% permission coverage target.
+No agency at all (single-shot prompting only): Trivially safe and testable, but cannot
+deliver on the multi-step, tool-using vision (FR-02, FR-03).
+Pros. Testable orchestration (unit/integration tests apply to the control flow even though
+the model's exact output varies); enforceable permission and cost bounds; clear separation
+of "what the model wants to do" from "what the system allows to happen," which is the
+architectural backbone of prompt-injection defense (Phase 15).
+Cons. Slightly more engineering overhead per new capability (someone has to define the
+schema and the orchestration node, rather than "just let the model figure it out"); can feel
+less flexible for genuinely open-ended exploratory tasks.
+Consequences. Every agent must expose a typed proposal interface (e.g., "next action:
+{tool, args} or {final_answer}"), never raw unstructured freedom to act. This is the direct
+architectural ancestor of ADR-010 (Security-first Permission Model) — the permission gate
+can only exist because there is a discrete, inspectable proposal to gate.
+Future Improvements. Explore constrained decoding / structured output enforcement at
+the model-serving layer (Phase 10) to make the "always return a valid proposal" guarantee
+stronger than prompt-level convention.
+ADR-005: MCP-First Tool Integration
+Problem. Without a standard protocol, every tool integration (filesystem, browser, calendar,
+database) requires bespoke glue code, bespoke auth handling, and bespoke schema
+definitions. This does not scale to the dozens-to-hundreds of integrations a Jarvis-class
+
+assistant eventually needs, and it locks the tool ecosystem to whatever NOVA's own team
+can build.
+Decision. NOVA adopts the Model Context Protocol (MCP) as its primary tool and resource
+integration standard. Tools are exposed as MCP servers (first-party and third-party);
+NOVA's Tool & Protocol layer (Layer 3) acts as an MCP client/host, with a native tool registry
+as a fallback for capabilities that do not yet have a mature MCP server (e.g., low-level
+desktop automation).
+Alternatives Considered.
+Fully proprietary tool/plugin API: Full control over the schema, but forfeits the
+growing ecosystem of pre-built MCP servers (Phase 3) and forces every third-party
+integrator to learn a NOVA-specific format.
+OpenAPI-only tool calling: Widely supported and simple, but lacks MCP's native
+concepts of resources, prompts, and stateful server context, which matter for agentic
+(not just single-call) tool use.
+Multiple competing protocols supported simultaneously from day one: Maximizes
+compatibility, but multiplies the surface area needing security review (ADR-010)
+before the core is even stable.
+Pros. Reuses a growing open ecosystem instead of rebuilding it; standardizes auth,
+discovery, and schema validation; keeps NOVA's tool layer decoupled from any single tool's
+implementation (ADR-006); easier for third parties to build NOVA-compatible tools
+without NOVA-specific SDKs.
+Cons. MCP is a relatively young protocol with an evolving security model (Phase 3/15 detail
+this); not every desired capability yet has a conformant MCP server, requiring the native
+fallback registry to carry real weight in the near term.
+Consequences. The permission gate (ADR-010) must treat MCP tool calls and native tool
+calls through one unified policy interface, so security guarantees don't depend on which
+path a given tool happens to use. Tool discovery/versioning (Phase 7) must account for MCP
+server manifests as the primary metadata source.
+Future Improvements. Contribute back to the MCP ecosystem (custom servers for
+underserved capabilities, per Phase 3); track MCP's evolving authorization spec closely and
+adopt improvements as they stabilize; consider a compatibility shim so OpenAPI-described
+services can be auto-wrapped as MCP servers.
+ADR-006: Modular, Replaceable Components
+Problem. AI system components (model runtimes, orchestration frameworks, vector
+databases) are evolving faster than most software categories in history. A design that hard-
+couples business logic to a specific library (a specific agent framework, a specific vector DB)
+will require a rewrite, not a refactor, when that library is inevitably superseded.
+Decision. Every major subsystem (model serving, agent orchestration, memory storage,
+tool registry, retrieval engine) is defined behind a stable internal interface, with the current
+best-of-breed library or framework as the default implementation, not the contract.
+
+Swapping vLLM for a newer serving engine, or swapping the vector store, should touch one
+adapter module, not the application layer.
+Alternatives Considered.
+Deep integration with one framework's abstractions (e.g., build the entire orchestrator
+as LangGraph-native objects throughout the codebase): Faster initial velocity, but
+couples NOVA's core domain model to a third party's API surface and versioning
+cadence.
+Build everything from scratch, no external frameworks: Maximizes control and avoids
+lock-in entirely, but is not a credible use of engineering time given the maturity of
+existing orchestration/serving libraries (Phase 2/10).
+Pros. Future-proofs against the fast-moving AI tooling landscape; enables best-of-breed
+component selection per subsystem instead of an all-or-nothing framework bet; makes unit
+testing easier (interfaces can be mocked).
+Cons. Abstraction layers have a real cost — they can leak, and over-abstracting before
+requirements stabilize risks premature generalization. Requires discipline; it is always
+tempting to reach through the interface "just this once."
+Consequences. This ADR is the reason Phase 2's framework evaluation (LangGraph vs.
+CrewAI vs. others) is treated as a hosted implementation choice inside an internal
+orchestration interface, not a foundational bet the whole codebase is written against.
+Future Improvements. Formalize interface contracts as versioned schemas
+(protobuf/JSON Schema) so even cross-language component swaps (e.g., a Rust-based
+serving engine behind the same interface) remain possible.
+ADR-007: Separate Short-Term and Long-Term Memory
+Problem. A single flat context window or a single undifferentiated "memory store"
+conflates two very different needs: fast, cheap, session-scoped working memory for the
+task at hand, and durable, selectively-retrieved, cross-session memory that should persist
+and inform future behavior (user preferences, past decisions, learned facts) without
+bloating every prompt with irrelevant history.
+Decision. NOVA implements a two-tier memory architecture: short-term (working)
+memory, scoped to the current session/task graph, held in fast in-process storage; and
+long-term memory, persisted to disk and partitioned by type (semantic —
+facts/preferences; episodic — past events/tasks; procedural — learned tool-use patterns),
+retrieved selectively via the retrieval engine (Layer 4) rather than loaded wholesale.
+Alternatives Considered.
+Single unified memory store with recency-based retrieval only: Simple, but conflates
+"what's relevant to this exact task" with "what's generically recent," producing noisy
+context and no natural partition for consolidation/summarization strategies (Phase 5).
+No long-term memory (stateless sessions): Simplest to build and reason about, but
+directly violates the Jarvis-class vision — a system that forgets everything between
+
+sessions cannot build the kind of contextual understanding the product is meant to
+deliver.
+Pros. Matches the natural access patterns (working memory read/written constantly
+during a task; long-term memory read selectively, written at task boundaries); enables
+independent scaling and independent consolidation/compression strategies per tier; aligns
+directly with the cognitive-architecture literature referenced in Phase 5, giving a principled
+rather than ad hoc design.
+Cons. Two-tier systems require a defined promotion/demotion policy (when does
+something move from working memory into long-term storage?) which is itself a nontrivial
+design surface; retrieval quality directly gates long-term memory usefulness — a poor
+retrieval engine makes long-term memory feel broken even if storage is sound.
+Consequences. The Memory Manager (Layer 4) must expose distinct APIs for working vs.
+long-term access, and the orchestrator must explicitly decide, at task boundaries, what gets
+promoted to long-term storage (this is itself logged, per ADR-002/NFR-08).
+Future Improvements. Explore automatic memory consolidation during idle periods
+(background summarization of episodic memory into semantic memory, akin to sleep-
+consolidation models in cognitive science); investigate user-facing memory editing (let
+users see and correct what NOVA "remembers" about them).
+ADR-008: Specialized Agents Instead of One Giant Agent
+Problem. A single agent with access to every tool, every memory partition, and every
+domain of reasoning (coding, browsing, desktop control, voice, scheduling) accumulates an
+unmanageable prompt, a large and dangerous permission surface, and degraded reasoning
+quality as unrelated instructions and tools compete for the model's attention within one
+context.
+Decision. NOVA decomposes capability into specialized agents (e.g., Planner, Research,
+Browser, Desktop, Coding, Voice, Comms), each with a narrow mandate, a minimal tool
+subset relevant to its domain, and its own evaluation suite. The orchestrator (Layer 6)
+composes these agents per task rather than routing everything through one generalist.
+Alternatives Considered.
+One generalist agent with all tools available: Simpler mental model initially, but the
+permission surface (ADR-010) becomes "everything, all the time," which is precisely
+the failure mode a security-first design must avoid; also degrades reasoning quality as
+tool-choice ambiguity grows with tool count.
+Fully dynamic agent generation (spin up a bespoke agent per task at runtime):
+Maximizes flexibility, but sacrifices the ability to evaluate, version, and trust a fixed
+roster of agents (Phase 1/2's evaluation practices assume a known, testable set).
+Pros. Smaller, more focused prompts improve reasoning reliability; narrower tool sets
+shrink the blast radius of a compromised or hallucinating agent; specialized agents can be
+independently evaluated, versioned, and improved; matches the multi-agent systems
+literature (Phase 1) on task decomposition benefits.
+
+Cons. Requires a capable orchestrator to route and coordinate — the orchestration layer
+becomes more critical and more complex; inter-agent handoffs introduce their own failure
+modes (context loss between agents) that must be explicitly engineered around via the
+memory/context-passing design.
+Consequences. Agent boundaries become security boundaries (ADR-010 assigns
+permissions per agent, not globally); the orchestrator must maintain a registry of agent
+capabilities/tool subsets to route correctly.
+Future Improvements. Explore agent-to-agent negotiation (Phase 3, A2A) for cases where
+two specialized agents must collaborate on a shared subtask rather than being purely
+sequenced by the orchestrator.
+ADR-009: Streaming-First Pipeline
+Problem. Agentic tasks can take anywhere from one second to several minutes. A non-
+streaming design leaves the user staring at a blank or frozen UI during that entire window,
+which is both a poor experience and — for voice interaction specifically — simply
+unworkable (a voice assistant cannot wait 30 seconds of silence before speaking a word).
+Decision. All model output (text and voice) and long-running tool/agent progress is
+streamed to the UI as it becomes available: token-level streaming for text generation,
+chunked streaming for TTS audio, and incremental status events for multi-step agent
+execution (e.g., "reading file... summarizing... drafting email...").
+Alternatives Considered.
+Batch/blocking responses with a loading spinner: Much simpler to implement, but
+fails the latency-perception target (NFR-01) and is unacceptable for voice interaction
+specifically.
+Streaming only for the final model response, not intermediate agent steps: A middle
+ground, but leaves multi-minute agentic tasks feeling opaque ("what is it doing right
+now?"), undermining trust — especially important given ADR-010's permission-
+checkpoint interruptions, which need to feel like part of a visible process, not a
+random freeze.
+Pros. Directly satisfies perceived-latency targets even when total task time is long; required
+for natural voice interaction (Phase 11); makes multi-step agent execution legible to the
+user in real time, which also supports trust and debuggability.
+Cons. Streaming architectures are harder to test deterministically (ordering, partial-state
+assertions); requires every layer in the pipeline (model serving, tool execution, orchestrator,
+UI) to support incremental output, which is a cross-cutting requirement rather than a single
+module's concern.
+Consequences. The event bus (ADR-002) carries the streaming payloads; the Model
+Serving layer (Layer 2) must be selected/configured for token-streaming support (a hard
+filter in Phase 10's evaluation); UI components must be built for incremental rendering
+from the start, not retrofitted.
+
+Future Improvements. Explore speculative/predictive UI updates (e.g., showing a likely
+next action before the model fully commits) balanced carefully against the risk of
+misleading the user about uncommitted actions.
+ADR-010: Security-First Permission Model
+Problem. An assistant with browser control, desktop automation, filesystem access, and
+communication tool access (send email, post messages) is, from a security perspective,
+equivalent to giving a semi-autonomous program root-adjacent access to a user's digital life.
+Prompt injection (malicious instructions embedded in a webpage, document, or email
+NOVA reads) is a realistic and already-documented attack vector against exactly this class
+of system.
+Decision. Every tool invocation, without exception, passes through a permission gate
+(Layer 3) that evaluates: (a) the acting agent's declared permission scope, (b) the sensitivity
+class of the requested action (read vs. write, reversible vs. irreversible, local vs. networked),
+and (c) user-configured policy (auto-approve, ask-every-time, deny). Sensitive/irreversible
+actions default to explicit human confirmation. This is enforced at the platform layer, not
+left to individual agent prompts to "remember" to ask.
+Alternatives Considered.
+Prompt-level safety instructions only ("please ask before doing anything risky"):
+Cheap to implement, but prompt-level instructions are not a security boundary —
+they are advisory text a sufficiently adversarial input can override (prompt injection).
+Rejected as insufficient for anything beyond a demo.
+Coarse, one-time app-level permission (grant NOVA full access once, like a desktop
+app installer): Familiar UX pattern, but does not provide per-action, per-agent
+granularity, and does not help against prompt injection turning a legitimately-granted
+capability against the user mid-task.
+Full sandboxing with no user prompts at all (fully automated policy, no human-in-the-
+loop): Removes friction, but for a v1 system, over-trusts an unproven policy engine
+with irreversible real-world actions (sending money, deleting files, sending messages
+as the user).
+Pros. Provides an actual enforcement boundary independent of model behavior (directly
+implements ADR-004's "LLM proposes, runtime disposes" principle); makes NFR-03
+(100% permission coverage) achievable and testable; gives users fine-grained, revocable
+control (FR-15) instead of all-or-nothing trust.
+Cons. Adds friction — a poorly tuned policy that asks too often will train users to click
+"approve" reflexively, undermining the safeguard; requires an explicit, maintained
+taxonomy of action sensitivity classes, which is ongoing security work, not a one-time
+setup.
+Consequences. Phase 15 (Security) becomes a first-class, continuously-invested area, not a
+pre-launch checklist item. Every new tool integration (Phase 7) must be classified into a
+sensitivity tier before it ships. Agent design (ADR-008) must declare a minimal permission
+scope per agent as part of its specification, enabling least-privilege by construction.
+
+Future Improvements. Explore risk-adaptive policy (e.g., machine-learned anomaly
+detection flagging unusual action patterns for extra confirmation even within an otherwise
+auto-approved category); investigate formal verification of the permission gate itself, given
+its critical, universal enforcement role.
+12. Technology Evaluation & Stack
+This section records the current recommended technology per architectural layer. Per ADR-
+006, these are implementation choices behind stable interfaces, not permanent
+commitments — each is expected to be revisited as the ecosystem matures.
+
+12.1 Core Stack Recommendation
+Layer
+Recommended
+Primary
+Alternative(s)
+Considered
+Why Recommended Wins
+Programming Language
+(core)
+Python 3.12+
+(orchestration,
+agents) with Rust for
+perf-critical modules
+TypeScript/Node
+only; Go only
+Python has the deepest
+AI/ML ecosystem (model
+runtimes, MCP SDKs, RAG
+libraries); Rust covers the
+narrow set of hot paths
+(tokenization, vector ops,
+sandboxing) where
+Python's overhead matters
+Backend Framework
+FastAPI
+Flask, Django,
+Node/Express
+Native async support
+(needed for
+streaming/event-driven
+design, ADR-002/009),
+first-class OpenAPI
+schema generation, strong
+typing via Pydantic
+Frontend (in-app UI)
+React + TypeScript
+Vue, Svelte
+Largest component
+ecosystem, strong typing
+story, easiest hiring pool for
+a long-lived project
+Desktop Shell
+Electron (short/mid-
+term), Tauri
+(evaluated for GA)
+Native per-OS
+apps
+Electron for velocity now;
+Tauri is the recommended
+future migration for lower
+resource footprint (aligns
+with NFR-06) once the UI
+stabilizes
+Primary Database
+SQLite (embedded,
+local-first)
+PostgreSQL (for
+optional sync
+backend)
+Zero-ops, file-based,
+matches offline-first
+constraint (ADR-001);
+PostgreSQL reserved for an
+optional self-hosted or
+cloud sync service, not the
+default path
+Vector Database
+LanceDB or Chroma
+(embedded/local)
+Qdrant, Milvus,
+Weaviate
+Embedded, file-based, no
+separate server process
+required for local-first
+operation; Qdrant
+recommended as the
+
+Layer
+Recommended
+Primary
+Alternative(s)
+Considered
+Why Recommended Wins
+upgrade path if/when a
+local server process
+becomes acceptable for
+power users
+Message/Event Bus
+(local)
+In-process async
+event bus (e.g., built
+on asyncio + a
+lightweight pub/sub
+library)
+Redis Pub/Sub,
+NATS
+Avoids requiring a separate
+broker process for a single-
+user desktop deployment;
+Redis/NATS become
+relevant for multi-device
+sync or future server
+deployments
+Agent Orchestration
+Framework
+LangGraph (see
+Phase 2 for full
+comparison)
+CrewAI,
+AutoGen,
+PydanticAI,
+OpenAI Agents
+SDK
+Explicit graph model
+matches ADR-003 directly;
+mature checkpointing
+support matches NFR-09
+LLM Serving (local)
+llama.cpp
+(CPU/edge) + vLLM
+(GPU-equipped)
+behind one router
+interface
+TensorRT-LLM,
+SGLang, Ollama
+llama.cpp covers the
+broadest hardware floor
+(CPU-only laptops); vLLM
+covers throughput on GPU-
+equipped machines;
+Ollama recommended for
+rapid prototyping/dev only
+Vision Model
+Qwen-VL family
+(open-weight)
+Florence-2,
+LLaVA family
+Strong
+OCR/grounding/document-
+understanding
+performance in open-
+weight form factor suitable
+for local deployment
+Speech-to-Text
+Faster-Whisper
+(streaming-capable
+fork)
+Whisper
+(reference),
+vendor cloud
+STT
+Streaming support and
+lower latency/resource
+footprint than reference
+Whisper, while remaining
+locally deployable
+
+Layer
+Recommended
+Primary
+Alternative(s)
+Considered
+Why Recommended Wins
+Text-to-Speech
+Piper (low-resource)
+/ Kokoro (higher
+quality, GPU-
+available)
+Coqui TTS
+Piper for the widest
+hardware floor; Kokoro as
+the higher-fidelity local
+option when GPU is
+present
+Embeddings
+Local sentence-
+embedding model
+(e.g., a modern open-
+weight embedding
+model in the BGE/E5
+family)
+Cloud
+embedding APIs
+Keeps RAG (Phase 9) fully
+local by default, consistent
+with ADR-001
+Reranker
+Local cross-encoder
+reranker (open-
+weight)
+Cloud rerank
+APIs
+Same rationale as
+embeddings — retrieval
+quality without a network
+dependency
+Browser Automation
+Playwright
+Selenium,
+browser-use-
+style vision
+agents
+Modern async API, strong
+multi-browser support,
+active maintenance; vision-
+based fallback reserved for
+pages Playwright's DOM
+approach can't handle
+reliably
+Desktop Automation
+Platform
+accessibility APIs
+(UI Automation on
+Windows, AX API on
+macOS, AT-SPI on
+Linux) wrapped in a
+common interface,
+with PyAutoGUI as
+coordinate-based
+fallback
+Raw
+keyboard/mouse
+simulation only
+Accessibility-API-based
+automation is far more
+reliable and less brittle
+than coordinate/pixel-
+based automation, and is
+safer to permission-gate
+(ADR-010)
+Monitoring/Observability
+OpenTelemetry
+(traces/metrics) +
+local structured logs
+Vendor-specific
+APM only
+Vendor-neutral, works fully
+offline, exportable if a user
+opts into a cloud dashboard
+Configuration
+Typed config via
+Pydantic Settings,
+Raw
+YAML/JSON
+Type-safety catches config
+errors at startup, not mid-
+
+Layer
+Recommended
+Primary
+Alternative(s)
+Considered
+Why Recommended Wins
+layered (defaults →
+file → env → runtime
+override)
+with no
+validation
+task
+Testing
+pytest
+(unit/integration) + a
+dedicated agent-
+evaluation harness
+(golden-task
+regression suite)
+Ad hoc scripts
+Matches Engineering
+Principle 9 — deterministic
+code gets conventional
+tests, model behavior gets
+evaluation suites
+Deployment/Packaging
+PyInstaller/Electron-
+Builder equivalent
+for desktop bundles;
+Docker for optional
+self-hosted server
+components
+Pure source
+distribution
+Non-technical end users
+need a double-click
+installer; Docker reserved
+for advanced/server
+deployment scenarios
+CI/CD
+GitHub Actions
+Jenkins, GitLab
+CI
+Tight integration with the
+likely source hosting
+choice, large marketplace
+of pre-built actions for
+build/test/release
+automation
+
+12.2 Decision Matrix: Local vs. Cloud Model Routing
+Scenario
+Route
+Rationale
+Task touches personal documents, financial
+data, or health data
+Local only, unless
+explicit per-task
+opt-in
+ADR-001 privacy floor
+Task requires frontier-level multi-step
+coding reasoning and user has opted into
+cloud assist
+Cloud (with local
+fallback if offline)
+Capability ceiling; user
+consented
+No network connectivity
+Local only
+ADR-001 offline floor
+Simple classification/routing/intent
+detection
+Local (small/fast
+model)
+Latency (NFR-01) and cost
+efficiency — no need for a
+frontier model to classify intent
+Voice wake-word and VAD
+Local, always
+Latency and privacy — always-
+listening components must
+never leave the device
+12.3 Initial Agent Roster
+Per ADR-008, capability is decomposed into specialized agents rather than one generalist.
+The table below is the initial roster the orchestrator (Layer 6) routes against; it is expected
+to grow, but every addition must justify itself against the same narrow-mandate discipline
+rather than becoming a dumping ground for miscellaneous capability.
+
+Agent
+Mandate
+Primary Tool
+Subset
+Memory Access
+Typical Model Tier
+Planner
+Decompose a user
+goal into an execution
+graph; select which
+downstream agents
+handle which
+subgraphs; own re-
+planning when
+execution deviates
+from expectation
+None directly
+(reasoning-
+only;
+delegates all
+tool use to
+other agents)
+Read-heavy access
+to semantic and
+episodic memory
+(to inform planning
+with prior context);
+no direct write
+access
+Larger/more capable
+local model, or cloud-
+assisted if opted in —
+planning quality has
+outsized leverage on
+overall task success
+Research
+Answer information-
+seeking subtasks
+using local RAG and,
+where permitted, web
+search
+Filesystem
+(read), local
+RAG index,
+Search MCP
+server
+Read/write to
+semantic memory
+(facts learned
+during research);
+read-only episodic
+Mid-tier local model;
+latency-sensitive, so
+favors speed over
+maximum capability
+for routine queries
+Browser
+Execute web-based
+subtasks (navigate,
+extract, form-fill,
+submit) via
+Playwright
+Playwright
+MCP server,
+generic
+Browser
+(read-only)
+MCP server
+Read-only working
+memory for current
+task context; does
+not persist long-
+term memory
+directly (results
+flow back through
+the orchestrator)
+Mid-tier, paired with
+vision fallback (Phase
+12) when DOM-based
+interaction is
+insufficient
+Desktop
+Execute desktop
+application
+automation subtasks
+via accessibility APIs
+(and
+vision/coordinate
+fallback)
+Accessibility
+API bridge,
+PyAutoGUI
+fallback,
+screen
+capture
+Read-only working
+memory; no long-
+term memory
+access by default
+given the sensitivity
+of desktop-visible
+content
+Mid-tier, paired with
+vision fallback (Phase
+12)
+Coding
+Handle software
+development
+subtasks: read/write
+code, run tests,
+interact with version
+control and CI
+Filesystem,
+Git, GitHub,
+Docker,
+Terminal, VS
+Code MCP
+servers
+Read/write
+procedural memory
+(learned project-
+specific
+conventions); read-
+only semantic
+memory
+Larger/more capable
+model — code
+correctness has a high
+bar and benefits
+disproportionately
+from stronger
+reasoning
+Comms
+Handle
+communication
+subtasks: read and
+Gmail, Slack,
+Discord,
+Read-only episodic
+memory (prior
+communication
+Mid-tier; send actions
+are irreversible-write
+tier regardless of
+
+Agent
+Mandate
+Primary Tool
+Subset
+Memory Access
+Typical Model Tier
+draft/send email and
+messages
+Calendar MCP
+servers
+context); write
+access limited to
+logging the
+communication
+event itself, not its
+content, to episodic
+memory
+model choice (ADR-
+010 applies
+uniformly)
+Voice
+Manage the
+streaming STT/TTS
+pipeline and interrupt
+handling; translates
+between audio and
+the orchestrator's
+text-based internal
+representation
+Local
+STT/TTS
+runtimes
+(Phase 11)
+No independent
+memory access —
+acts as a modality
+adapter in front of
+whichever agent is
+actually reasoning
+about the request
+Small, latency-
+optimized local model
+for wake-word/VAD;
+the underlying
+reasoning is
+delegated, not
+performed by the
+Voice agent itself
+Design note. The Planner and Voice agents are deliberately the two "thinnest" agents in
+terms of tool access — Planner because its job is decomposition and routing, not execution,
+and Voice because it is fundamentally an I/O adapter, not a reasoning agent. This is a direct,
+concrete application of ADR-008's least-privilege-by-construction principle: an agent's tool
+surface is scoped to what its mandate actually requires, not to what might someday be
+convenient.
+13. Phase Research Chapters
+Each phase below documents the research foundation behind a portion of the architecture.
+These chapters are intentionally more expository than the ADR section — they capture
+why the field looks the way it does, so that the ADRs above (and future ones) rest on a
+documented understanding rather than borrowed authority.
+Phase 0 — AI Fundamentals
+Objective. Establish the shared vocabulary and technical grounding that every later phase
+depends on: what an LLM actually is, how it is invoked reliably (function/tool calling), how
+it is grounded in external knowledge (RAG), and how it is made to run efficiently on
+constrained hardware (quantization).
+Concepts. Transformer architecture and self-attention as the mechanism that lets a model
+weigh relationships between tokens regardless of distance in the sequence; embeddings as
+dense vector representations that place semantically similar content near each other in
+vector space; the distinction between pretraining (broad capability) and fine-tuning
+(narrow specialization); the practical difference between prompting a model to produce
+free text versus constraining it to a schema (structured/function calling output).
+
+Technologies. Transformer-based decoder-only LLMs (the dominant architecture for
+instruction-following assistants); embedding models (encoder-only or bi-encoder
+architectures) distinct from generative LLMs; vector databases/indexes (HNSW, IVF-based
+approximate nearest neighbor search) as the retrieval substrate for RAG.
+Frameworks. Hugging Face Transformers as the reference implementation ecosystem for
+model architectures; sentence-transformers for embedding model tooling;
+llama.cpp/GGUF tooling for quantized local inference (detailed further in Phase 10).
+APIs. The now-common "tool calling" / "function calling" API pattern (a model returns a
+structured call rather than free text) is the single most load-bearing API primitive for
+everything NOVA builds on top — it is the mechanism ADR-004's "bounded reasoning
+function" pattern depends on.
+Industry Standards. JSON Schema as the de facto standard for describing function/tool
+call signatures; the emerging convergence around OpenAI-style function-calling schemas
+as a lingua franca that most model providers now support in some form.
+Open Source Projects. Hugging Face Transformers; sentence-transformers; FAISS
+(foundational ANN library many vector databases build on or were inspired by); GGUF
+format and llama.cpp for quantized model distribution and inference.
+Recommended Reading. The original "Attention Is All You Need" transformer paper for
+architectural grounding; retrieval-augmented generation literature (the original RAG paper
+from Meta AI) for why grounding beats pure parametric recall; practitioner guides on
+prompt engineering patterns published by major model providers' documentation.
+Learning Resources. Hugging Face's NLP course for hands-on transformer/embedding
+fundamentals; DeepLearning.AI's short courses on function calling and RAG for
+practitioner-level (not research-level) grounding suited to an engineering team.
+Research Questions. What is the minimum viable local model size that still supports
+reliable structured tool-call output? How much does 4-bit vs. 8-bit quantization degrade
+tool-calling reliability specifically (as opposed to general text quality, which is better
+studied)? What embedding model best balances local inference speed against retrieval
+quality for the document types NOVA users are likely to have (PDFs, code, email)?
+Final Recommendation. Treat function/tool calling reliability — not raw benchmark
+scores — as the primary selection criterion for NOVA's default local model, since the entire
+agentic architecture (ADR-003, ADR-004) depends on it. Validate this empirically per
+Phase 10, not by reputation.
+Phase 1 — Agentic AI Foundations
+Objective. Ground NOVA's agent design in the established taxonomy of agent architectures
+and reasoning techniques, so that specialized agents (ADR-008) are built on proven
+patterns rather than reinvented ad hoc.
+Concepts. The classical agent taxonomy — reactive agents (stimulus-response, no internal
+state), deliberative agents (maintain and reason over an internal world model), utility-
+based agents (select actions to maximize a utility function among multiple valid options),
+
+and goal-based agents (select actions to satisfy an explicit goal condition) — maps directly
+onto different NOVA agents: a wake-word/VAD component is essentially reactive, while the
+Planner Agent is goal-based/deliberative. Task decomposition (breaking a goal into ordered
+or parallel subgoals), tool usage, memory, reflection (an agent evaluating its own output
+before finalizing it), self-correction, and multi-agent collaboration are the recurring cross-
+cutting capabilities layered on top of any single taxonomy point.
+Reasoning Techniques. ReAct (interleaving reasoning traces with actions, observing
+results before the next reasoning step) is the foundational pattern behind most modern
+tool-using agents and underlies NOVA's per-node reasoning inside the execution graph
+(ADR-003). Plan-and-Execute separates a full upfront plan from step-by-step execution,
+trading some adaptability for predictability and cheaper re-planning. Tree of Thoughts and
+Graph of Thoughts generalize reasoning from a single chain to a searchable structure of
+alternative reasoning paths, useful for the Planner Agent when a task has several plausible
+decompositions. Reflexion adds a self-critique loop where an agent evaluates its own prior
+attempt and revises. Self-consistency samples multiple reasoning paths and takes a
+majority/best result, trading compute for reliability. Chain of Verification has a model
+explicitly generate and check verification questions against its own draft answer before
+finalizing it — directly relevant to NOVA's Reflection service (Layer 4).
+Frameworks. See Phase 2 for full orchestration framework comparison; this phase focuses
+on the underlying patterns those frameworks implement, not framework selection itself.
+APIs. Tool/function calling (Phase 0) remains the primitive; agentic frameworks layer
+planning and memory abstractions on top of it.
+Industry Standards. No single "standard" governs agent reasoning patterns; ReAct and
+Plan-and-Execute have become de facto reference patterns cited across most agent
+frameworks' own documentation.
+Open Source Projects. Reference implementations of ReAct-style loops exist across most
+major agent frameworks (Phase 2); academic reference code for Tree of Thoughts and
+Reflexion is publicly available and useful for understanding the pattern even if not used
+verbatim in production.
+Recommended Reading. The ReAct paper (reasoning and acting synergy); the Reflexion
+paper (verbal reinforcement learning via self-reflection); the Tree of Thoughts paper for
+deliberate search over reasoning paths.
+Learning Resources. Framework-agnostic agent-pattern tutorials (most major agent
+framework docs, e.g., LangGraph's and OpenAI's own agent-building guides, teach these
+patterns generically before framework specifics).
+Research Questions. Which reasoning technique (ReAct vs. Plan-and-Execute vs. hybrid)
+produces the most reliable outcomes for NOVA's specific task mix (file/document tasks,
+browser tasks, desktop tasks) rather than for generic benchmark tasks? At what task
+complexity does the added latency/cost of self-consistency or tree-search reasoning
+become worth it over a single ReAct pass?
+
+Final Recommendation. Use Plan-and-Execute at the orchestrator level (matches the
+graph model of ADR-003) with ReAct-style reasoning within each graph node where an
+agent needs to interleave observation and action (e.g., browsing), and reserve Reflexion-
+style self-critique loops for high-stakes or irreversible-action nodes gated by ADR-010,
+rather than applying it universally (cost/latency trade-off).
+Phase 2 — Agent Orchestration Frameworks
+Objective. Select the orchestration framework that best implements ADR-003 (graph-
+based execution) and ADR-006 (modular replaceability) without locking NOVA's core
+domain model to a single vendor's abstractions.
+Frameworks Compared.
+
+Framework
+Strengths
+Weaknesses
+Scalability
+Enterprise
+Readiness
+Learning
+Curve
+Community/Docs
+LangGraph
+Explicit graph
+model with
+cycles, branching,
+and native
+checkpointing;
+strong fit for
+ADR-003
+Tied to the
+broader
+LangChain
+ecosystem's
+conventions,
+which can feel
+heavy for simple
+cases
+High —
+designed
+for
+stateful,
+long-
+running
+graphs
+High — used
+in
+production
+by many
+teams; active
+development
+Moderate
+Large, well-
+documented,
+active
+OpenAI
+Agents
+SDK
+Clean, minimal
+agent/handoff
+abstraction; good
+for
+straightforward
+multi-agent
+handoff patterns
+Less expressive
+for complex
+branching/cyclic
+graphs than
+LangGraph;
+closer to a chain-
+of-agents than a
+general graph
+engine
+Moderate
+Growing;
+newer than
+LangGraph
+Low
+Growing,
+provider-backed
+docs
+CrewAI
+Very
+approachable
+"role-based crew"
+mental model;
+fast to prototype
+Abstraction can
+obscure fine-
+grained control
+needed for ADR-
+004's strict
+proposal/dispose
+boundary
+Moderate
+Moderate —
+popular but
+younger in
+production
+hardening
+Low
+Large hobbyist
+community,
+moderate depth
+PydanticAI
+Strong typed I/O
+(matches
+Engineering
+Principle 1's
+typed-contract
+philosophy);
+lightweight
+Younger project;
+smaller
+ecosystem of pre-
+built integrations
+Moderate
+Emerging
+Low–
+Moderate
+Smaller but
+growing
+AutoGen
+Strong multi-
+agent
+conversation
+patterns; research
+pedigree
+Conversation-
+centric
+abstraction is a
+less natural fit for
+ADR-003's
+explicit
+graph/checkpoint
+model
+Moderate
+Moderate
+Moderate
+Large, research-
+oriented
+
+Framework
+Strengths
+Weaknesses
+Scalability
+Enterprise
+Readiness
+Learning
+Curve
+Community/Docs
+Semantic
+Kernel
+Strong
+enterprise/.NET
+and Azure
+integration story;
+plugin model
+Less natural fit
+outside
+Microsoft-centric
+stacks; Python
+support
+secondary to C#
+Moderate–
+High
+(enterprise
+contexts)
+High in
+Microsoft-
+centric orgs
+Moderate
+Solid, enterprise-
+leaning
+Haystack
+Agents
+Strong
+RAG/document-
+pipeline heritage
+Agent
+orchestration is a
+newer addition
+relative to its
+retrieval-pipeline
+core strength
+Moderate
+Moderate
+Moderate
+Solid, retrieval-
+focused
+community
+LlamaIndex
+Workflows
+Good integration
+with
+LlamaIndex's
+retrieval/indexing
+ecosystem; event-
+driven workflow
+model
+Orchestration
+features
+newer/less
+battle-tested
+than
+LangGraph's
+Moderate
+Emerging
+Moderate
+Solid, retrieval-
+focused
+community
+Recommendation for NOVA. LangGraph, used strictly as the implementation behind
+NOVA's internal orchestration interface (per ADR-006 — application code interacts with
+NOVA's own graph/executor abstraction, which happens to be backed by LangGraph, not
+with LangGraph's types directly). It is selected because its explicit graph model with native
+checkpointing most directly implements ADR-003 and NFR-09 (recoverability) without
+requiring NOVA to build a graph engine from scratch. PydanticAI's typed-I/O philosophy is
+recommended as a complementary pattern for defining the typed proposal schemas ADR-
+004 requires at each node, even though PydanticAI itself is not the orchestration engine.
+Research Questions. How well does LangGraph's checkpointing survive process crashes
+specifically (not just planned pauses) — does it meet NFR-09's "resume from last
+checkpoint, no silent data loss" bar out of the box, or does NOVA need to layer additional
+durability guarantees on top? How much orchestration logic can realistically be abstracted
+behind NOVA's own interface before the abstraction leaks and negates the swap-ability
+benefit?
+Phase 3 — Communication Protocols
+Objective. Establish the protocols that let NOVA's agents talk to tools, to each other, and to
+structured external services with predictable, schema-validated contracts.
+
+Model Context Protocol (MCP). MCP defines a client-host-server architecture: an MCP
+host (NOVA's runtime) manages one or more MCP clients, each maintaining a connection
+to an MCP server that exposes resources (readable context, e.g., a file or database record),
+tools (invokable actions with defined input/output schemas), and prompts (reusable,
+parameterized prompt templates a server can offer to the host). The transport layer is
+typically stdio (for local subprocess servers) or HTTP/SSE-based streaming (for
+remote/networked servers) — NOVA prioritizes stdio-based local MCP servers by default
+per ADR-001, treating remote MCP servers as an explicit, per-server opt-in. Security and
+authentication for MCP is an actively evolving part of the specification; NOVA does not
+rely on MCP's authorization layer alone — every MCP tool call still passes through NOVA's
+own permission gate (ADR-010) regardless of what the MCP server itself claims to enforce,
+since a compromised or malicious MCP server is a realistic threat NOVA cannot outsource
+trust to. Building custom MCP servers is the recommended path (over native tool registry
+entries) for any new capability that could plausibly be reused by other MCP hosts or
+contributed back to the ecosystem, per ADR-005.
+Agent-to-Agent (A2A). Google's A2A protocol addresses a distinct problem from MCP: not
+"how does an agent call a tool," but "how do two independent agents discover each other's
+capabilities, delegate a task, and share context/negotiate over a shared objective." Concepts
+of task delegation (one agent formally hands a subtask to another with a defined contract
+for the result), shared context passing, and negotiation (agents reconciling conflicting sub-
+goals or resource constraints) are directly relevant to NOVA's future roadmap item of
+allowing specialized agents (ADR-008) to collaborate on a shared subtask rather than being
+purely orchestrator-sequenced.
+Function Calling, Structured Outputs, JSON Schema, OpenAPI. These form the schema
+backbone underneath both MCP and A2A: JSON Schema describes tool/argument shapes;
+OpenAPI describes broader service contracts that can often be auto-wrapped into MCP-
+compatible tool definitions; structured output enforcement at the model layer (Phase 0/10)
+is what makes a model's tool-call proposal reliably parseable by the deterministic
+orchestration code ADR-004 depends on.
+Recommended Reading. The official MCP specification documentation (architecture,
+transports, and the resources/tools/prompts primitives); Google's A2A protocol
+specification and its stated design goals around agent interoperability across vendors.
+Research Questions. Should NOVA implement A2A now (early ecosystem, limited
+practical need with a single-vendor agent roster) or defer it until multi-agent collaboration
+with third-party agents becomes a real product requirement? How mature is MCP's
+authorization spec today, and what is the minimum viable NOVA-side trust boundary given
+that immaturity?
+Final Recommendation. Adopt MCP now as the primary tool protocol (ADR-005); track
+A2A as a Phase-2-roadmap item rather than a v1 requirement, since NOVA's initial agent
+roster is first-party and orchestrator-coordinated, making the harder problem A2A solves
+(cross-vendor agent negotiation) not yet load-bearing.
+
+Phase 4 — Workflow Engines
+Objective. Determine the right execution-engine pattern and evaluate existing workflow
+engines against ADR-003's graph-execution requirements.
+Concepts. DAGs (directed acyclic graphs) model workflows with no cycles — simple and
+predictable but unable to express reflection/retry loops without workaround node
+duplication. Full workflow graphs (with bounded cycles) extend this to support retry and
+reflection loops natively, matching ADR-003's decision. State machines model a task as a
+finite set of states and transitions — useful for the coarse lifecycle of a task (queued →
+running → awaiting-approval → complete/failed) layered on top of, not instead of, the finer-
+grained execution graph. Event-driven systems and the publish/subscribe pattern (ADR-
+002) decouple producers and consumers of state changes. The actor model (independent
+units of computation communicating only via messages, each with private state) is a
+heavier-weight pattern than NOVA needs for a single-process desktop deployment today,
+but is a candidate future direction if NOVA moves toward a distributed multi-device
+architecture. The observer pattern and mediator pattern are the classic OOP-level building
+blocks underneath both the event bus and the orchestrator's node-coordination logic.
+Engines Compared.
+Engine
+Model
+Fit for NOVA
+LangGraph
+Graph with cycles, native
+checkpointing
+Best fit — matches ADR-003 directly, in-process,
+no separate infra required
+Temporal
+Durable execution engine, strong
+for long-running distributed
+workflows
+Excellent durability guarantees, but requires
+running a separate Temporal server/cluster —
+heavier than needed for single-device NOVA; a
+candidate for a future optional server-sync
+deployment mode
+Prefect
+Python-native workflow
+orchestration, strong
+scheduling/observability
+Built more for data/ML pipeline orchestration
+(batch jobs) than interactive, low-latency
+agentic graphs
+Apache
+Airflow
+Mature DAG scheduler, huge
+ecosystem
+DAG-only (no native cycles), heavyweight
+scheduler infrastructure not designed for
+interactive per-user sessions
+Dagster
+Strong data-asset-centric
+orchestration, good observability
+Same category as Airflow/Prefect — excellent for
+data pipelines, not the natural fit for interactive
+agent graphs
+Final Recommendation. LangGraph remains the recommended in-process execution
+engine (consistent with Phase 2), because Temporal, Prefect, Airflow, and Dagster are all
+optimized for a different problem shape — durable, often long-horizon, often multi-tenant
+data/business pipeline orchestration — rather than interactive, low-latency, single-user
+
+agentic task graphs. Temporal is flagged as the strongest candidate to revisit if/when NOVA
+adds a server-based multi-device sync deployment mode where its durable-execution
+guarantees would earn their operational cost.
+Research Questions. At what point (if any) does NOVA's local execution engine need
+Temporal-grade durability guarantees — is LangGraph's checkpointing sufficient for the
+crash-recovery bar in NFR-09, or does a future multi-device sync feature change that
+calculus?
+Phase 5 — Memory Systems
+Objective. Design the memory architecture referenced in ADR-007 in enough depth to
+guide implementation: what gets stored, how it's partitioned, how it's retrieved, and how it's
+kept from growing unbounded.
+Concepts. Working memory holds the active task's immediate context — the current graph
+execution state, recent tool outputs, the live conversation turn. Short-term memory extends
+slightly beyond a single task to the current session. Long-term memory persists across
+sessions and is partitioned, following cognitive-architecture conventions, into semantic
+memory (durable facts and preferences — "the user's manager is named Priya," "the user
+prefers metric units"), episodic memory (records of specific past events/tasks — "on July
+12 NOVA sent the Q2 report to accounting"), and procedural memory (learned patterns of
+how to do something — "this user's expense reports always need the currency field
+converted to USD before submission"). Memory ranking and retrieval determine which
+stored memories are surfaced for a given task — typically a combination of semantic
+similarity (vector search), recency, and explicit relevance signals (e.g., a memory tagged to
+the current project). Memory consolidation is the background process of converting raw
+episodic records into more durable, generalized semantic/procedural memory over time
+(mirroring sleep-consolidation models in cognitive science). Memory compression and
+summarization keep long-term storage and retrieval-time context bounded as history
+accumulates, preventing the "memory" feature from becoming a liability that either bloats
+prompts or slows retrieval. Knowledge graphs provide a complementary structured-
+relationship view (entities and their relationships) alongside the primarily similarity-based
+vector memory store, useful for queries that are relational rather than purely semantic
+("who else was on the email thread about the Q2 report?").
+Technologies. Local embedded vector stores (LanceDB, Chroma — per Section 12.1) for
+semantic/episodic vector memory; SQLite for structured episodic/procedural records and
+metadata; an optional lightweight local knowledge-graph layer (e.g., a graph structure
+stored in SQLite or a dedicated embedded graph store) for relational queries.
+Frameworks. Memory-management primitives available in LangGraph (state/checkpoint
+persistence) and LlamaIndex (indexing/retrieval abstractions) are both relevant inputs —
+NOVA's Memory Manager is a bespoke service (per ADR-006) that may draw on these
+libraries' lower-level primitives rather than adopting either wholesale.
+Industry Standards. No formal industry-wide standard governs agent memory schemas
+yet; this remains one of the least standardized areas across the agentic AI ecosystem,
+
+making NOVA's own explicit schema design (semantic/episodic/procedural partitioning) a
+deliberate, documented choice rather than an adoption of convention.
+Open Source Projects. LlamaIndex's memory and indexing modules; Mem0 and similar
+emerging "agent memory layer" projects as a reference for API shape, evaluated as a
+potential adapter behind NOVA's Memory Manager interface rather than a foundational
+dependency.
+Recommended Reading. Cognitive-architecture literature on the
+semantic/episodic/procedural memory distinction (originating in cognitive psychology,
+e.g., Tulving's work on episodic vs. semantic memory) for the conceptual grounding;
+practitioner write-ups from agent-memory-focused open source projects on retrieval
+ranking strategies that combine recency, similarity, and importance scoring.
+Learning Resources. LlamaIndex and LangChain/LangGraph's own documentation
+modules on memory and persistence, read critically as implementation pattern references
+rather than architecture prescriptions, consistent with ADR-006.
+Research Questions. What promotion policy (from working → long-term memory)
+produces useful long-term memory without over-storing noise? How should conflicting
+memories (the user's stated preference changed over time) be resolved at retrieval time —
+most-recent-wins, or explicit conflict surfacing to the user? What is the right
+compression/summarization cadence to keep retrieval-time latency within NFR-01 as
+history grows over months of use?
+Final Recommendation. Implement the three-partition long-term memory model
+(semantic/episodic/procedural) from the outset rather than retrofitting it later, since
+retroactively re-partitioning an undifferentiated memory store is costly; start with recency-
+weighted similarity retrieval and add importance/relevance scoring once real usage data is
+available to tune it, rather than over-engineering the ranking function speculatively.
+Phase 6 — Planning Systems
+Objective. Define how NOVA turns a goal into an executable, monitorable plan — the
+concern that sits directly behind the Planning Engine service in Layer 4 and feeds the
+graph structures ADR-003 executes.
+Concepts. Goal planning establishes the desired end state; task planning decomposes it
+into concrete, executable steps. The resulting steps and their data/control dependencies
+form a dependency graph, which the orchestrator compiles into an execution graph (the
+runtime structure ADR-003 executes, including agent assignment per node). Scheduling
+determines execution order given dependencies and resource constraints (e.g., avoid
+saturating a single local model's inference queue with too many parallel calls); the critical
+path — the longest dependency chain — determines the task's minimum possible
+completion time and is a useful signal for setting user-facing progress expectations.
+Parallel execution is applied to independent subgraph branches (e.g., summarizing five
+independent documents concurrently) to reduce wall-clock time within the constraints of
+local hardware (NFR-11). Retry policies define how transient tool/model failures are
+handled (bounded exponential backoff, max attempts before escalating to human input)
+
+without violating the bounded-cycle constraint from ADR-003. Checkpointing persists
+execution state at node boundaries so a crash or planned pause can resume without redoing
+completed work (NFR-09). Failure recovery covers both transient failures (retry) and
+structural failures (the plan itself was wrong, requiring re-planning, not just a retry).
+Reflection and self-evaluation — an agent or the orchestrator assessing whether a
+completed step actually achieved its intended sub-goal, not just whether it executed
+without error — close the loop between "the tool call succeeded" and "the task is actually on
+track."
+Technologies/Frameworks. LangGraph's checkpointing primitives (Phase 2/4) as the
+persistence substrate; a custom scheduling layer on top for resource-aware parallelism
+tuned to local hardware limits, since general-purpose workflow engines assume more
+elastic compute than a single consumer device offers.
+APIs. Internal only — planning is a core NOVA differentiator, not something delegated to a
+third-party API, consistent with ADR-004's insistence that orchestration logic remain
+deterministic and NOVA-owned.
+Industry Standards. Plan-and-Execute and ReAct (Phase 1) remain the closest things to
+standardized planning patterns in the current agentic AI literature; no formal cross-vendor
+planning-format standard exists yet.
+Open Source Projects. Reference Plan-and-Execute implementations available in
+LangGraph's own example gallery as a starting point for NOVA's Planning Engine, adapted
+rather than adopted wholesale per ADR-006.
+Recommended Reading. Classical AI planning literature (STRIPS-style
+goal/precondition/effect planning) for the conceptual roots of goal decomposition, read as
+historical grounding rather than a direct implementation template, since modern LLM-
+based planners work quite differently in practice.
+Research Questions. How should the Planning Engine decide between a fully upfront plan
+versus incremental re-planning after each step, given the latency/adaptability trade-off?
+What signal should trigger self-evaluation (Phase 1's Reflexion pattern) — every node, only
+nodes above a certain risk/cost threshold, or only nodes the user flags as important?
+Final Recommendation. Default to upfront Plan-and-Execute for well-understood task
+types (file operations, scheduled communications) where re-planning overhead isn't
+justified, and switch to incremental re-planning with per-step reflection for open-
+ended/exploratory tasks (research-style queries) where the plan is likely to change based
+on intermediate findings — this hybrid avoids both over-committing to a rigid plan and
+over-paying for reflection on routine tasks.
+Phase 7 — Tool Systems
+Objective. Define how tools are registered, discovered, permissioned, validated, and
+executed — the concrete mechanics underneath ADR-005 (MCP-first) and ADR-010
+(security-first permissions).
+
+Concepts. The tool registry is the canonical, versioned catalog of every tool available to
+NOVA, whether sourced from an MCP server or the native fallback registry (ADR-005).
+Tool discovery is how an agent (or the orchestrator on an agent's behalf) finds which
+registered tools are relevant to a given subtask — via MCP server manifests' declared
+schemas plus a lightweight semantic index over tool descriptions for fuzzy matching.
+Permission systems (ADR-010's enforcement mechanics) attach a sensitivity classification
+and required approval policy to each tool, independent of which agent is calling it. A
+sandbox provides the actual execution isolation boundary for anything that runs code,
+touches the filesystem broadly, or automates the browser/desktop — bounding the blast
+radius even if a permission check is somehow bypassed or a tool itself misbehaves.
+Capability routing matches a requested action to the best available tool when multiple
+tools could satisfy it (e.g., two different MCP servers both expose a "send_email" capability).
+Tool ranking informs that routing decision using reliability history, latency, and user
+preference. Validation enforces that both the model's proposed arguments and the tool's
+returned result conform to their declared JSON Schema before either is trusted
+downstream. Tool versioning ensures a tool's schema can evolve without silently breaking
+agents built against an older version (Engineering Principle 8). A future-facing tool
+marketplace concept — a curated, reviewed catalog of third-party MCP servers — extends
+the ecosystem benefit of ADR-005 beyond first-party tools, with a review/security-vetting
+process as a prerequisite given ADR-010's trust model.
+Technologies/Frameworks. MCP SDKs (Python/TypeScript reference implementations)
+for building and consuming MCP servers; JSON Schema validators for the validation layer;
+OS-level sandboxing primitives (containers/namespaces on Linux, sandboxing APIs on
+macOS/Windows, or a portable sandboxing library) for the execution isolation boundary.
+Industry Standards. MCP's own tool-schema conventions (Phase 3); JSON Schema as the
+validation standard; emerging community conventions around MCP server manifest
+metadata (categories, permission hints) that NOVA should track and adopt as they stabilize
+rather than inventing a parallel taxonomy.
+Open Source Projects. The growing catalog of community and vendor-published MCP
+servers (cataloged in Section 14) as both direct integrations and reference implementations
+for building NOVA-specific servers.
+Recommended Reading. MCP server-building guides published alongside the MCP
+specification; general software sandboxing literature (container isolation fundamentals) for
+engineers implementing the Layer 3 sandbox.
+Research Questions. What is the right granularity for tool sensitivity classification — a
+small fixed set of tiers (read/write/irreversible) or a richer, per-tool-configurable policy?
+How should capability routing behave when two tools of differing trust levels could both
+satisfy a request — always prefer the more restrictive/trusted option, or let user policy
+decide?
+Final Recommendation. Start with a small, fixed set of sensitivity tiers (read-only,
+reversible-write, irreversible-write, networked-write) rather than a fully custom per-tool
+policy DSL — simpler to reason about, audit, and explain to users, with the option to add
+
+finer granularity later (ADR-006) once real usage patterns reveal where the fixed tiers are
+too coarse.
+Phase 8 — Event Systems
+Objective. Select and design the concrete event-bus implementation underneath ADR-002,
+appropriate for a single-process, single-device deployment while leaving a clear upgrade
+path to distributed messaging if NOVA later adds multi-device or server components.
+Concepts. AsyncIO-based in-process pub/sub is the default substrate for NOVA's event bus
+today — no network hop, no separate broker process, consistent with the offline-first, low-
+resource-footprint constraints (ADR-001, NFR-06). Redis Pub/Sub, Kafka, RabbitMQ,
+NATS, and ZeroMQ represent the standard distributed-messaging landscape, each suited
+to different durability/throughput/complexity trade-offs, and are evaluated here primarily
+as future candidates rather than v1 requirements. An event bus is the general pattern; a
+message queue typically adds durability/ordering guarantees and consumer
+acknowledgment semantics beyond simple pub/sub. CQRS (command-query
+responsibility segregation) and event sourcing (storing state as a sequence of events rather
+than a mutable snapshot) are architectural patterns particularly relevant to the Memory
+Manager (ADR-007), where an auditable history of state changes is itself valuable, not just a
+debugging convenience.
+Comparison for Future Distributed Scenarios.
+
+System
+Durability
+Throughput
+Operational
+Complexity
+Best Fit
+Redis
+Pub/Sub
+Low (fire-and-
+forget by default)
+High
+Low
+Lightweight local server-mode
+features (e.g., multi-process
+desktop components)
+Kafka
+High (log-based,
+replayable)
+Very high
+High
+Only relevant if NOVA ever runs
+a multi-tenant server backend
+at scale
+RabbitMQ
+High (broker-
+acknowledged)
+Moderate–
+high
+Moderate
+Task-queue-style workloads if a
+server component emerges
+NATS
+Configurable
+(JetStream adds
+durability)
+High
+Low–
+moderate
+Lightweight, good fit if a future
+multi-device sync feature needs
+a broker without Kafka's
+operational weight
+ZeroMQ
+None built-in
+(library, not a
+broker)
+Very high
+Low (no
+broker
+process)
+Low-level, tightly-coupled
+process communication —
+closer to what NOVA's in-
+process bus already achieves
+without ZeroMQ's added
+complexity
+Final Recommendation. In-process asyncio-based pub/sub for the v1, single-device
+architecture — no external broker dependency, consistent with the offline-first and low-
+footprint constraints. NATS (with JetStream for durability) is the recommended first
+upgrade if/when a future multi-device sync feature requires cross-process or cross-device
+event propagation, over Kafka's heavier operational profile, unless NOVA later takes on
+genuinely server-scale, multi-tenant throughput requirements that would justify Kafka's
+complexity.
+Research Questions. At what point does in-process pub/sub's lack of durability (events lost
+on crash) become an actual problem given NFR-09's checkpointing requirements — does
+checkpointing at the orchestrator level already cover this gap, making bus-level durability
+unnecessary? Should the Memory Manager specifically adopt an event-sourced design
+even while the rest of the system stays on the simpler pub/sub model?
+Phase 9 — Retrieval-Augmented Generation
+Objective. Define the RAG pipeline that grounds NOVA's reasoning in the user's actual
+local documents and data, directly implementing FR-05.
+Concepts. Document parsing extracts clean, structured text (and where relevant,
+tables/images) from heterogeneous local file formats. Chunking splits parsed documents
+into retrieval-sized units — the chunking strategy (fixed-size, semantic/structure-aware, or
+
+hybrid) materially affects retrieval quality and is a frequently underweighted design
+decision. Embedding converts chunks into vectors for similarity search (Phase 0). Hybrid
+search combines dense vector search (semantic similarity) with sparse lexical search
+(BM25), since pure vector search under-performs on exact-match needs (part numbers,
+exact names, code identifiers) that lexical search handles naturally. A cross-encoder
+reranker re-scores the top candidates from the initial hybrid retrieval pass with a more
+expensive but more accurate relevance model, improving final result quality without
+paying the cross-encoder's cost across the entire corpus. A knowledge graph layer (Phase
+5) complements pure text retrieval for explicitly relational queries. Citation — surfacing
+exactly which source chunk(s) grounded a given claim in the model's output — is treated as
+a first-class requirement, not a nice-to-have, both for user trust and as a direct
+hallucination reduction mechanism (a model instructed to cite is measurably less likely to
+fabricate ungrounded claims than one instructed only to "be accurate").
+RAG Pipeline (Sequence View).
+Technologies/Frameworks. LlamaIndex or a lighter bespoke pipeline (per ADR-006,
+behind NOVA's own retrieval interface) for parsing/chunking/indexing orchestration; local
+embedding and reranker models (Section 12.1); LanceDB/Chroma for vector storage; a
+lightweight BM25 implementation (e.g., a local inverted-index library) for the lexical half of
+hybrid search.
+Industry Standards. No formal standard governs RAG pipeline design; best practices are
+largely practitioner-driven and evolve quickly, making this an area to revisit each ADR
+review cycle.
+Open Source Projects. LlamaIndex and Haystack for pipeline reference implementations;
+open-weight cross-encoder rerankers; BM25 implementations bundled with common local
+search libraries.
+Recommended Reading. The original RAG paper (Phase 0) for foundational grounding;
+practitioner literature on chunking strategy trade-offs and hybrid search (vector + BM25)
+benefits over either approach alone.
+Research Questions. What chunking strategy performs best across NOVA's realistic
+document mix (long PDFs, short emails, structured spreadsheets, code files) — is one
+strategy sufficient, or does the pipeline need format-aware chunking rules? How much does
+reranking improve end-task accuracy relative to its added latency cost, and where is the
+right cutoff for NFR-01?
+Final Recommendation. Implement hybrid (vector + BM25) retrieval with cross-encoder
+reranking from the outset rather than starting with vector-only search — the accuracy gap
+between vector-only and hybrid+rerank is well-documented enough in practitioner
+Local Documents
+Parsing
+Chunking
+Embedding
+Local Vector Store
+User Query
+Query Embedding
+Hybrid Retrieval: Vector +
+BM25
+Cross-Encoder Reranking
+Top-K Context + Citations
+LLM Reasoning with
+Grounded Context
+
+literature to justify the added complexity upfront rather than retrofitting it after users
+encounter poor-quality answers on exact-match queries.
+Phase 10 — LLM Serving
+Objective. Determine how NOVA actually runs models efficiently across the heterogeneous
+hardware described in Section 7's constraints, and how it routes between local and cloud
+inference per ADR-001.
+Concepts. Quantization reduces model weight precision (e.g., FP16 → INT8 → INT4) to
+shrink memory footprint and increase inference speed at a measured, format-dependent
+cost to output quality — this is the single most important lever for making capable models
+runnable on consumer hardware. GGUF is the file format used by llama.cpp for distributing
+quantized models with embedded metadata; ONNX is a cross-framework model
+interchange format relevant for portability across serving runtimes and hardware
+accelerators. GPU scheduling and inference optimization (continuous batching, KV-cache
+management, speculative decoding) determine throughput and latency on GPU-equipped
+hardware. Streaming (token-by-token output) is a hard requirement per ADR-009. Model
+routing is the decision layer (Section 12.2) that picks which model/runtime handles a given
+request based on task sensitivity, connectivity, and hardware.
+Serving Engines Compared.
+
+Engine
+Best Fit
+Notes
+llama.cpp
+CPU-only and low-end
+GPU hardware, edge
+devices
+Broadest hardware compatibility floor; GGUF
+quantization ecosystem; the default for NOVA's
+minimum-spec support target
+vLLM
+GPU-equipped machines
+needing high throughput
+Continuous batching and PagedAttention-style
+KV-cache management give strong throughput;
+heavier dependency footprint than llama.cpp
+TensorRT-LLM
+NVIDIA GPU, maximum
+performance
+Best raw performance on supported NVIDIA
+hardware, but vendor-specific and heavier to
+integrate/maintain
+SGLang
+High-throughput
+structured generation
+Strong for structured-output-heavy workloads
+(relevant given ADR-004's schema-bound
+proposals), actively evolving
+Ollama
+Rapid local prototyping
+Excellent developer experience for trying models
+locally, but its abstraction layer is better suited to
+development/testing than as NOVA's production
+serving core
+Transformers
+(Hugging Face)
+Reference/fallback, broad
+model support
+Widest model compatibility for evaluation and
+fallback paths, generally slower than the
+specialized serving engines above for production
+inference
+Final Recommendation. llama.cpp as the universal-compatibility default (ensures NOVA
+runs on the widest possible hardware floor, satisfying the offline-first constraint even on
+modest laptops) with vLLM auto-selected when a compatible GPU is detected, both behind
+the single Model Router interface from Section 12.1 — the router, not the application layer,
+decides which engine handles a given request, consistent with ADR-006. TensorRT-LLM is
+flagged as a future high-end-hardware optimization, not a v1 requirement, given its
+narrower vendor scope and integration cost.
+Research Questions. What quantization level (4-bit vs. 5-bit vs. 8-bit) is the right default
+trade-off point specifically for tool-calling reliability (Phase 0's research question), rather
+than general perplexity benchmarks? How should the Model Router handle a mid-task
+hardware/connectivity change (e.g., a laptop moving from plugged-in/GPU-available to
+battery/CPU-only) without breaking an in-flight agent graph?
+Phase 11 — Voice Systems
+Objective. Design the streaming voice pipeline that makes NOVA usable hands-free,
+consistent with ADR-009's streaming-first mandate and ADR-001's requirement that
+always-listening components never leave the device.
+
+Concepts. Wake word detection runs continuously, locally, and with minimal resource
+footprint to trigger the rest of the pipeline without an always-on network connection or
+heavy always-on model. VAD (voice activity detection) distinguishes speech from
+silence/noise to bound what audio actually gets sent to STT, reducing both latency and
+wasted compute. Streaming STT transcribes speech incrementally rather than waiting for
+the full utterance, critical for perceived responsiveness (NFR-01). Streaming TTS
+synthesizes and begins playing audio before the full response text is finalized, mirroring
+the text-streaming behavior from ADR-009. Noise suppression improves STT accuracy in
+real-world (non-studio) acoustic environments. Interrupt handling — letting a user talk
+over NOVA's current TTS output to redirect or cancel it — is essential for the pipeline to feel
+like a natural conversational partner rather than a walkie-talkie.
+Voice Pipeline (Diagram).
+Technologies. Faster-Whisper (streaming-capable, locally deployable STT — Section 12.1);
+Piper and Kokoro for local TTS across the low-resource/higher-fidelity spectrum;
+lightweight dedicated wake-word engines (small footprint by design, distinct from general
+STT models) run continuously without invoking the larger STT/LLM pipeline until
+triggered; Whisper (reference implementation) and Coqui TTS as alternatives evaluated
+and set aside in favor of the streaming-optimized, lower-resource options above.
+Research Questions. What is the acceptable wake-word false-positive/false-negative
+trade-off for a privacy-sensitive assistant (a false positive means unintended listening, even
+if processed locally)? How should interrupt handling interact with an in-progress tool call
+that has already started an irreversible action — can/should TTS interruption ever cancel
+an already-approved action, or only cancel the narration of it?
+Final Recommendation. Faster-Whisper + Piper (default) with Kokoro as a GPU-available
+quality upgrade, both fully local per ADR-001, with a small dedicated wake-word model
+kept always-resident in memory (distinct from and much smaller than the STT model) to
+keep idle resource usage within NFR-06's footprint target.
+Phase 12 — Vision Systems
+Objective. Design multi-modal understanding covering documents, screenshots, and
+general images, supporting FR-08 and enabling desktop/browser agents to reason about
+what's on screen.
+Concepts. Vision-language models (VLMs) jointly reason over image and text input,
+forming the backbone for most vision tasks below rather than requiring a separate model
+per capability. OCR extracts text from images/scans. Object detection and grounding
+(linking a natural-language reference — "the submit button" — to a specific region of an
+image) are what make screen-understanding and desktop/browser automation possible
+without relying solely on brittle DOM/accessibility-tree parsing. Image captioning
+produces natural-language descriptions of image content. Screen understanding and
+triggered
+partial + final transcript
+user speaks over output
+cancel/redirect
+Microphone Input
+Local Wake Word Detection
+Voice Activity Detection
+Noise Suppression
+Streaming STT
+Orchestrator
+Streaming TTS
+Speaker Output
+Interrupt Handler
+
+document understanding are applied combinations of the above, specialized for UI
+screenshots and structured documents (forms, tables, invoices) respectively — both central
+to NOVA's desktop/browser agents (Phase 13/14) when accessibility APIs alone are
+insufficient (e.g., custom-rendered canvas UIs).
+Models Compared.
+Model Family
+Strength
+Fit for NOVA
+Qwen-VL
+family
+Strong OCR, grounding, and
+document understanding in
+open-weight form
+Primary recommendation (Section 12.1) —
+best all-around fit for local deployment
+Florence-2
+Strong general vision task
+versatility, compact
+Secondary/fallback option, particularly for
+lighter-weight deployments
+SAM
+(Segment
+Anything)
+Precise segmentation masks
+Specialized use — relevant for precise UI-
+element boundary detection rather than
+general captioning/OCR
+YOLO family
+Fast, lightweight object
+detection
+Useful where raw detection speed matters
+more than the richer language-grounded
+understanding a VLM provides
+Research Questions. How well does a general-purpose VLM's screen-grounding
+performance compare to accessibility-API-based UI element detection (Phase 14) on real,
+non-benchmark desktop applications — should vision be primary or fallback for desktop
+automation? What's the acceptable latency/accuracy trade-off for running a VLM on CPU-
+only hardware, and does that push toward a smaller specialized model for the most
+common screen-understanding cases (e.g., a lightweight click-target grounding model)
+rather than a general VLM for every vision call?
+Final Recommendation. Qwen-VL as the default local VLM for document understanding,
+OCR, and general image captioning; accessibility APIs (Phase 14) as the primary
+mechanism for desktop UI understanding/automation with vision-based grounding as a
+fallback for applications where accessibility trees are unavailable or unreliable — this
+ordering reduces both latency and error rate compared to a vision-first approach for
+structured desktop UIs, reserving vision-first grounding for genuinely visual tasks
+(screenshots, scanned documents, browser pages with poor semantic markup).
+Phase 13 — Browser Agents
+Objective. Enable NOVA to complete web-based tasks reliably and safely, supporting FR-
+09.
+Concepts. DOM parsing (reading the page's structured element tree) is the primary, most
+reliable mechanism for browser automation when a page exposes reasonable semantic
+structure. Vision-based automation (Phase 12) serves as a fallback for pages with poor
+semantic markup or heavily custom-rendered UI, at higher latency and lower reliability
+
+than DOM-based interaction. Computer use agents (a general pattern of models directly
+perceiving and acting on a screen/browser via vision + coordinate-based actions) represent
+the more general but currently less reliable and more expensive approach, appropriate as a
+fallback rather than a default given NOVA's latency and resource targets. CAPTCHA
+handling is treated as an explicit non-goal for automated bypass — NOVA does not attempt
+to defeat CAPTCHAs, both for ethical/terms-of-service reasons and because automated
+CAPTCHA-solving is frequently itself a policy violation of the sites being automated; NOVA
+instead surfaces a CAPTCHA challenge to the user for manual completion. Browser
+security — isolating the automation-controlled browser context from the user's regular
+authenticated browsing session, and being especially cautious about content scraped from
+a page being treated as untrusted input (a primary prompt-injection vector, Phase 15) — is a
+first-class design concern, not an afterthought.
+Technologies. Playwright (Section 12.1) as the primary automation engine, given its
+modern async API and strong multi-browser/multi-context support (useful for isolating
+automation sessions from the user's personal browsing session); Selenium considered and
+set aside as a legacy alternative with a less ergonomic async story; "browser-use"-style
+vision-based agent patterns evaluated as the fallback path for DOM-parsing-resistant
+pages.
+Research Questions. How should the Browser Agent's context (cookies, login state) be
+isolated from the user's primary browser profile while still allowing tasks that require the
+user's existing authenticated sessions (e.g., checking a webmail inbox) — a persistent,
+permissioned automation profile, or an ephemeral session with explicit credential handoff
+per task? What's the right escalation path when a page's content contains what looks like an
+embedded instruction to the agent (a textbook prompt-injection pattern) — how does the
+Browser Agent distinguish "page content to summarize" from "page content pretending to
+be a system instruction"?
+Final Recommendation. Playwright with a dedicated, permissioned automation browser
+profile (separate from the user's personal profile by default, with explicit opt-in for using
+existing authenticated sessions per ADR-010's least-privilege principle); treat all scraped
+page content as untrusted data passed to the model as data, never concatenated in a way
+that could be mistaken for system/developer instructions — this data/instruction
+separation is revisited in depth in Phase 15.
+Phase 14 — Desktop Agents
+Objective. Enable NOVA to control desktop applications directly, supporting FR-10, across
+Windows, macOS, and Linux.
+Concepts. Accessibility APIs (Windows UI Automation, macOS Accessibility API, Linux
+AT-SPI) expose a structured, semantic view of on-screen UI elements (buttons, text fields,
+labels) that well-behaved applications populate for assistive technologies — this is the
+preferred automation mechanism because it is both more reliable (not brittle to pixel-
+position changes) and more naturally permission-scoped (the OS already mediates
+accessibility API access) than raw input simulation. Keyboard automation, mouse
+automation, and clipboard access are the lower-level primitives used both directly (for
+
+apps with poor accessibility support) and as the actual input-simulation mechanism once
+an accessibility API has identified where to click or type. Window detection and screen
+capture provide the contextual awareness (what application is focused, what does the
+screen currently show) needed before deciding what action to take, and feed the vision
+fallback path (Phase 12) when accessibility information is insufficient.
+Technologies. Platform-native accessibility API bindings wrapped in a common cross-
+platform interface (Section 12.1) as the primary mechanism; PyAutoGUI for
+coordinate/pixel-based keyboard and mouse simulation as the fallback for applications
+with poor or absent accessibility support; uiautomation (Windows-specific UI Automation
+wrapper) as a deeper Windows-specific integration option layered under the common
+interface on that platform.
+Research Questions. What fraction of common desktop applications (productivity suites,
+browsers, common line-of-business apps) expose sufficiently complete accessibility trees
+to avoid falling back to pixel-based automation, and how does that fraction vary by OS?
+How should the Desktop Agent handle actions on applications known to contain sensitive
+content by nature (password managers, banking apps) — a hard-coded deny-list regardless
+of user policy, or a strongly-defaulted but user-overridable restriction?
+Final Recommendation. Accessibility-API-first automation across all three platforms
+behind one common interface, with coordinate-based fallback (PyAutoGUI) clearly flagged
+to the user as a lower-reliability mode when engaged (since it cannot verify what it's
+clicking, only where); maintain a conservative default deny-list for sensitivity-flagged
+application categories (password managers, banking/financial apps) that requires explicit,
+separately-confirmed user override rather than falling under general automation
+permission grants, given ADR-010's fail-closed principle.
+Phase 15 — Security
+Objective. Provide the concrete security mechanics underneath ADR-010, treating this as a
+continuously-invested area rather than a pre-launch checklist, per that ADR's stated
+consequence.
+Concepts. Sandboxing bounds what a tool execution can actually affect on the system,
+independent of the permission gate's decision — a defense-in-depth layer for when a
+permission decision was correct but the tool implementation itself misbehaves or is
+compromised. Authentication verifies identity (the user, and where relevant, a remote
+MCP server); authorization verifies what an already-authenticated actor is allowed to do —
+NOVA's permission gate is fundamentally an authorization system layered on top of the
+(usually simpler, single-user) authentication problem. Secrets management — API keys,
+OAuth tokens for connected services, encryption keys — must be stored using OS-native
+secure storage (keychains/credential managers) rather than plaintext config files, and must
+never be placed in a model's context window unless a specific tool call requires passing a
+credential through to an external service, and even then only just-in-time and scoped to
+that single call. Encryption covers both data-at-rest (local storage, especially memory/RAG
+stores containing personal content) and data-in-transit (any opted-in cloud/API calls).
+Permission models and secure tool execution are ADR-010's direct implementation
+
+concerns. Prompt injection — malicious instructions embedded in content the model
+processes (a webpage, a document, an email) that attempt to hijack the model's behavior —
+is treated as an assumed, not hypothetical, threat given NOVA's exposure to untrusted
+external content (browser pages, emails, documents) as a core feature, not an edge case.
+Jailbreak prevention addresses attempts to get the model to violate its own behavioral
+guidelines directly through conversational manipulation, distinct from but related to
+prompt injection. Supply chain security covers the integrity of the models, MCP servers,
+and dependencies NOVA loads — a compromised third-party MCP server or a tampered
+model file is a realistic and serious attack vector given ADR-005's ecosystem-reliance
+strategy.
+Prompt Injection Defense-in-Depth (NOVA's Layered Approach).
+Layer
+Mechanism
+1 — Data/instruction
+separation
+Untrusted content (page text, document content, email bodies) is always
+passed to the model as clearly-delimited data, never concatenated into
+system/developer instruction context
+2 — Bounded
+proposal schema
+Per ADR-004, the model can only propose structured actions; it cannot
+directly execute anything, limiting what an injected instruction can actually
+achieve even if it partially succeeds in influencing the model
+3 — Permission gate
+Per ADR-010, every proposed action — regardless of what convinced the
+model to propose it — is checked against sensitivity policy before execution
+4 — Sandboxing
+Even an approved, executed action is bounded by sandbox isolation,
+limiting blast radius from an unexpected tool behavior
+5 — Audit logging
+Every step above is logged (ADR-002/NFR-08), enabling post-hoc detection
+and policy tuning even for attacks that partially succeed
+Technologies. OS-native secure credential storage (Keychain, Windows Credential
+Manager, Secret Service API on Linux) for secrets management; OS-level sandboxing
+primitives (Section 12/Phase 7) for execution isolation; standard TLS for any opted-in
+networked calls; checksums/signatures for verifying downloaded model weights and MCP
+server packages as a supply-chain integrity measure.
+Recommended Reading. OWASP's emerging guidance on LLM application security
+(prompt injection specifically is now a named, tracked risk category); practitioner post-
+mortems on real-world prompt injection incidents against browser/computer-use agents,
+which are directly relevant given ADR-005 and Phase 13's browser automation scope.
+Research Questions. How effective is data/instruction separation alone against
+sophisticated injection attempts, and what additional model-level defenses (e.g., a
+dedicated classifier that screens retrieved/scraped content for injection attempts before it
+reaches the reasoning model) are worth the added latency? What's the right default
+sensitivity classification for actions taken as a consequence of content the model just
+
+processed from an untrusted source (should reading an email that requests "reply with
+your saved passwords" ever reach the point of proposing that action, or should it be filtered
+earlier)?
+Final Recommendation. Implement all five defense-in-depth layers above from the initial
+release rather than treating any of them as a post-launch hardening pass, given that
+browser and desktop automation (both v1-scope, Should-priority features) directly expose
+NOVA to untrusted content from day one. Invest specifically in the data/instruction
+separation discipline (Layer 1) as the highest-leverage, lowest-cost mitigation, since it
+constrains the attack surface before any of the more expensive downstream layers are even
+engaged.
+Phase 16 — Deployment
+Objective. Define how NOVA is packaged, deployed, updated, and operated across its target
+hardware and OS matrix (NFR-05), and how observability is achieved consistent with NFR-
+08.
+Concepts. Docker and Kubernetes are relevant primarily for any optional server-side
+components (a future self-hosted sync service, per Phase 8/4's noted future directions)
+rather than the core desktop deployment, which runs natively on end-user hardware. GPU
+deployment and CUDA availability detection determine whether the Model Router (Phase
+10) can offer the vLLM/GPU-accelerated path or must fall back to llama.cpp/CPU. FastAPI
+(Section 12.1) serves as NOVA's internal local API surface between the desktop shell and the
+backend runtime, and as the interface for any future optional server component. Electron
+and PyInstaller-equivalent tooling package the application for non-technical end users
+who expect a standard installer, not a source checkout. Auto-updates must be handled
+carefully given NOVA's privacy posture — update checks are themselves a network call and
+must be clearly disclosed and consistent with the "online by consent" philosophy (opt-out-
+able, though defaulting to on for security-patch delivery is a reasonable and common
+exception, clearly disclosed). Observability, logging, and monitoring (Section 12.1's
+OpenTelemetry-based approach) must work fully offline by default, with export to any
+external dashboard as an explicit opt-in, mirroring the rest of NOVA's data-handling
+posture. CI/CD (Section 12.1) automates build, test, and release across the three target OS
+platforms. The cloud vs. edge / hybrid deployment question is answered per Section 12.2's
+routing matrix — NOVA is an edge-first application with an optional hybrid cloud-assist
+path, not a cloud application with an offline mode bolted on.
+Deployment Topology (Diagram).
+Optional, Opt-In Only
+User Device (Primary Deployment Target)
+opt-in per task
+opt-in, future
+NOVA Desktop App
+Local Model Runtime
+Local SQLite + Vector Store
+Local MCP Servers
+Cloud Model API
+Future: Encrypted
+Multi-Device Sync Service
+
+Research Questions. What is the minimum viable auto-update mechanism that preserves
+user trust (transparent changelogs, no silent behavior changes to permission defaults)
+while still ensuring security patches reach users promptly? How should GPU/CUDA
+detection and fallback be surfaced to the user — silently handled by the Model Router, or
+exposed as a visible hardware-capability indicator so users understand why performance
+differs across their devices?
+Final Recommendation. Ship as a native desktop installer (Electron initially, with a Tauri
+migration evaluated post-stability per Section 12.1) with default-on security-patch auto-
+updates (clearly disclosed) and default-off feature/telemetry updates requiring explicit opt-
+in, keeping any server-side component (Docker/Kubernetes-based) entirely optional and
+out of the critical path for core functionality, consistent with ADR-001's offline-first
+constraint holding all the way through to how the software itself is delivered and
+maintained.
+14. MCP Server Catalog
+Per ADR-005, MCP is NOVA's primary tool integration mechanism. The table below catalogs
+the initial priority set of MCP server integrations, why each is useful to NOVA's vision
+specifically, and its sensitivity tier (Phase 7/15) for permission-gate configuration.
+
+MCP Server
+Why It's Useful to NOVA
+Default Sensitivity Tier
+Filesystem
+Core to almost every task — reading, writing,
+and organizing local documents is
+foundational to the "operating system" vision,
+and a well-scoped filesystem server lets
+NOVA operate within explicitly permitted
+directories rather than the whole disk
+Reversible-write (read:
+low; write: moderate, path-
+scoped)
+GitHub
+Enables the Coding Agent to read issues/PRs,
+open PRs, and manage repositories —
+essential for NOVA's software-development-
+assistant use cases
+Reversible-write to
+irreversible-write
+(depending on action: read
+vs. merge/delete)
+Git
+Local version control operations (commit,
+branch, diff) independent of a remote host —
+needed for the Coding Agent to work with
+local-only repositories, and as the substrate
+GitHub-hosted work ultimately syncs
+through
+Reversible-write
+SQLite
+Lets NOVA query and manage local
+structured data (its own or a user's local app
+databases) without a bespoke connector per
+database
+Read-only to reversible-
+write
+PostgreSQL
+Extends structured-data capability to self-
+hosted or cloud-hosted databases a power
+user or small business might run, for tasks
+like report generation or data reconciliation
+Reversible-write
+(networked)
+Docker
+Lets the Coding Agent build, run, and test
+containerized projects — relevant to NOVA's
+developer-assistant use case without granting
+unrestricted host shell access
+Irreversible-write
+(container operations can
+affect host resources)
+Playwright
+The primary Browser Agent automation
+backend (Phase 13) — exposed as an MCP
+server keeps browser automation behind the
+same permission/audit machinery as every
+other tool
+Reversible-write to
+irreversible-write
+(depending on action:
+navigate/read vs. form-
+submit/purchase)
+Browser (generic
+browsing/search-
+oriented server)
+Complements Playwright for simpler read-
+oriented web tasks (fetch a page, extract
+content) where full automation control isn't
+needed, keeping the permission footprint
+smaller for read-only browsing
+Read-only (networked)
+
+MCP Server
+Why It's Useful to NOVA
+Default Sensitivity Tier
+Google Drive
+A very common place users' actual working
+documents live — lets NOVA's RAG and file-
+management capabilities extend beyond the
+local disk when the user explicitly connects it
+Read-only to reversible-
+write (networked)
+Gmail
+Powers the Comms Agent's email-reading
+and email-sending capabilities (the earlier
+sequence-diagram example) — one of the
+highest-value but also highest-sensitivity
+integrations, given send actions are
+effectively irreversible
+Read-only (read) /
+Irreversible-write (send)
+Calendar
+Lets NOVA reason about scheduling, propose
+meeting times, and create/modify events —
+core to the "personal assistant" use case
+Reversible-write
+Slack
+Extends the Comms Agent to workplace
+messaging — relevant for the "automate my
+workflows" vision beyond personal email
+Reversible-write to
+irreversible-write
+(message send/delete)
+Discord
+Similar rationale to Slack for
+community/gaming-oriented communication
+contexts NOVA users may operate in
+Reversible-write to
+irreversible-write
+VS Code
+Lets the Coding Agent operate directly within
+a user's actual editor context (open files,
+diagnostics, running tasks) rather than only
+through raw filesystem access, improving
+fidelity for coding tasks
+Reversible-write
+Terminal
+Provides shell command execution for the
+Coding Agent and general automation tasks
+— the single most powerful and most
+dangerous tool category, requiring the
+strictest sandboxing (Phase 15) and typically
+ask-every-time policy by default
+Irreversible-write (highest
+default sensitivity)
+Weather
+Low-stakes, high-frequency utility query —
+good example of a purely read-only, low-
+sensitivity integration that can safely be auto-
+approved by default
+Read-only
+Search (general web
+search)
+Grounds the Research Agent in current
+information beyond local documents and
+beyond any model's training cutoff, directly
+Read-only (networked)
+
+MCP Server
+Why It's Useful to NOVA
+Default Sensitivity Tier
+relevant given NOVA's local models will not
+have current information
+IoT (protocol-
+specific, e.g.,
+Matter/MQTT-
+based)
+Extends NOVA's automation surface into
+physical home/office devices, aligned with the
+long-term Jarvis-class vision, scoped to
+established consumer IoT standards rather
+than bespoke device integrations
+Reversible-write to
+irreversible-write
+(depending on device:
+lights vs. door locks)
+Cross-cutting note. Every server in this catalog is subject to ADR-010 regardless of its
+listed default tier — the tiers above are starting defaults, not fixed policy; users can tighten
+(never silently loosen) any tier through NOVA's permission settings (FR-15).
+15. Future Roadmap
+The roadmap below sequences capability by dependency order and risk, not by arbitrary
+calendar targets — later phases assume the architectural guarantees established by earlier
+ones (particularly ADR-003, ADR-004, and ADR-010) are already load-bearing in
+production before more autonomous capability is layered on top.
+
+Horizon
+Milestone
+Depends On
+Near-term
+Core orchestrator (ADR-003/004) +
+Planner, Research, and Coding
+agents; local-only text-based
+operation
+Phase 0, 1, 2, 6 research; ADR-001 through
+007
+Near-term
+MCP-first tool layer with Filesystem,
+Git, Terminal, Search servers;
+permission gate v1
+ADR-005, ADR-010; Phase 3, 7, 15
+Near-term
+Two-tier memory (working + long-
+term, semantic/episodic partitions
+only; procedural deferred)
+ADR-007; Phase 5
+Mid-term
+Voice pipeline (wake word,
+streaming STT/TTS) integrated with
+existing text-based orchestrator
+ADR-009; Phase 11
+Mid-term
+Vision integration for document
+understanding and OCR-based RAG
+over scanned/image content
+Phase 9, 12
+Mid-term
+Browser Agent (Playwright-based)
+with full defense-in-depth prompt-
+injection mitigations
+Phase 13, 15 (all five layers required before
+enabling, not optional hardening)
+Mid-term
+Desktop Agent (accessibility-API-
+first) for the most common
+productivity applications
+Phase 14
+Mid-term
+Procedural memory (learned tool-
+use patterns) added to the memory
+system
+ADR-007 near-term milestone; sufficient
+episodic data collected
+Long-term
+Hybrid cloud-assist routing (Section
+12.2) as a fully supported, clearly-
+disclosed opt-in path
+ADR-001's local-first floor already proven
+stable; Phase 10 model routing
+Long-term
+Multi-agent collaboration via A2A-
+style delegation between specialized
+agents (beyond pure orchestrator
+sequencing)
+ADR-008; Phase 3's A2A research;
+sufficiently mature per-agent evaluation
+suites
+Long-term
+Multi-device encrypted sync
+(optional server component)
+Phase 4/8's flagged future infrastructure
+(Temporal/NATS); still opt-in, still local-
+primary
+
+Horizon
+Milestone
+Depends On
+Long-term
+IoT/device control expansion
+beyond initial protocol scope
+Phase 7's tool marketplace maturity; Phase 15
+security hardening for physical-world-
+affecting actions
+Exploratory
+Reduced-supervision autonomous
+operation for well-evaluated, low-
+risk task categories
+Sustained audit-log evidence (NFR-08/10)
+that permission-gate decisions for a task
+category are consistently low-risk over time
+— earned, not assumed, autonomy
+Explicitly, the roadmap does not commit to a timeline for the "Exploratory" tier — per Non-
+Goal 4, expanded autonomy is gated on demonstrated reliability evidence from the audit
+trail, not on elapsed calendar time.
+16. Risk Register & Data Governance
+This section exists because an ADR that only records decisions, without recording what
+could go wrong with them, invites false confidence. It is reviewed on the same cadence as
+the ADR log itself.
+
+16.1 Risk Register
+ID
+Risk
+Likelihood
+Impact
+Mitigation
+Owning
+ADR/Phase
+R-
+01
+Local model quality
+insufficient for
+reliable structured
+tool-call output,
+undermining ADR-
+004's entire premise
+Medium
+High
+Empirical tool-call reliability
+benchmarking (Phase 0/10) as
+a gating criterion before any
+model is set as default, not just
+general quality benchmarks
+ADR-004,
+Phase 0, 10
+R-
+02
+Prompt injection via
+browser/document
+content leads to an
+unauthorized or
+harmful tool
+execution
+Medium
+High
+Five-layer defense-in-depth
+(Phase 15); data/instruction
+separation enforced at the
+architecture level, not left to
+prompt convention
+ADR-010,
+Phase 13, 15
+R-
+03
+Permission fatigue —
+users reflexively
+approve prompts,
+eroding the security
+model's practical
+effectiveness
+High
+Medium
+Tiered sensitivity
+classification so low-risk
+actions are auto-approved by
+policy, reserving explicit
+confirmation for genuinely
+high-stakes actions; periodic
+review of approval patterns to
+detect fatigue-driven rubber-
+stamping
+ADR-010,
+Phase 7
+R-
+04
+Vector/embedding
+index or memory
+store grows
+unbounded,
+degrading retrieval
+latency and violating
+NFR-01 over long-
+term use
+Medium
+Medium
+Scheduled memory
+consolidation/compression
+(Phase 5); retrieval-time
+latency included in regression
+evaluation suite, not just
+accuracy
+ADR-007,
+Phase 5, 9
+R-
+05
+MCP ecosystem's
+authorization spec
+immaturity is
+exploited by a
+malicious or
+compromised third-
+party MCP server
+Medium
+High
+NOVA's own permission gate
+is never bypassed regardless
+of what an MCP server itself
+claims to enforce (Phase 3);
+supply-chain integrity checks
+before enabling any third-
+party server
+ADR-005,
+ADR-010,
+Phase 15
+
+ID
+Risk
+Likelihood
+Impact
+Mitigation
+Owning
+ADR/Phase
+R-
+06
+Accessibility-API-
+based desktop
+automation is
+unreliable on
+applications with
+poor accessibility
+support, forcing
+frequent fallback to
+brittle coordinate-
+based automation
+Medium
+Medium
+Vision-based grounding
+fallback (Phase 12/14);
+reliability telemetry per
+application to prioritize
+accessibility-gap remediation
+or targeted vision-model
+tuning
+Phase 12, 14
+R-
+07
+Hardware
+heterogeneity (CPU-
+only vs. GPU-
+equipped devices)
+produces an
+inconsistent user
+experience that
+undermines trust in
+the product
+Medium
+Medium
+Model Router abstracts
+hardware differences behind
+one interface (Phase 10); clear,
+honest UI signaling of current
+inference mode rather than
+silently degrading
+ADR-006,
+Phase 10, 16
+R-
+08
+Orchestration graph
+complexity grows
+unmanageably as
+agent count and tool
+count increase,
+undermining ADR-
+003's maintainability
+goal
+Low
+Medium
+Static graph analysis/linting
+tooling; agent boundary
+discipline (ADR-008) keeps
+individual node complexity
+bounded even as total system
+complexity grows
+ADR-003,
+ADR-008
+R-
+09
+Auto-update
+mechanism becomes
+an unintended
+network-
+dependency or trust
+erosion point given
+the offline-
+first/privacy
+positioning
+Low
+Medium
+Default-on scope limited
+strictly to security patches,
+clearly disclosed;
+feature/telemetry updates
+default-off and separately
+consented
+ADR-001,
+Phase 16
+R-
+10
+Irreversible actions
+(send email, delete
+file, IoT device
+control) executed
+Low
+High
+Action preview/confirmation
+surfaces the specific proposed
+action (not just a generic
+"allow tool X") so the user's
+ADR-010,
+Phase 7
+
+ID
+Risk
+Likelihood
+Impact
+Mitigation
+Owning
+ADR/Phase
+based on a
+misinterpreted user
+intent even after
+permission approval
+approval is informed consent
+to the actual action, not a
+blanket capability grant
+16.2 Data Classification & Governance
+NOVA's privacy commitments (ADR-001) are only meaningful if backed by an explicit data
+classification scheme that every subsystem is built against, rather than an implicit, ad hoc
+sense of "sensitive vs. not."
+Class
+Examples
+Default Handling
+Public/Non-personal
+Weather queries,
+general web search
+results
+May be routed to cloud services if the user has
+opted into any cloud assist, without per-
+instance confirmation
+User Content — Local
+Local documents,
+screen content,
+desktop application
+state
+Never leaves the device without an explicit,
+per-task or per-integration opt-in; indexed and
+embedded locally only
+User Content —
+Connected Services
+Gmail, Google Drive,
+Slack content
+accessed via MCP
+servers
+Treated as User Content — Local once
+retrieved into NOVA's context; the connection
+itself is an explicit opt-in event, separately
+from any individual task's data use
+Credentials/Secrets
+API keys, OAuth
+tokens, passwords
+Stored only in OS-native secure storage; never
+placed in model context except just-in-time,
+scoped to a single authorized tool call, and
+never logged in plaintext (NFR-08's audit
+logging must redact secret values)
+Sensitive Category —
+Financial/Health/Legal
+Bank statements,
+medical records,
+legal documents
+Local-only by strong default, requiring a
+distinct, explicit, separately-worded consent
+step to route through any cloud service,
+independent of the user's general cloud-assist
+opt-in setting
+System/Diagnostic
+Crash logs,
+performance
+telemetry
+Local-only by default; export requires explicit
+opt-in per NFR-04, and exported diagnostics
+are scrubbed of content-level data (file
+contents, message bodies) even when the user
+opts in to sharing operational metrics
+
+Governance principle. A general "I consent to cloud features" setting does not, by itself,
+authorize sending Sensitive Category content to the cloud — that requires its own explicit
+consent surface, consistent with the layered, non-blanket consent model implied
+throughout ADR-001 and ADR-010. This prevents a single broad opt-in from silently
+covering categories of data the user did not specifically consider when granting it.
+16.3 Testing & Evaluation Strategy
+Engineering Principle 9 ("test the orchestration, evaluate the model") is intentionally a
+distinction, not a slogan, and it drives two separate quality pipelines that must not be
+collapsed into one.
+Deterministic-code testing. The orchestrator's graph execution, the permission gate, the
+event bus, the memory promotion/demotion logic, and every MCP client/server bridge are
+conventional software and are held to conventional standards: unit tests per module,
+integration tests across module boundaries, and property-based tests specifically for the
+permission gate (since its correctness — never allowing an unauthorized action through —
+is a property that should hold across the full input space, not just a handful of example
+cases). Coverage targets for this tier are enforced in CI (Section 12.1) and a regression here
+blocks release, exactly as it would for any other production service.
+Model-behavior evaluation. Agent reasoning quality, tool-selection accuracy, and plan
+quality cannot be captured by pass/fail unit tests, because the same correct outcome can be
+reached through different valid reasoning paths, and the same prompt can produce
+different (sometimes still-acceptable) outputs across runs. NOVA instead maintains a
+golden-task regression suite: a curated, versioned set of representative tasks per agent
+(e.g., for the Research agent — "find the total from this invoice PDF and cite the page"; for
+the Coding agent — "add a null check to this function without changing its public
+signature"), each with an automated or human-graded rubric, run against every candidate
+model or prompt change before it ships. A regression in golden-task pass rate is treated as
+seriously as a failed unit test, but is diagnosed differently — by inspecting reasoning traces
+(enabled by ADR-002's structured event logging), not by a stack trace.
+Where the two pipelines meet. Tool-call schema validation (Phase 7) sits at the boundary:
+the fact that a tool call conforms to its JSON Schema is deterministically testable, while
+whether the model chose the right tool for a given task is a model-evaluation concern. Both
+checks run on every proposed action in the golden-task suite, so a schema-valid but wrong
+tool choice is caught by evaluation even though it would pass a narrower deterministic
+check.
+Security-specific evaluation. Given Phase 15's threat model, NOVA additionally maintains
+an adversarial evaluation set — prompts and documents specifically crafted to attempt
+injection — run against the full five-layer defense stack, not just the reasoning model in
+isolation, since Layer 1 (data/instruction separation) is expected to catch most attempts
+before the model's own behavior is even relevant. This suite is treated as a security control
+with the same release-blocking authority as the permission gate's property tests, not as an
+optional quality-improvement exercise.
+
+16.4 Open Research Questions — Consolidated Priority View
+Each phase chapter above ends with its own research questions; this table pulls the highest-
+leverage ones into one place so they can be tracked and assigned, rather than left buried in
+narrative text.
+Question
+Why It's High-Leverage
+Source
+Phase
+What local model size/quantization level
+preserves reliable structured tool-call
+output, as measured directly rather than
+inferred from general benchmarks?
+Gates ADR-004's entire premise — if this
+fails, the bounded-reasoning-function
+architecture needs local models capable
+enough to support it
+Phase 0,
+10
+Does LangGraph's checkpointing meet
+NFR-09's crash-recovery bar out of the
+box, or does NOVA need an additional
+durability layer?
+Directly determines whether Section 12.1's
+framework recommendation is sufficient
+as-is or needs augmentation before it can
+be trusted with irreversible-action tasks
+Phase 2,
+4
+What promotion policy moves working
+memory into long-term storage without
+over-storing noise?
+Determines whether ADR-007's two-tier
+memory design feels useful or merely adds
+retrieval noise in practice
+Phase 5
+How effective is data/instruction
+separation alone against sophisticated
+prompt injection, and what's the marginal
+value of a dedicated pre-screening
+classifier?
+Directly shapes the cost/benefit case for
+Phase 15's Layer 1 defense versus investing
+further down the stack
+Phase
+15
+What fraction of common desktop
+applications expose sufficiently complete
+accessibility trees across each target OS?
+Determines how often the Desktop agent
+must fall back to lower-reliability
+coordinate-based automation, which in
+turn shapes the user-facing reliability story
+for FR-10
+Phase
+14
+This table is expected to be revisited and re-prioritized at each quarterly ADR review, per
+the Document Control section at the top of this record — it is a living tracker, not a static
+appendix.
+
+17. Appendix
+17.1 ADR Log Summary
+ID
+Title
+Status
+ADR-001
+Offline-First Architecture
+Accepted
+ADR-002
+Event-Driven Architecture
+Accepted
+ADR-003
+Graph-Based Agent Orchestration
+Accepted
+ADR-004
+LLM Is the Reasoning Engine, Not the Orchestrator
+Accepted
+ADR-005
+MCP-First Tool Integration
+Accepted
+ADR-006
+Modular, Replaceable Components
+Accepted
+ADR-007
+Separate Short-Term and Long-Term Memory
+Accepted
+ADR-008
+Specialized Agents Instead of One Giant Agent
+Accepted
+ADR-009
+Streaming-First Pipeline
+Accepted
+ADR-010
+Security-First Permission Model
+Accepted
+17.2 Glossary
+Actor Model — A concurrency pattern where independent units of computation ("actors")
+communicate exclusively via asynchronous messages, each holding private, non-shared
+state; considered and deferred for NOVA's single-process v1 (Phase 4).
+Agent — A bounded software component that reasons over a goal, selects actions
+(including tool calls), and observes results, within an explicitly scoped mandate and tool
+surface (ADR-008).
+A2A (Agent-to-Agent Protocol) — Google's protocol for structured discovery, task
+delegation, and negotiation between independent agents, distinct in purpose from MCP
+(Phase 3).
+BM25 — A classical sparse lexical ranking function used in hybrid search to complement
+dense vector retrieval, particularly strong on exact-match queries (Phase 9).
+Checkpointing — Persisting execution state at defined boundaries (typically graph node
+boundaries) so a task can resume after a pause or crash without redoing completed work
+(NFR-09, Phase 4/6).
+Chunking — Splitting parsed documents into retrieval-sized units prior to embedding, a
+key lever for RAG quality (Phase 9).
+Cross-Encoder — A reranking model that jointly scores a query and a candidate passage
+together (more accurate, more expensive than independent embedding comparison),
+applied to a small top-K candidate set after initial retrieval (Phase 9).
+
+CQRS (Command-Query Responsibility Segregation) — An architectural pattern
+separating write (command) and read (query) models, relevant to the Memory Manager's
+potential design (Phase 8).
+Deliberative Agent — An agent architecture that maintains and reasons over an internal
+world model before acting, contrasted with purely reactive agents (Phase 1).
+Embedding — A dense vector representation of text (or other modalities) positioning
+semantically similar content close together in vector space, foundational to retrieval and
+memory systems (Phase 0, 5, 9).
+Episodic Memory — A long-term memory partition storing records of specific past
+events/tasks, as distinct from general facts (semantic memory) or learned skills (procedural
+memory) (ADR-007, Phase 5).
+Event Sourcing — Storing application state as an ordered sequence of events rather than
+mutable snapshots, enabling full history reconstruction and audit (Phase 8).
+Function/Tool Calling — A model output pattern where the model returns a structured,
+schema-conformant proposal for an action rather than free text, the foundational primitive
+behind ADR-004's bounded-reasoning-function design (Phase 0).
+GGUF — A file format for distributing quantized LLM weights, used by llama.cpp (Phase
+10).
+Grounding (Vision) — Linking a natural-language reference to a specific region of an
+image, essential to vision-based UI automation (Phase 12).
+Hybrid Search — Combining dense vector search and sparse lexical (BM25) search to
+cover both semantic-similarity and exact-match retrieval needs (Phase 9).
+JSON Schema — A standard vocabulary for describing the structure of JSON data, used
+throughout NOVA to define tool argument/result contracts (Phase 0, 3, 7).
+Knowledge Graph — A structured representation of entities and their relationships,
+complementary to vector-similarity-based memory/retrieval for relational queries (Phase 5,
+9).
+MCP (Model Context Protocol) — The client-host-server protocol NOVA adopts as its
+primary tool/resource integration standard (ADR-005, Phase 3).
+Model Router — The internal component that decides, per request, which model/runtime
+(local or cloud) handles inference, based on task sensitivity, connectivity, and hardware
+(Section 12.2, Phase 10).
+ONNX — A cross-framework model interchange format relevant to serving-engine
+portability (Phase 10).
+Permission Gate — The platform-layer component that evaluates every proposed tool
+action against agent scope, action sensitivity, and user policy before allowing execution
+(ADR-010).
+
+Plan-and-Execute — A reasoning pattern that separates upfront planning from step-by-
+step execution, contrasted with interleaved ReAct-style reasoning (Phase 1).
+Prompt Injection — An attack pattern where malicious instructions embedded in content a
+model processes attempt to hijack its behavior; a first-class, assumed threat for NOVA given
+its exposure to untrusted browser/document/email content (Phase 15).
+Procedural Memory — A long-term memory partition storing learned patterns of how to
+perform a task, distinct from facts (semantic) or event records (episodic) (ADR-007, Phase
+5).
+Quantization — Reducing model weight numeric precision to shrink memory footprint and
+increase inference speed, at a measured cost to output quality (Phase 0, 10).
+ReAct — A reasoning pattern interleaving explicit reasoning traces with actions and their
+observed results, foundational to most modern tool-using agent loops (Phase 1).
+Reflexion — A self-critique pattern where an agent evaluates its own prior attempt and
+revises based on that evaluation (Phase 1).
+RAG (Retrieval-Augmented Generation) — Grounding a model's output in retrieved
+external content rather than relying purely on parametric (trained-in) knowledge (Phase 0,
+9).
+Sandbox — An execution isolation boundary bounding what a tool invocation can affect on
+the host system, independent of the permission decision that authorized it (Phase 7, 15).
+Semantic Memory — A long-term memory partition storing durable facts and preferences,
+as distinct from event records (episodic) or learned skills (procedural) (ADR-007, Phase 5).
+Streaming (Model Output) — Emitting output incrementally (tokens for text, chunks for
+audio) as it becomes available rather than waiting for full completion, required by ADR-009.
+Structured Output — Model output constrained to conform to a predefined schema, the
+mechanism underlying reliable function/tool calling (Phase 0).
+Utility-Based Agent — An agent architecture that selects among multiple valid actions by
+maximizing an explicit utility function, one point in the classical agent taxonomy
+referenced in Phase 1.
+VAD (Voice Activity Detection) — Distinguishing speech from silence/noise in an audio
+stream, used to bound what audio is sent to speech-to-text (Phase 11).
+Vector Database — A storage/index engine optimized for approximate nearest-neighbor
+search over embedding vectors, foundational to RAG and memory retrieval (Phase 0, 5, 9).
+VLM (Vision-Language Model) — A model architecture jointly reasoning over image and
+text input, the backbone of NOVA's vision capabilities (Phase 12).
+17.3 Consolidated Reading List
+The following list consolidates the phase-specific "Recommended Reading" entries into a
+single reference set for onboarding new contributors, grouped by theme rather than
+repeated per phase:
+
+Foundational ML/NLP: the original transformer architecture paper ("Attention Is All
+You Need"); the original RAG paper; Hugging Face's NLP course material on
+transformers and embeddings.
+Agentic reasoning patterns: the ReAct paper; the Reflexion paper; the Tree of
+Thoughts paper.
+Protocols: the official MCP specification; Google's A2A protocol specification; the
+JSON Schema specification.
+Cognitive architecture (memory): foundational literature on the semantic/episodic
+memory distinction in cognitive psychology, as conceptual (not implementation)
+grounding for ADR-007.
+Security: OWASP's LLM application security guidance, particularly its prompt-
+injection risk category documentation; practitioner post-mortems on real-world
+browser/computer-use agent security incidents.
+Classical planning: STRIPS-style goal/precondition/effect planning literature, as
+historical grounding for the Planning Engine's design vocabulary (Phase 6), read
+critically given how differently modern LLM-based planners actually operate in
+practice.
+17.4 Document Change Log
+Version
+Date
+Change
+1.0.0
+2026-
+07-27
+Initial approved architecture document — full ADR set (ADR-001 to ADR-010),
+Phase 0–16 research chapters, technology stack recommendation, MCP server
+catalog, future roadmap
+End of NOVA Architecture Decision Record v1.0.0. This document is maintained under
+Document Control (see top of document); proposed changes to any Accepted ADR require a
+superseding ADR referencing this version.
+How to Use This Document
+New contributors should read Sections 1–11 in full before writing code against any
+subsystem — the ADRs in Section 11 are the binding contract, and the sections before them
+explain why that contract exists, which matters when a real-world edge case appears to
+justify an exception. Section 12 and the Phase chapters (Section 13) are reference material:
+consult the relevant phase before introducing a new dependency in that domain, both to
+avoid re-deriving already-settled trade-offs and to keep the technology choices in Section
+12 accurate as the ecosystem moves. Section 14 (MCP servers) and Section 15 (roadmap)
+are the most likely to go stale between quarterly reviews and should be treated as
+directional rather than exhaustive. Section 16's risk register is a working document, not a
+historical record — risks should be added, re-scored, and closed out as evidence
+accumulates, and any risk whose likelihood or impact materially changes should trigger a
+note in the Document Change Log (17.4) even outside the normal review cadence.
+Disagreement with a specific ADR is welcome and expected as the system matures; the
+
+mechanism for that disagreement is a superseding ADR with its own
+Problem/Decision/Alternatives structure, not a quiet deviation in implementation.

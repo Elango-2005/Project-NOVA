@@ -1,0 +1,58 @@
+[
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "--collect-only",
+      "-q"
+    ],
+    "exit_code": 0,
+    "seconds": 2.094000000000051,
+    "output": "collection-final.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "--tb=short"
+    ],
+    "exit_code": 0,
+    "seconds": 22.67099999999982,
+    "output": "regression-final.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c01_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 13.922000000000025,
+    "output": "live-c01.txt"
+  },
+  {
+    "command": [
+      "C:\\NOVA\\.venv\\Scripts\\python.exe",
+      "-B",
+      "tests/integration/c02_live_api.py"
+    ],
+    "exit_code": 0,
+    "seconds": 5.188000000000102,
+    "output": "live-c02.txt"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.047000000000025466,
+    "output": "diff-check.txt"
+  }
+]

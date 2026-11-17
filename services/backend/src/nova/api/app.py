@@ -24,6 +24,8 @@ that connects your Desktop UI (Electron / Tauri + React) to the Python backend o
 
 from __future__ import annotations
 
+from nova.core.orchestration.ports import ExecutionOutcomeUnavailable
+
 from nova.core.permissions.authorization import AuthorizationLedger
 
 import json
@@ -429,6 +431,17 @@ def create_nova_fastapi_app(api_service: NovaLocalApiService) -> Any:
         description="Single-user, offline-first agentic backend API (ADR-001, ADR-009, ADR-010).",
     )
 
+    @app.exception_handler(ExecutionOutcomeUnavailable)
+    async def execution_unconfirmed_handler(request, exc: ExecutionOutcomeUnavailable):
+        from fastapi.responses import JSONResponse
+        try:
+            status = api_service.get_task_status(exc.task_id).status.value
+        except Exception:
+            status = "unknown"
+        return JSONResponse(status_code=503, content={"detail": exc.reason_code,
+            "task_id": exc.task_id, "task_status": status,
+            "execution_outcome": exc.persisted_outcome, "recovery_required": True})
+
     @app.exception_handler(RequestValidationError)
     async def audit_invalid_approval(request, exc):
         path = request.url.path
@@ -455,6 +468,8 @@ def create_nova_fastapi_app(api_service: NovaLocalApiService) -> Any:
     def submit_approval(task_id: str, request: SubmitApprovalRequest) -> TaskStatusResponse:
         try:
             return api_service.submit_approval(task_id, request)
+        except ExecutionOutcomeUnavailable:
+            raise
         except Exception as exc:
             if hasattr(exc, "task_status"):
                 from fastapi.responses import JSONResponse

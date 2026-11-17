@@ -1,0 +1,840 @@
+[
+  {
+    "name": "v04-note",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-v04-note-t15prvx0",
+    "http": [
+      {
+        "port": 26676,
+        "path": "/assistant/quick-note",
+        "request": {
+          "title": "V04 independent synthetic",
+          "body": "C03 synthetic body"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+            "tool_name": "notes.create_note",
+            "agent_role": "coding",
+            "arguments": {
+              "body": "C03 synthetic body",
+              "title": "V04 independent synthetic"
+            },
+            "expires_at": 1794929681.8163898,
+            "summary_label": "notes.create_note",
+            "recipient": "",
+            "subject": "",
+            "body": "C03 synthetic body"
+          }
+        }
+      },
+      {
+        "port": 26676,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+          "approved": true
+        },
+        "status": 200,
+        "body": {
+          "reply": {
+            "message_id": "msg_d70767d20b",
+            "role": "assistant",
+            "text": "I've saved your note 'V04 independent synthetic'. Indexed chunks: 1.",
+            "action_category": "note_saved",
+            "highlights": [
+              "Task: task_assistant_499032d8a6ef43389ae3c22635d9a451",
+              "Status: Completed"
+            ]
+          },
+          "workspace": {
+            "assistant_name": "NOVA Personal Assistant",
+            "privacy_mode": "100% Offline & Private on Your Laptop",
+            "active_brain_mode": "bootstrap",
+            "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+            "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+            "security_log_verified": true,
+            "messages": [
+              {
+                "message_id": "msg_63f8816810",
+                "role": "assistant",
+                "text": "Please review the exact action and click Approve or Deny.",
+                "action_category": "awaiting_approval",
+                "highlights": [
+                  "Task: task_assistant_499032d8a6ef43389ae3c22635d9a451"
+                ],
+                "pending_approval": {
+                  "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+                  "node_id": "assistant_action",
+                  "proposal_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+                  "tool_name": "notes.create_note",
+                  "agent_role": "coding",
+                  "arguments": {
+                    "body": "C03 synthetic body",
+                    "title": "V04 independent synthetic"
+                  },
+                  "expires_at": 1794929681.8163898,
+                  "summary_label": "notes.create_note",
+                  "recipient": "",
+                  "subject": "",
+                  "body": "C03 synthetic body"
+                },
+                "timestamp_utc": "2026-11-17T15:29:41.825728+00:00"
+              },
+              {
+                "message_id": "msg_d70767d20b",
+                "role": "assistant",
+                "text": "I've saved your note 'V04 independent synthetic'. Indexed chunks: 1.",
+                "action_category": "note_saved",
+                "highlights": [
+                  "Task: task_assistant_499032d8a6ef43389ae3c22635d9a451",
+                  "Status: Completed"
+                ],
+                "pending_approval": null,
+                "timestamp_utc": "2026-11-17T15:29:41.912380+00:00"
+              }
+            ],
+            "calendar_events": [],
+            "notes": [
+              {
+                "note_id": "note_v04_independent_synthetic",
+                "title": "V04 independent synthetic",
+                "preview": "# V04 independent synthetic\n\nC03 synthetic body"
+              }
+            ],
+            "system_summary": {
+              "disk_free_gb": 146.82,
+              "workspace_files_count": 1,
+              "notes_count": 1,
+              "upcoming_events_count": 0
+            },
+            "recent_activity": [
+              {
+                "what_happened": "Saved a personal note",
+                "permission_note": "Approved by you",
+                "status": "Success"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "port": 26676,
+        "path": "/tasks/task_assistant_499032d8a6ef43389ae3c22635d9a451",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-v04-note-t15prvx0\\\\workspace\\\\notes\\\\v04_independent_synthetic.md\", \"note_id\": \"note_v04_independent_synthetic\", \"title\": \"V04 independent synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 26676,
+        "path": "/tasks/task_assistant_499032d8a6ef43389ae3c22635d9a451/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_a792a05742454c30841f5dc8ff591b4b\nevent: permission.requested\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_f5135e963e5d4def9ad6827eaca89c2f\",\"event_id\":\"evt_a792a05742454c30841f5dc8ff591b4b\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"body\":\"C03 synthetic body\",\"title\":\"V04 independent synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_f5135e963e5d4def9ad6827eaca89c2f\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_499032d8a6ef43389ae3c22635d9a451\",\"timestamp_utc\":\"2026-11-17T15:29:41.825020+00:00\"}\n\nid: evt_b5faa7b238be4b49bc44aff362226c4e\nevent: permission.approved\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_f5135e963e5d4def9ad6827eaca89c2f\",\"event_id\":\"evt_b5faa7b238be4b49bc44aff362226c4e\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_499032d8a6ef43389ae3c22635d9a451\",\"timestamp_utc\":\"2026-11-17T15:29:41.862484+00:00\"}\n\nid: evt_fdef0dbd740d4619ba7ff1e1f90f9efe\nevent: tool.started\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_f5135e963e5d4def9ad6827eaca89c2f\",\"event_id\":\"evt_fdef0dbd740d4619ba7ff1e1f90f9efe\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"notes.create_note\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_499032d8a6ef43389ae3c22635d9a451\",\"timestamp_utc\":\"2026-11-17T15:29:41.871262+00:00\"}\n\nid: evt_23032e2030e54564b519dedcfea0d889\nevent: task.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_f5135e963e5d4def9ad6827eaca89c2f\",\"event_id\":\"evt_23032e2030e54564b519dedcfea0d889\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_499032d8a6ef43389ae3c22635d9a451\",\"timestamp_utc\":\"2026-11-17T15:29:41.901933+00:00\"}\n\n"
+      },
+      {
+        "port": 26686,
+        "path": "/tasks/task_assistant_499032d8a6ef43389ae3c22635d9a451",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-v04-note-t15prvx0\\\\workspace\\\\notes\\\\v04_independent_synthetic.md\", \"note_id\": \"note_v04_independent_synthetic\", \"title\": \"V04 independent synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 26686,
+        "path": "/tasks/task_assistant_499032d8a6ef43389ae3c22635d9a451/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_23032e2030e54564b519dedcfea0d889\nevent: task.completed\ndata: {\"agent_role\":\"coding\",\"correlation_id\":\"prop_f5135e963e5d4def9ad6827eaca89c2f\",\"event_id\":\"evt_23032e2030e54564b519dedcfea0d889\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_499032d8a6ef43389ae3c22635d9a451\",\"timestamp_utc\":\"2026-11-17T15:29:41.901933+00:00\"}\n\n"
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-v04-note-t15prvx0",
+          "26676",
+          "post_write_permission_exception"
+        ],
+        "pid": 27876,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-v04-note-t15prvx0",
+          "26686",
+          "normal"
+        ],
+        "pid": 6196,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-v04-note-t15prvx0\\\\workspace\\\\notes\\\\v04_independent_synthetic.md\", \"note_id\": \"note_v04_independent_synthetic\", \"title\": \"V04 independent synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+            "event_id": "evt_a792a05742454c30841f5dc8ff591b4b",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "body": "C03 synthetic body",
+                "title": "V04 independent synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+            "timestamp_utc": "2026-11-17T15:29:41.825020+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+            "event_id": "evt_b5faa7b238be4b49bc44aff362226c4e",
+            "event_type": "permission.approved",
+            "node_id": "assistant_action",
+            "payload": {
+              "decision": "user_approved",
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+            "timestamp_utc": "2026-11-17T15:29:41.862484+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+            "event_id": "evt_fdef0dbd740d4619ba7ff1e1f90f9efe",
+            "event_type": "tool.started",
+            "node_id": "assistant_action",
+            "payload": {
+              "tool_name": "notes.create_note"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+            "timestamp_utc": "2026-11-17T15:29:41.871262+00:00"
+          },
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+            "event_id": "evt_23032e2030e54564b519dedcfea0d889",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+            "timestamp_utc": "2026-11-17T15:29:41.901933+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\v04_independent_synthetic.md": "# V04 independent synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_f5135e963e5d4def9ad6827eaca89c2f",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_499032d8a6ef43389ae3c22635d9a451\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+          "session_id": "sess_personal_chat",
+          "user_goal": "notes.create_note",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"chunks_indexed\": 1, \"file_path\": \"C:\\\\Users\\\\Elango s\\\\AppData\\\\Local\\\\Temp\\\\nova-c03-v04-note-t15prvx0\\\\workspace\\\\notes\\\\v04_independent_synthetic.md\", \"note_id\": \"note_v04_independent_synthetic\", \"title\": \"V04 independent synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "coding",
+            "correlation_id": "prop_f5135e963e5d4def9ad6827eaca89c2f",
+            "event_id": "evt_23032e2030e54564b519dedcfea0d889",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_499032d8a6ef43389ae3c22635d9a451",
+            "timestamp_utc": "2026-11-17T15:29:41.901933+00:00"
+          }
+        ],
+        "markdown": {
+          "workspace\\notes\\v04_independent_synthetic.md": "# V04 independent synthetic\n\nC03 synthetic body\n"
+        },
+        "calendar": [],
+        "authorizations": [
+          [
+            "prop_f5135e963e5d4def9ad6827eaca89c2f",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_499032d8a6ef43389ae3c22635d9a451\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"coding\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "v04-calendar",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-v04-calendar-91nsul_u",
+    "http": [
+      {
+        "port": 26693,
+        "path": "/assistant/quick-event",
+        "request": {
+          "title": "V04 independent synthetic",
+          "start_iso": "2026-12-01T10:00:00",
+          "end_iso": "2026-12-01T11:00:00"
+        },
+        "status": 200,
+        "body": {
+          "reply_text": "Please review the exact action and click Approve or Deny.",
+          "action_category": "awaiting_approval",
+          "pending_approval": {
+            "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+            "node_id": "assistant_action",
+            "proposal_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+            "tool_name": "calendar.create_event",
+            "agent_role": "comms",
+            "arguments": {
+              "end_iso": "2026-12-01T11:00:00",
+              "start_iso": "2026-12-01T10:00:00",
+              "title": "V04 independent synthetic"
+            },
+            "expires_at": 1794929685.317757,
+            "summary_label": "calendar.create_event",
+            "recipient": "",
+            "subject": "",
+            "body": ""
+          }
+        }
+      },
+      {
+        "port": 26693,
+        "path": "/assistant/approve",
+        "request": {
+          "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+          "node_id": "assistant_action",
+          "proposal_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+          "approved": true
+        },
+        "status": 200,
+        "body": {
+          "reply": {
+            "message_id": "msg_7ef59a49f8",
+            "role": "assistant",
+            "text": "I've scheduled 'V04 independent synthetic': no schedule conflicts.",
+            "action_category": "event_scheduled",
+            "highlights": [
+              "Task: task_assistant_0addffd201f14467a3936d69ee209a3a",
+              "Status: Completed"
+            ]
+          },
+          "workspace": {
+            "assistant_name": "NOVA Personal Assistant",
+            "privacy_mode": "100% Offline & Private on Your Laptop",
+            "active_brain_mode": "bootstrap",
+            "gguf_model_name": "qwen3.5-9b-Q4_K_M",
+            "gpu_layers_summary": "30/36 GPU Layers (6GB VRAM Tuned)",
+            "security_log_verified": true,
+            "messages": [
+              {
+                "message_id": "msg_de4b113a0a",
+                "role": "assistant",
+                "text": "Please review the exact action and click Approve or Deny.",
+                "action_category": "awaiting_approval",
+                "highlights": [
+                  "Task: task_assistant_0addffd201f14467a3936d69ee209a3a"
+                ],
+                "pending_approval": {
+                  "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+                  "node_id": "assistant_action",
+                  "proposal_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+                  "tool_name": "calendar.create_event",
+                  "agent_role": "comms",
+                  "arguments": {
+                    "end_iso": "2026-12-01T11:00:00",
+                    "start_iso": "2026-12-01T10:00:00",
+                    "title": "V04 independent synthetic"
+                  },
+                  "expires_at": 1794929685.317757,
+                  "summary_label": "calendar.create_event",
+                  "recipient": "",
+                  "subject": "",
+                  "body": ""
+                },
+                "timestamp_utc": "2026-11-17T15:29:45.325715+00:00"
+              },
+              {
+                "message_id": "msg_7ef59a49f8",
+                "role": "assistant",
+                "text": "I've scheduled 'V04 independent synthetic': no schedule conflicts.",
+                "action_category": "event_scheduled",
+                "highlights": [
+                  "Task: task_assistant_0addffd201f14467a3936d69ee209a3a",
+                  "Status: Completed"
+                ],
+                "pending_approval": null,
+                "timestamp_utc": "2026-11-17T15:29:45.392892+00:00"
+              }
+            ],
+            "calendar_events": [
+              {
+                "event_id": "evt_ef104612b4",
+                "title": "V04 independent synthetic",
+                "start_iso": "2026-12-01T10:00:00",
+                "end_iso": "2026-12-01T11:00:00",
+                "description": ""
+              }
+            ],
+            "notes": [],
+            "system_summary": {
+              "disk_free_gb": 146.82,
+              "workspace_files_count": 0,
+              "notes_count": 0,
+              "upcoming_events_count": 1
+            },
+            "recent_activity": [
+              {
+                "what_happened": "Scheduled a calendar event",
+                "permission_note": "Approved by you",
+                "status": "Success"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "port": 26693,
+        "path": "/tasks/task_assistant_0addffd201f14467a3936d69ee209a3a",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+          "session_id": "sess_personal_chat",
+          "user_goal": "calendar.create_event",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"conflicting_titles\": [], \"conflicts_detected\": 0, \"event_id\": \"evt_ef104612b4\", \"title\": \"V04 independent synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 26693,
+        "path": "/tasks/task_assistant_0addffd201f14467a3936d69ee209a3a/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_c4c5ab5b55514bed81f9c150b35c3441\nevent: permission.requested\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_d8d9cfa931704713b2d7b6dd43b02457\",\"event_id\":\"evt_c4c5ab5b55514bed81f9c150b35c3441\",\"event_type\":\"permission.requested\",\"node_id\":\"assistant_action\",\"payload\":{\"arguments\":{\"end_iso\":\"2026-12-01T11:00:00\",\"start_iso\":\"2026-12-01T10:00:00\",\"title\":\"V04 independent synthetic\"},\"effective_sensitivity\":\"reversible_write\",\"proposal_id\":\"prop_d8d9cfa931704713b2d7b6dd43b02457\",\"rationale\":\"Execute the exact note/calendar action requested by the user.\",\"tool_name\":\"calendar.create_event\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_0addffd201f14467a3936d69ee209a3a\",\"timestamp_utc\":\"2026-11-17T15:29:45.325715+00:00\"}\n\nid: evt_661356e478b24ad5ae5b24502a3b66cd\nevent: permission.approved\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_d8d9cfa931704713b2d7b6dd43b02457\",\"event_id\":\"evt_661356e478b24ad5ae5b24502a3b66cd\",\"event_type\":\"permission.approved\",\"node_id\":\"assistant_action\",\"payload\":{\"decision\":\"user_approved\",\"reason\":\"User decision from Personal Assistant Chat\",\"tool_name\":\"calendar.create_event\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_0addffd201f14467a3936d69ee209a3a\",\"timestamp_utc\":\"2026-11-17T15:29:45.352492+00:00\"}\n\nid: evt_61818f9a81104169ba63e6116c71fdd0\nevent: tool.started\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_d8d9cfa931704713b2d7b6dd43b02457\",\"event_id\":\"evt_61818f9a81104169ba63e6116c71fdd0\",\"event_type\":\"tool.started\",\"node_id\":\"assistant_action\",\"payload\":{\"tool_name\":\"calendar.create_event\"},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_0addffd201f14467a3936d69ee209a3a\",\"timestamp_utc\":\"2026-11-17T15:29:45.362424+00:00\"}\n\nid: evt_27d821bfc027496b8e4ac07c66cb1a05\nevent: task.completed\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_d8d9cfa931704713b2d7b6dd43b02457\",\"event_id\":\"evt_27d821bfc027496b8e4ac07c66cb1a05\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_0addffd201f14467a3936d69ee209a3a\",\"timestamp_utc\":\"2026-11-17T15:29:45.388568+00:00\"}\n\n"
+      },
+      {
+        "port": 26702,
+        "path": "/tasks/task_assistant_0addffd201f14467a3936d69ee209a3a",
+        "request": null,
+        "status": 200,
+        "body": {
+          "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+          "session_id": "sess_personal_chat",
+          "user_goal": "calendar.create_event",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"conflicting_titles\": [], \"conflicts_detected\": 0, \"event_id\": \"evt_ef104612b4\", \"title\": \"V04 independent synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        }
+      },
+      {
+        "port": 26702,
+        "path": "/tasks/task_assistant_0addffd201f14467a3936d69ee209a3a/events/sse",
+        "request": null,
+        "status": 200,
+        "body": "id: evt_27d821bfc027496b8e4ac07c66cb1a05\nevent: task.completed\ndata: {\"agent_role\":\"comms\",\"correlation_id\":\"prop_d8d9cfa931704713b2d7b6dd43b02457\",\"event_id\":\"evt_27d821bfc027496b8e4ac07c66cb1a05\",\"event_type\":\"task.completed\",\"node_id\":\"assistant_action\",\"payload\":{\"completed_nodes\":[\"assistant_action\"]},\"session_id\":\"sess_personal_chat\",\"task_id\":\"task_assistant_0addffd201f14467a3936d69ee209a3a\",\"timestamp_utc\":\"2026-11-17T15:29:45.388568+00:00\"}\n\n"
+      }
+    ],
+    "processes": [
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-v04-calendar-91nsul_u",
+          "26693",
+          "post_write_calendar_permission_exception"
+        ],
+        "pid": 35824,
+        "exit_code": 1
+      },
+      {
+        "command": [
+          "C:\\NOVA\\.venv\\Scripts\\python.exe",
+          "-B",
+          "C:\\NOVA\\tests\\integration\\c03_live_api.py",
+          "serve",
+          "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-c03-v04-calendar-91nsul_u",
+          "26702",
+          "normal"
+        ],
+        "pid": 9308,
+        "exit_code": 1
+      }
+    ],
+    "snapshots": [
+      {
+        "task": {
+          "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+          "session_id": "sess_personal_chat",
+          "user_goal": "calendar.create_event",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"conflicting_titles\": [], \"conflicts_detected\": 0, \"event_id\": \"evt_ef104612b4\", \"title\": \"V04 independent synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+            "event_id": "evt_c4c5ab5b55514bed81f9c150b35c3441",
+            "event_type": "permission.requested",
+            "node_id": "assistant_action",
+            "payload": {
+              "arguments": {
+                "end_iso": "2026-12-01T11:00:00",
+                "start_iso": "2026-12-01T10:00:00",
+                "title": "V04 independent synthetic"
+              },
+              "effective_sensitivity": "reversible_write",
+              "proposal_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+              "rationale": "Execute the exact note/calendar action requested by the user.",
+              "tool_name": "calendar.create_event"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+            "timestamp_utc": "2026-11-17T15:29:45.325715+00:00"
+          },
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+            "event_id": "evt_661356e478b24ad5ae5b24502a3b66cd",
+            "event_type": "permission.approved",
+            "node_id": "assistant_action",
+            "payload": {
+              "decision": "user_approved",
+              "reason": "User decision from Personal Assistant Chat",
+              "tool_name": "calendar.create_event"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+            "timestamp_utc": "2026-11-17T15:29:45.352492+00:00"
+          },
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+            "event_id": "evt_61818f9a81104169ba63e6116c71fdd0",
+            "event_type": "tool.started",
+            "node_id": "assistant_action",
+            "payload": {
+              "tool_name": "calendar.create_event"
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+            "timestamp_utc": "2026-11-17T15:29:45.362424+00:00"
+          },
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+            "event_id": "evt_27d821bfc027496b8e4ac07c66cb1a05",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+            "timestamp_utc": "2026-11-17T15:29:45.388568+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [
+          [
+            "V04 independent synthetic",
+            "2026-12-01T10:00:00",
+            "2026-12-01T11:00:00"
+          ]
+        ],
+        "authorizations": [
+          [
+            "prop_d8d9cfa931704713b2d7b6dd43b02457",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_0addffd201f14467a3936d69ee209a3a\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"comms\"}"
+          ]
+        ]
+      },
+      {
+        "task": {
+          "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+          "session_id": "sess_personal_chat",
+          "user_goal": "calendar.create_event",
+          "status": "completed",
+          "completed_nodes": [
+            "assistant_action"
+          ],
+          "pending_approvals": [],
+          "node_outputs": {
+            "assistant_action": "{\"conflicting_titles\": [], \"conflicts_detected\": 0, \"event_id\": \"evt_ef104612b4\", \"title\": \"V04 independent synthetic\"}"
+          },
+          "cited_sources": {
+            "assistant_action": []
+          },
+          "failure_reason": null
+        },
+        "events": [
+          {
+            "agent_role": "comms",
+            "correlation_id": "prop_d8d9cfa931704713b2d7b6dd43b02457",
+            "event_id": "evt_27d821bfc027496b8e4ac07c66cb1a05",
+            "event_type": "task.completed",
+            "node_id": "assistant_action",
+            "payload": {
+              "completed_nodes": [
+                "assistant_action"
+              ]
+            },
+            "session_id": "sess_personal_chat",
+            "task_id": "task_assistant_0addffd201f14467a3936d69ee209a3a",
+            "timestamp_utc": "2026-11-17T15:29:45.388568+00:00"
+          }
+        ],
+        "markdown": {},
+        "calendar": [
+          [
+            "V04 independent synthetic",
+            "2026-12-01T10:00:00",
+            "2026-12-01T11:00:00"
+          ]
+        ],
+        "authorizations": [
+          [
+            "prop_d8d9cfa931704713b2d7b6dd43b02457",
+            "success"
+          ]
+        ],
+        "attempts": [
+          [
+            "claimed",
+            "authorization_claimed",
+            "{\"task_id\":\"task_assistant_0addffd201f14467a3936d69ee209a3a\",\"session_id\":\"sess_personal_chat\",\"node_id\":\"assistant_action\",\"agent_role\":\"comms\"}"
+          ]
+        ]
+      }
+    ],
+    "verdict": "PASS"
+  },
+  {
+    "name": "owner-sqlite",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-v04-owner-5bkwj72e",
+    "rejections": [
+      {
+        "name": "original V03 current-sequence takeover",
+        "error": "Ownership replacement requires an explicit legitimate transition"
+      },
+      {
+        "name": "takeover with correct old owner",
+        "error": "Ownership replacement requires an explicit legitimate transition"
+      },
+      {
+        "name": "stale sequence",
+        "error": "Stale checkpoint sequence or owner; terminal outcome cannot be overwritten"
+      },
+      {
+        "name": "release with pending proposal",
+        "error": "Invalid approval ownership release"
+      },
+      {
+        "name": "implicit release",
+        "error": "Ownership replacement requires an explicit legitimate transition"
+      },
+      {
+        "name": "terminal overwrite",
+        "error": "Task already has a terminal outcome"
+      }
+    ],
+    "verdict": "PASS",
+    "same_owner_update": "PASS",
+    "explicit_release": "PASS",
+    "history": [
+      "awaiting_approval",
+      "running",
+      "running",
+      "running",
+      "completed"
+    ]
+  },
+  {
+    "name": "owner-memory",
+    "root": "C:\\Users\\ELANGO~1\\AppData\\Local\\Temp\\nova-v04-owner-_4lg2c1w",
+    "rejections": [
+      {
+        "name": "original V03 current-sequence takeover",
+        "error": "Ownership replacement requires an explicit legitimate transition"
+      },
+      {
+        "name": "takeover with correct old owner",
+        "error": "Ownership replacement requires an explicit legitimate transition"
+      },
+      {
+        "name": "stale sequence",
+        "error": "Stale checkpoint sequence or owner; terminal outcome cannot be overwritten"
+      },
+      {
+        "name": "release with pending proposal",
+        "error": "Invalid approval ownership release"
+      },
+      {
+        "name": "implicit release",
+        "error": "Ownership replacement requires an explicit legitimate transition"
+      },
+      {
+        "name": "terminal overwrite",
+        "error": "Task already has a terminal outcome"
+      }
+    ],
+    "verdict": "PASS",
+    "same_owner_update": "PASS",
+    "explicit_release": "PASS",
+    "history": [
+      "awaiting_approval",
+      "running",
+      "running",
+      "running",
+      "completed"
+    ]
+  }
+]

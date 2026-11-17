@@ -1,0 +1,272 @@
+[
+  {
+    "case": "concurrent_processes",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      409,
+      200,
+      409
+    ],
+    "task_status": "completed",
+    "markdown_count": 1,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_3f12627decb44453bda9951acfc6d40a",
+        "success"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  },
+  {
+    "case": "failed_winner",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      200,
+      409
+    ],
+    "task_status": "failed",
+    "markdown_count": 0,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_29a521deab91455b9c24c04bc0c2620e",
+        "denied"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  },
+  {
+    "case": "publication_failure",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      200,
+      409
+    ],
+    "task_status": "failed",
+    "markdown_count": 0,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_92e6ae51d5f14aa49386990319bb3636",
+        "denied"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  },
+  {
+    "case": "event_storage_failure",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      503
+    ],
+    "task_status": "running",
+    "markdown_count": 0,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_b50f52055a4746e3a13076614d4cb9f6",
+        "denied"
+      ]
+    ],
+    "process_exit_codes": [
+      1
+    ]
+  },
+  {
+    "case": "crash_owned",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      null,
+      409
+    ],
+    "task_status": "running",
+    "markdown_count": 0,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_183141f0d3e4490685d32212e5bda019",
+        "pending"
+      ]
+    ],
+    "process_exit_codes": [
+      81,
+      1
+    ]
+  },
+  {
+    "case": "crash_claim",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      null,
+      409
+    ],
+    "task_status": "running",
+    "markdown_count": 0,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_28525f87e26b4abf9734f139d7e9e7f3",
+        "claimed"
+      ]
+    ],
+    "process_exit_codes": [
+      82,
+      1
+    ]
+  },
+  {
+    "case": "post_write_permission_exception",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      200
+    ],
+    "task_status": "completed",
+    "markdown_count": 1,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_c41939719a344a19811590abbf6cdc89",
+        "success"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  },
+  {
+    "case": "ledger_storage_failure",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      503,
+      409
+    ],
+    "task_status": "running",
+    "markdown_count": 1,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_2417006d1b604517aae61dcb240e4706",
+        "claimed"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  },
+  {
+    "case": "post_write_audit_failure",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      503,
+      409
+    ],
+    "task_status": "running",
+    "markdown_count": 1,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_6782359032bf49ce90eb369356227d65",
+        "claimed"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  },
+  {
+    "case": "claim_commit_return_failure",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      503,
+      409
+    ],
+    "task_status": "running",
+    "markdown_count": 0,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_1e05eaf51c7d46428f109782b79b3745",
+        "claimed"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  },
+  {
+    "case": "crash_after_write",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      null,
+      409
+    ],
+    "task_status": "running",
+    "markdown_count": 1,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_2b7a3ce91832483ab38890fbabe7d848",
+        "claimed"
+      ]
+    ],
+    "process_exit_codes": [
+      83,
+      1
+    ]
+  },
+  {
+    "case": "owner_takeover",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      409,
+      200
+    ],
+    "task_status": "completed",
+    "markdown_count": 1,
+    "calendar_count": 0,
+    "ledger": [
+      [
+        "prop_3ed1829b2ca94f85ab3a640b521adcac",
+        "success"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  },
+  {
+    "case": "post_write_calendar_permission_exception",
+    "verdict": "PASS",
+    "http_approval_statuses": [
+      200
+    ],
+    "task_status": "completed",
+    "markdown_count": 0,
+    "calendar_count": 1,
+    "ledger": [
+      [
+        "prop_bd183f5fea2140949d64d170a78a4ed3",
+        "success"
+      ]
+    ],
+    "process_exit_codes": [
+      1,
+      1
+    ]
+  }
+]

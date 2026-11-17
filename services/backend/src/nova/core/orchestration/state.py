@@ -17,7 +17,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Dict, Mapping, Optional, Set, Tuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 try:
     from pydantic import ConfigDict, model_validator  # noqa: F401
@@ -172,6 +172,8 @@ class TaskExecutionState(BaseModel):
     updated_at_utc: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(),
     )
+    _checkpoint_origin: Optional[Tuple[int, Optional[str]]] = PrivateAttr(default=None)
+
     approval_attempt_id: Optional[str] = Field(default=None)
     failure_reason: Optional[str] = Field(default=None)
 
@@ -343,7 +345,7 @@ class TaskExecutionState(BaseModel):
                 f"{self.max_graph_steps} (attempted transition #{next_transitions})."
             )
 
-        return TaskExecutionState(
+        updated = TaskExecutionState(
             schema_version=self.schema_version,
             task_id=self.task_id,
             session_id=self.session_id,
@@ -360,3 +362,5 @@ class TaskExecutionState(BaseModel):
             approval_attempt_id=self.approval_attempt_id,
             failure_reason=failure_reason,
         )
+        updated._checkpoint_origin = self._checkpoint_origin
+        return updated

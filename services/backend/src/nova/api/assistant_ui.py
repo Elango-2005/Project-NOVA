@@ -27,6 +27,8 @@ Assistant screen** at `http://127.0.0.1:8765/` designed for real human use:
 
 from __future__ import annotations
 
+from nova.core.orchestration.ports import ExecutionOutcomeUnavailable
+
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -799,6 +801,8 @@ def register_user_friendly_assistant_routes(
             reply = session.resolve_approval(
                 task_id=request.task_id, node_id=request.node_id,
                 proposal_id=request.proposal_id, approved=request.approved)
+        except ExecutionOutcomeUnavailable:
+            raise
         except (ValueError, PermissionError, RuntimeError, KeyError) as exc:
             container.permission_gate.record_rejected_attempt(None, None, exc, submitted={
                 "task_id": request.task_id, "node_id": request.node_id,

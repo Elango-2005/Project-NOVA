@@ -21,7 +21,7 @@ from nova.core.domain.primitives import PermissionDecisionKind
 from nova.core.domain.proposals import ToolCallProposal
 from nova.core.orchestration.ports import (
     PermissionCheckResult, ToolActionContext, UnapprovedToolExecutionError, copy_model,
-    verify_approval_stamp, AuthorizationAlreadyClaimedError,
+    verify_approval_stamp, AuthorizationAlreadyClaimedError, AuthorizationOutcomeMismatch,
 )
 
 
@@ -181,6 +181,20 @@ class AuthorizationLedger:
         return [{"attempt_id": r[0], "timestamp": r[1], "outcome": r[2], "reason_code": r[3],
                  "trusted_context": json.loads(r[4]) if r[4] else None,
                  "submitted_claims": json.loads(r[5])} for r in rows]
+
+    def execution_outcome(self, proposal: ToolCallProposal, context: ToolActionContext) -> Optional[str]:
+        """Read the exact bound action without treating a claimed/expired record as a new request."""
+        try:
+            digest = action_digest(proposal, context)
+        except UnapprovedToolExecutionError as exc:
+            raise AuthorizationOutcomeMismatch("Execution outcome identity mismatch") from exc
+        with self._transaction():
+            row = self._row(proposal.proposal_id)
+            if row is None:
+                return None
+            if row[0] != digest:
+                raise AuthorizationOutcomeMismatch("Execution outcome identity mismatch")
+            return row[2]
 
     def unconfirmed_actions(self) -> list[dict[str, Any]]:
         with self._transaction():

@@ -26,6 +26,8 @@ three physical safeguards in Layer 3:
 
 from __future__ import annotations
 
+from nova.core.orchestration.ports import ExecutionPhase, ExecutionProgress, ExecutionOutcomeUnavailable, AuthorizationAlreadyClaimedError, AuthorizationOutcomeMismatch
+
 import json
 import re
 import shlex
@@ -277,17 +279,49 @@ def _current_policy(method):
     return call
 
 
-def _audit_authorization_rejection(method):
+def _audit_authorization_rejection(method, *, execution: bool = False):
     @wraps(method)
     def call(self, proposal, *args, **kwargs):
+        progress = None
+        if execution:
+            progress = kwargs.get("progress") or ExecutionProgress()
+            kwargs["progress"] = progress
         try:
             return method(self, proposal, *args, **kwargs)
-        except (UnapprovedToolExecutionError, ValueError, TypeError) as exc:
+        except Exception as exc:
             gate = getattr(self, "_permission_gate", None) or self
-            gate.record_rejected_attempt(proposal if isinstance(proposal, ToolCallProposal) else kwargs.get("proposal"),
-                                         kwargs.get("context"), exc)
+            outcome = None
+            outcome_read = False
+            binding_mismatch = False
+            context = kwargs.get("context")
+            if progress is not None:
+                try:
+                    stamp = args[0] if args else kwargs.get("permission_stamp")
+                    context = context or stamp.context
+                    outcome = gate.ledger.execution_outcome(proposal, context)
+                    outcome_read = True
+                except AuthorizationOutcomeMismatch:
+                    binding_mismatch = True  # This exact identity has no matching grant.
+                except Exception:
+                    pass  # Unavailable evidence cannot establish a confirmed outcome.
+                if (progress.phase in (ExecutionPhase.PRECLAIM, ExecutionPhase.CLAIM_PENDING) and isinstance(exc, AuthorizationAlreadyClaimedError)
+                        and outcome in ("claimed", "success", "error")):
+                    raise  # A rejected replay must preserve the original execution winner.
+                if (progress.phase == ExecutionPhase.CLAIM_PENDING
+                        and (binding_mismatch or (outcome_read and outcome in (None, "pending", "approved", "denied")))):
+                    progress.phase = ExecutionPhase.PRECLAIM  # Failed transaction is confirmed unclaimed.
+                if progress.phase != ExecutionPhase.PRECLAIM or outcome in ("claimed", "success", "error"):
+                    raise ExecutionOutcomeUnavailable("post_claim_outcome_unconfirmed",
+                        task_id=context.task_id if context else None, persisted_outcome=outcome) from exc
+            if isinstance(exc, (UnapprovedToolExecutionError, ValueError, TypeError)):
+                gate.record_rejected_attempt(proposal if isinstance(proposal, ToolCallProposal) else kwargs.get("proposal"),
+                                             kwargs.get("context"), exc)
             raise
     return call
+
+
+def _audit_execution_attempt(method):
+    return _audit_authorization_rejection(method, execution=True)
 
 
 class UserPermissionPolicyStore:
@@ -927,13 +961,14 @@ class SandboxedMcpToolExecutor:
     ) -> None:
         self._handlers[tool_name] = handler
 
-    @_audit_authorization_rejection
+    @_audit_execution_attempt
     def execute_approved_tool(
         self,
         proposal: ToolCallProposal,
         permission_stamp: PermissionCheckResult,
         *, context: Optional[ToolActionContext] = None,
         on_started: Optional[Callable[[], None]] = None,
+        progress: Optional[ExecutionProgress] = None,
     ) -> ToolExecutionResult:
         """Verify approval stamp, validate schema, enforce sandbox, run tool, and log audit entry."""
         # 1. Non-bypassable approval stamp check (ADR-010)
@@ -1000,16 +1035,23 @@ class SandboxedMcpToolExecutor:
 
         if self._permission_gate is None:
             raise UnapprovedToolExecutionError("Executor requires its issuing permission gate.")
+        progress.phase = ExecutionPhase.CLAIM_PENDING
         self._permission_gate.claim_authorization(proposal, permission_stamp, context=context)
+        progress.phase = ExecutionPhase.CLAIM_COMMITTED
         if on_started is not None:
             on_started()
         try:
             raw_result = handler(sanitized_args)
+            progress.phase = ExecutionPhase.HANDLER_RETURNED
         except Exception as exc:
             summary = f"Tool failed; side effects may be partial: {type(exc).__name__}: {exc}"
             self._record_audit_and_violation(proposal=proposal, stamp=permission_stamp,
                 execution_status="error", summary=summary, is_security_violation=False)
             self._permission_gate.ledger.finish(proposal.proposal_id, "error")
+            progress.persisted_outcome = self._permission_gate.ledger.execution_outcome(proposal, context or permission_stamp.context)
+            if progress.persisted_outcome != "error":
+                raise ExecutionOutcomeUnavailable("error_outcome_not_persisted")
+            progress.phase = ExecutionPhase.OUTCOME_CONFIRMED
             return ToolExecutionResult(proposal_id=proposal.proposal_id,
                 tool_name=proposal.tool_name, status="error", sanitized_output=summary)
         try:
@@ -1046,6 +1088,10 @@ class SandboxedMcpToolExecutor:
             )
 
         self._permission_gate.ledger.finish(proposal.proposal_id, "success")
+        progress.persisted_outcome = self._permission_gate.ledger.execution_outcome(proposal, context or permission_stamp.context)
+        if progress.persisted_outcome != "success":
+            raise ExecutionOutcomeUnavailable("success_outcome_not_persisted")
+        progress.phase = ExecutionPhase.OUTCOME_CONFIRMED
         return ToolExecutionResult(
             proposal_id=proposal.proposal_id,
             tool_name=proposal.tool_name,
